@@ -88,7 +88,7 @@ body {
   background: #ddd;
 }
 
-.item { margin: 10px; }
+.item { margin: 8px; text-align: left; padding-left: 700px;}
 
 .deleteX { color: red; cursor: pointer; margin-left: 10px; }
 
@@ -394,7 +394,7 @@ async function loadExtraEvents() {
   snapshot.forEach(docSnap => {
     const div = document.createElement("div");
     div.className = "item";
-    div.innerText = docSnap.data().testo;
+div.innerHTML = `<span style="margin-right:6px;">•</span>${docSnap.data().testo}`;
 
     if (deleteMode && isAdmin) {
       const x = document.createElement("span");

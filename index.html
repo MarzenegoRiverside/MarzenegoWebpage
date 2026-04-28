@@ -88,7 +88,11 @@ body {
   background: #ddd;
 }
 
-.item { margin: 8px; text-align: left; padding-left: 700px;}
+.item {
+  margin: 8px auto;
+  text-align: center;
+  font-size: 14px;
+}
 
 .deleteX { color: red; cursor: pointer; margin-left: 10px; }
 
@@ -394,7 +398,7 @@ async function loadExtraEvents() {
   snapshot.forEach(docSnap => {
     const div = document.createElement("div");
     div.className = "item";
-div.innerHTML = `<span style="margin-right:6px;">•</span>${docSnap.data().testo}`;
+    div.innerHTML = "🐭 " + docSnap.data().testo;
 
     if (deleteMode && isAdmin) {
       const x = document.createElement("span");
@@ -454,7 +458,7 @@ async function loadJobs() {
   snapshot.forEach(docSnap => {
     const div = document.createElement("div");
     div.className = "item";
-    div.innerText = docSnap.data().testo;
+    div.innerHTML = "🐭 " + docSnap.data().testo;
 
     if (deleteMode && isAdmin) {
       const x = document.createElement("span");

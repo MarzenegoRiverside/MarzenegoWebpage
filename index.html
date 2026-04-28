@@ -8,10 +8,30 @@
 
   <style>
 body {
+  font-size: 20px;
   font-family: Arial;
   margin: 0;
   text-align: center;
-  background: rgba(0, 80, 0, 0.30);
+  background: rgba(155,255,163,0.5);
+  color: black;
+  //text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+
+
+  background-image:   url("https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/IMG-20251117-WA0030(1).jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(155,255,163,0.5); /* filtro verde scuro */
+  z-index: -1;
 }
 
 #menuBtn {
@@ -179,6 +199,8 @@ input, select, button {
   <div onclick="showPage('eventiPage')">Prossimi Eventi</div>
   <div onclick="showPage('contabilePage')">Situazione Contabile</div>
   <div onclick="showPage('lavoroPage')">Lavora con noi</div>
+  <div onclick="showPage('chiSiamoPage')">Chi siamo</div>
+  <div onclick="showPage('modulisticaPage')">Modulistica</div>
 </div>
 
 <img id="logo" src="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png">
@@ -224,6 +246,16 @@ input, select, button {
 
   <h3>Lavora con noi</h3>
   <div id="jobList"></div>
+</div>
+
+<div id="chiSiamoPage" class="page">
+  <h3>Chi siamo</h3>
+  <p>Inserisci qui la descrizione della squadra, storia, obiettivi ecc.</p>
+</div>
+
+<div id="modulisticaPage" class="page">
+  <h3>Modulistica</h3>
+  <p>Qui puoi inserire documenti, link o PDF per i giocatori.</p>
 </div>
 
 <div id="footer" onclick="openLogin()">v1.1, 28/04/2026, Develop by Marzenego Staff</div>

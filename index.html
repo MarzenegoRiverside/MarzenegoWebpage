@@ -12,15 +12,10 @@ body {
   font-family: Arial;
   margin: 0;
   text-align: center;
-  background: rgba(155,255,163,0.5);
+  background: rgba(131,215,137,0.5);
   color: black;
   //text-shadow: 0 2px 6px rgba(0,0,0,0.6);
 
-
-  background-image:   url("https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/IMG-20251117-WA0030(1).jpg");
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
 }
 
 body::before {
@@ -30,7 +25,7 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(155,255,163,0.5); /* filtro verde scuro */
+  background: rgba(131,215,137,0.5); /* filtro verde scuro */
   z-index: -1;
 }
 
@@ -76,6 +71,22 @@ body::before {
   background: white;
   padding: 10px;
   border-radius: 10px;
+}
+
+#calendar::before {
+content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+ background-image:   url("https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/IMG-20251117-WA0030(1).jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  z-index:-2;
+  opacity: 0.5; /* 👈 regola intensità */
+
 }
 
 #logo { width: 80px; margin-top: 10px; }
@@ -250,7 +261,7 @@ input, select, button {
 
 <div id="chiSiamoPage" class="page">
   <h3>Chi siamo</h3>
-  <p>Inserisci qui la descrizione della squadra, storia, obiettivi ecc.</p>
+  <p>Marzenego Riverside nasce nel mese di luglio 2025, dalle ceneri del progetto Aston Villa Salus. Il Marzenego, fonte d'ispirazione per il concept di squadra, è un fiume che attraversa molti dei paesi in cui siamo nati e cresciuti, ci congiunge e ci unisce come unica grande famiglia. Il nostro spirito, in campo e fuori, è quello di giocare sempre al massimo delle nostre possibilità, unendo passione a grande spirito di miglioramento. Tuttavia, una grande società, una grande squadra, non è niente senza un grande gruppo di uomini. Per sempre, #KeepFordingNutries! </p>
 </div>
 
 <div id="modulisticaPage" class="page">

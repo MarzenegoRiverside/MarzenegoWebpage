@@ -423,7 +423,13 @@ window.showPage = function(id) {
   document.getElementById(id).classList.add("active");
   toggleMenu();
 
-  if (id === "shopPage") loadProducts(); // 🔥 QUESTA RISOLVE
+  if (id === "shopPage") loadProducts();
+
+  if (id === "calendarPage" && calendar) {
+    setTimeout(() => {
+      calendar.updateSize();
+    }, 100);
+  }
 }
 
 window.openImageModal = function(img, nome) {
@@ -466,10 +472,15 @@ async function loadCalendar() {
 
   snapshot.forEach(docSnap => {
     const d = docSnap.data();
-    eventi.push({
+let color = "";
+if (d.tipo === "Altro") color = "#f4d03f"; // giallo
+
+eventi.push({
   id: docSnap.id,
   title: d.luogo ? (d.tipo + " - " + d.luogo) : d.tipo,
-  start: d.data + "T" + d.ora
+  start: d.data + "T" + d.ora,
+  backgroundColor: color,
+  borderColor: color
 });
   });
 
@@ -556,18 +567,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const isMatch = tipo.toLowerCase().includes("partita");
 
-    return {
-      html: `
-        <div style="font-size:11px; line-height:1.2em;">
-          <div><b>${time}</b></div>
-          <div>
-            ${isMatch ? "⚽ " : ""}${tipo}
-          </div>
-          <div>${luogo || ""}</div>
-        </div>
-      `
-    };
-  },
+const isAltro = tipo.toLowerCase().includes("altro");
+
+// 🎨 colore dinamico
+let bgColor = "";
+if (isAltro) bgColor = "#f4d03f"; // giallo
+
+return {
+  html: `
+    <div style="
+      font-size:11px;
+      line-height:1.2em;
+      background:${bgColor};
+      border-radius:4px;
+      padding:2px;
+    ">
+      <div><b>${time}</b></div>
+      <div>
+        ${isMatch ? "⚽ " : ""}${tipo}
+      </div>
+      <div>${luogo || ""}</div>
+    </div>
+  `
+};
+},
 
   eventClick: async function(info) {
     if (!isAdmin) return alert("Solo admin");
@@ -641,11 +664,16 @@ window.addEvent = async function() {
     luogo
   });
 
-  calendar.addEvent({
-    id: docRef.id,
-    title: luogo ? (tipo + " - " + luogo) : tipo,
-    start: data + "T" + ora
-  });
+let color = "";
+if (tipo === "Altro") color = "#f4d03f";
+
+calendar.addEvent({
+  id: docRef.id,
+  title: luogo ? (tipo + " - " + luogo) : tipo,
+  start: data + "T" + ora,
+  backgroundColor: color,
+  borderColor: color
+});
 
   closeModal("adminModal");
 };

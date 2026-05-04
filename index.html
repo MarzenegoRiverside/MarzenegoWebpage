@@ -30,6 +30,28 @@ body::before {
  
 }
 
+.loginInput {
+  width: 95%;
+  padding: 6px;
+  font-size: 14px;
+}
+
+.candidatiBtn {
+  width: auto;              /* 🔥 evita che occupi tutta la riga */
+  padding: 8px 16px;
+  font-size: 14px;
+  background: #0b3d1b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.candidatiBtn:hover {
+  background: #145a2a;
+}
+
 #menuBtn {
   position: fixed;
   top: 10px;
@@ -93,6 +115,11 @@ content: "";
 }
 
 
+#jobList .item {
+  font-size: 18px;
+  line-height: 1.4em;
+}
+
 #logo { width: 80px; margin-top: 10px; }
 
 #adminBanner { font-size: 12px; color: green; display: none; }
@@ -124,9 +151,10 @@ content: "";
 }
 
 .item {
-  margin: 8px auto;
+  margin: 10px auto;
   text-align: center;
-  font-size: 14px;
+  font-size: 18px;   /* 👈 più grande */
+  font-weight: 500;  /* 👈 leggermente più marcato */
 }
 
 .deleteX { color: red; cursor: pointer; margin-left: 10px; }
@@ -252,7 +280,7 @@ input, select, button {
 
 <div id="contabilePage" class="page">
   <h3>Situazione Contabile</h3>
-  <p>(in sviluppo)</p>
+  <p>(accesso solo staff)</p>
 </div>
 
 <div id="lavoroPage" class="page">
@@ -262,8 +290,8 @@ input, select, button {
     <span class="miniBtn" onclick="toggleDelete('jobList')">❌</span>
   </div>
 
-  <h3>Lavora con noi</h3>
-<button onclick="candidati()" style="
+  <h3>Posizioni aperte:</h3>
+<button class="candidatiBtn" onclick="candidati()" style="
   margin:8px;
   padding:6px 12px;
   border-radius:8px;
@@ -286,14 +314,26 @@ style="width:90%; max-width:500px; margin-top:20px; border-radius:10px;">
 
 <div id="modulisticaPage" class="page">
 
-  <div class="miniBtns" id="modulisticaBtns" style="display:none;">
-    <span class="miniBtn" onclick="addDocLink()">➕</span>
-    <span class="miniBtn" onclick="toggleDelete('modulisticaList')">❌</span>
+  <!-- PDF -->
+  <div class="miniBtns" id="pdfBtns" style="display:none;">
+    <span class="miniBtn" onclick="addPDF()">➕ PDF</span>
+    <span class="miniBtn" onclick="toggleDelete('pdfList')">❌</span>
   </div>
 
-  <h3>Modulistica</h3>
-  <div id="modulisticaList"></div>
+  <h3>📄 PDF</h3>
+  <div id="pdfList"></div>
+
+  <!-- LINK -->
+  <div class="miniBtns" id="linkBtns" style="display:none;">
+    <span class="miniBtn" onclick="addLink()">➕ Link</span>
+    <span class="miniBtn" onclick="toggleDelete('linkList')">❌</span>
+  </div>
+
+  <h3>🔗 Link utili</h3>
+  <div id="linkList"></div>
+
 </div>
+
 
   <div id="shopPage" class="page">
 
@@ -315,9 +355,17 @@ style="width:90%; max-width:500px; margin-top:20px; border-radius:10px;">
   <div class="modal-content">
     <span class="close" onclick="closeModal('loginModal')">✖</span>
     <h3>Login Admin</h3>
-    <input id="username" placeholder="Username">
-    <input id="password" type="password">
+    <input id="username" class="loginInput" placeholder="Username">
+    <input id="password" class="loginInput" type="password">
     <button onclick="login()">Accedi</button>
+  </div>
+</div>
+
+<div id="imgModal" class="modal">
+  <div class="modal-content" style="width:auto; max-width:90%;">
+    <span class="close" onclick="closeModal('imgModal')">✖</span>
+    <img id="modalImg" style="width:100%; border-radius:10px;">
+    <div id="modalTitle" style="margin-top:10px; font-weight:bold;"></div>
   </div>
 </div>
 
@@ -378,6 +426,19 @@ window.showPage = function(id) {
   if (id === "shopPage") loadProducts(); // 🔥 QUESTA RISOLVE
 }
 
+window.openImageModal = function(img, nome) {
+  document.getElementById("modalImg").src = img;
+  document.getElementById("modalTitle").innerText = nome;
+  document.getElementById("imgModal").style.display = "flex";
+}
+
+window.onclick = function(event) {
+  const modal = document.getElementById("imgModal");
+  if (event.target === modal) {
+    modal.style.display = "none";
+  }
+}
+
 // LOGIN
 window.openLogin = () => document.getElementById("loginModal").style.display = "flex";
 
@@ -385,12 +446,12 @@ window.login = function() {
   if (username.value === "pippo" && password.value === "pippo") {
     isAdmin = true;
     document.getElementById("adminBanner").style.display = "block";
-
+    document.getElementById("pdfBtns").style.display = "block";
+    document.getElementById("linkBtns").style.display = "block";
     document.getElementById("calendarBtns").style.display = "block";
     document.getElementById("eventiBtns").style.display = "block";
     document.getElementById("jobBtns").style.display = "block";
-    document.getElementById("modulisticaBtns").style.display = "block";
-document.getElementById("shopBtns").style.display = "block";
+    document.getElementById("shopBtns").style.display = "block";
 
     closeModal("loginModal");
   } else alert("Credenziali errate");
@@ -415,10 +476,68 @@ async function loadCalendar() {
   return eventi;
 }
 
+async function loadLinks() {
+  const list = document.getElementById("linkList");
+  list.innerHTML = "";
+
+  const snapshot = await getDocs(collection(db, "modulistica_link"));
+
+  snapshot.forEach(docSnap => {
+    const d = docSnap.data();
+
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `🔗 <a href="${d.url}" target="_blank">${d.nome}</a>`;
+
+    if (deleteMode && isAdmin) {
+      const x = document.createElement("span");
+      x.innerText = " ❌";
+      x.className = "deleteX";
+      x.onclick = async () => {
+        await deleteDoc(doc(db, "modulistica_link", docSnap.id));
+        loadLinks();
+      };
+      div.appendChild(x);
+    }
+
+    list.appendChild(div);
+  });
+}
+
+async function loadPDF() {
+  const list = document.getElementById("pdfList");
+  list.innerHTML = "";
+
+  const snapshot = await getDocs(collection(db, "modulistica_pdf"));
+
+  snapshot.forEach(docSnap => {
+    const d = docSnap.data();
+
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `📄 <a href="${d.url}" target="_blank">${d.nome}</a>`;
+
+    if (deleteMode && isAdmin) {
+      const x = document.createElement("span");
+      x.innerText = " ❌";
+      x.className = "deleteX";
+      x.onclick = async () => {
+        await deleteDoc(doc(db, "modulistica_pdf", docSnap.id));
+        loadPDF();
+      };
+      div.appendChild(x);
+    }
+
+    list.appendChild(div);
+  });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   const eventi = await loadCalendar();
   loadProducts();
-calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+  loadPDF();
+  loadLinks();
+  calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
   initialView: 'dayGridMonth',
   firstDay: 1,
 
@@ -621,11 +740,16 @@ async function loadProducts() {
     card.style.padding = "10px";
     card.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
 
-    card.innerHTML = `
-      <img src="${d.img}" style="width:100%; border-radius:8px;">
-      <div style="margin-top:5px; font-size:14px;"><b>${d.nome}</b></div>
-    `;
+card.innerHTML = `
+  <img src="${d.img}" 
+       style="width:100%; border-radius:8px; cursor:pointer;"
+       onclick="openImageModal('${d.img}', '${d.nome}')"
+       onerror="this.src='https://via.placeholder.com/150';">
 
+  <div style="margin-top:5px; font-size:14px;">
+    <b>${d.nome}</b>
+  </div>
+`;
     if (deleteMode && isAdmin) {
       const x = document.createElement("div");
       x.innerText = "❌";
@@ -650,6 +774,8 @@ window.toggleDelete = target => {
   if (target === "jobList") loadJobs();
   if (target === "modulisticaList") loadDocs(); // 👈 AGGIUNGI QUESTA
   if (target === "shopList") loadProducts();
+  if (target === "pdfList") loadPDF();
+  if (target === "linkList") loadLinks();
 }
 
 window.candidati = function() {
@@ -677,6 +803,32 @@ window.addDocLink = async () => {
     alert("Errore salvataggio");
     console.error(e);
   }
+};
+
+window.addPDF = async () => {
+  if (!isAdmin) return alert("Solo admin");
+
+  const nome = prompt("Nome PDF:");
+  if (!nome) return;
+
+  const url = prompt("Link PDF (GitHub RAW):");
+  if (!url) return;
+
+  await addDoc(collection(db, "modulistica_pdf"), { nome, url });
+  loadPDF();
+};
+
+window.addLink = async () => {
+  if (!isAdmin) return alert("Solo admin");
+
+  const nome = prompt("Nome link:");
+  if (!nome) return;
+
+  const url = prompt("Incolla link:");
+  if (!url) return;
+
+  await addDoc(collection(db, "modulistica_link"), { nome, url });
+  loadLinks();
 };
 
 window.addProduct = async () => {

@@ -279,8 +279,45 @@ input, select, button {
 </div>
 
 <div id="contabilePage" class="page">
-  <h3>Situazione Contabile</h3>
-  <p>(accesso solo staff)</p>
+  
+  <div id="contabileLock">
+    <h3>Situazione Contabile</h3>
+    <p>🔒 Accesso riservato allo staff</p>
+  </div>
+
+  <div id="contabileContent" style="display:none;">
+    
+    <h3>Situazione Contabile</h3>
+
+    <!-- FILTRO DATE -->
+    <div style="margin:10px;">
+      Dal <input type="date" id="dataInizio">
+      al <input type="date" id="dataFine">
+      <button onclick="calcolaBilancio()">Calcola</button>
+    </div>
+
+    <!-- RISULTATI -->
+    <div id="risultatoBilancio"></div>
+
+    <!-- ENTRATE -->
+    <div class="miniBtns" id="entrateBtns" style="display:none;">
+      <span class="miniBtn" onclick="addEntrata()">➕</span>
+      <span class="miniBtn" onclick="toggleDelete('entrateList')">❌</span>
+    </div>
+
+    <h4>Entrate</h4>
+    <div id="entrateList"></div>
+
+    <!-- SPESE EXTRA -->
+    <div class="miniBtns" id="speseBtns" style="display:none;">
+      <span class="miniBtn" onclick="addSpesa()">➕</span>
+      <span class="miniBtn" onclick="toggleDelete('speseList')">❌</span>
+    </div>
+
+    <h4>Spese extra</h4>
+    <div id="speseList"></div>
+
+  </div>
 </div>
 
 <div id="lavoroPage" class="page">
@@ -384,6 +421,7 @@ style="width:90%; max-width:500px; margin-top:20px; border-radius:10px;">
     <input type="date" id="data">
     <input type="time" id="ora">
     <input type="text" id="luogo" placeholder="Dove">
+    <input type="number" id="costo" placeholder="Costo (€)">
 
     <button onclick="addEvent()">INVIA</button>
   </div>
@@ -458,6 +496,11 @@ window.login = function() {
     document.getElementById("eventiBtns").style.display = "block";
     document.getElementById("jobBtns").style.display = "block";
     document.getElementById("shopBtns").style.display = "block";
+    document.getElementById("entrateBtns").style.display = "block";
+    document.getElementById("speseBtns").style.display = "block";
+
+    document.getElementById("contabileLock").style.display = "none";
+    document.getElementById("contabileContent").style.display = "block";
 
     closeModal("loginModal");
   } else alert("Credenziali errate");
@@ -548,6 +591,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadProducts();
   loadPDF();
   loadLinks();
+  loadEntrate();
+  loadSpese();
+
+  // 📅 date default contabilità
+  if (document.getElementById("dataInizio")) {
+    document.getElementById("dataInizio").value = "2025-09-01";
+    document.getElementById("dataFine").value = "2026-08-29";
+  }
+
   calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
   initialView: 'dayGridMonth',
   firstDay: 1,
@@ -652,6 +704,7 @@ window.addEvent = async function() {
   const data = document.getElementById("data").value;
   const ora = document.getElementById("ora").value;
   const luogo = document.getElementById("luogo").value;
+  const costo = parseFloat(document.getElementById("costo").value) || 0;
 
   if (!data || !ora) {
     return alert("Compila data e ora");
@@ -661,7 +714,8 @@ window.addEvent = async function() {
     tipo,
     data,
     ora,
-    luogo
+    luogo,
+    costo
   });
 
 let color = "";
@@ -684,6 +738,123 @@ window.addExtraEvent = async () => {
   if (!testo) return;
   await addDoc(collection(db, "eventiExtra"), { testo });
   loadExtraEvents();
+}
+
+window.addEntrata = async () => {
+  const nome = prompt("Nome entrata:");
+  const valore = parseFloat(prompt("Importo (€):"));
+
+  if (!nome || !valore) return;
+
+  await addDoc(collection(db, "entrate"), { nome, valore });
+  loadEntrate();
+}
+
+window.addSpesa = async () => {
+  const nome = prompt("Nome spesa:");
+  const valore = parseFloat(prompt("Importo (€):"));
+
+  if (!nome || !valore) return;
+
+  await addDoc(collection(db, "spese"), { nome, valore });
+  loadSpese();
+}
+
+async function loadEntrate() {
+  const list = document.getElementById("entrateList");
+  list.innerHTML = "";
+
+  const snap = await getDocs(collection(db, "entrate"));
+
+  snap.forEach(docSnap => {
+    const d = docSnap.data();
+
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `💰 ${d.nome} - €${d.valore}`;
+
+    if (deleteMode && isAdmin) {
+      const x = document.createElement("span");
+      x.innerText = "❌";
+      x.onclick = async () => {
+        await deleteDoc(doc(db, "entrate", docSnap.id));
+        loadEntrate();
+      };
+      div.appendChild(x);
+    }
+
+    list.appendChild(div);
+  });
+}
+
+async function loadSpese() {
+  const list = document.getElementById("speseList");
+  list.innerHTML = "";
+
+  const snapshot = await getDocs(collection(db, "spese"));
+
+  snapshot.forEach(docSnap => {
+    const d = docSnap.data();
+
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `💸 ${d.nome} - €${d.valore}`;
+
+    if (deleteMode && isAdmin) {
+      const x = document.createElement("span");
+      x.innerText = " ❌";
+      x.className = "deleteX";
+
+      x.onclick = async () => {
+        await deleteDoc(doc(db, "spese", docSnap.id));
+        loadSpese();
+      };
+
+      div.appendChild(x);
+    }
+
+    list.appendChild(div);
+  });
+}
+
+
+window.calcolaBilancio = async function() {
+
+  const start = document.getElementById("dataInizio").value;
+  const end = document.getElementById("dataFine").value;
+
+  let totaleSpese = 0;
+  let totaleEntrate = 0;
+
+  // EVENTI
+  const eventiSnap = await getDocs(collection(db, "eventi"));
+  eventiSnap.forEach(docSnap => {
+    const d = docSnap.data();
+
+    if (d.data >= start && d.data <= end) {
+      totaleSpese += parseFloat(d.costo || 0);
+    }
+  });
+
+  // ENTRATE
+  const entrateSnap = await getDocs(collection(db, "entrate"));
+  entrateSnap.forEach(docSnap => {
+    totaleEntrate += parseFloat(docSnap.data().valore || 0);
+  });
+
+  // SPESE EXTRA
+  const speseSnap = await getDocs(collection(db, "spese"));
+  speseSnap.forEach(docSnap => {
+    totaleSpese += parseFloat(docSnap.data().valore || 0);
+  });
+
+  const saldo = totaleEntrate - totaleSpese;
+
+  document.getElementById("risultatoBilancio").innerHTML = `
+    <p>Entrate: €${totaleEntrate}</p>
+    <p>Spese: €${totaleSpese}</p>
+    <h3>Saldo: €${saldo}</h3>
+  `;
 }
 
 async function loadJobs() {

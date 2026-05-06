@@ -61,6 +61,41 @@ body::before {
   z-index: 10001;
 }
 
+#organigramma {
+  margin-top: 20px;
+}
+
+#organigramma .row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.box {
+  background: #145a2a;
+  color: white;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 12px;
+  min-width: 140px;
+  cursor: pointer;
+}
+
+.box.presidente {
+  min-width: 100px;   /* 👈 più piccolo davvero */
+  padding: 6px 8px;
+  font-size: 13px;
+  margin: 10px auto;
+}
+
+
+.box span {
+  display: block;
+  margin-top: 5px;
+  font-size: 14px;
+  font-weight: normal;
+}
+
 #sideMenu {
   z-index: 10002;
   position: fixed;
@@ -242,10 +277,10 @@ input, select, button {
 <div id="sideMenu">
   <div onclick="showPage('calendarPage')">Calendario</div>
   <div onclick="showPage('eventiPage')">Prossimi Eventi</div>
-  <div onclick="showPage('contabilePage')">Situazione Contabile</div>
+  <div onclick="showPage('contabilePage')">🔒Situazione Contabile</div>
   <div onclick="showPage('lavoroPage')">Lavora con noi</div>
   <div onclick="showPage('chiSiamoPage')">Chi siamo</div>
-  <div onclick="showPage('modulisticaPage')">Modulistica</div>
+  <div onclick="showPage('modulisticaPage')">Moduli, Link e PDF</div>
   <div onclick="showPage('shopPage')">MarzeNegozio</div>
 </div>
 
@@ -341,6 +376,23 @@ input, select, button {
   Candidati
 </button>
   <div id="jobList"></div>
+  
+  <h3>ORGANIGRAMMA AZIENDALE</h3>
+
+<div id="organigramma">
+
+  <div class="box" data-ruolo="presidente">PRESIDENTE<br><span></span></div>
+
+  <div class="row">
+    <div class="box" data-ruolo="tesoreria">TESORERIA<br><span></span></div>
+    <div class="box" data-ruolo="manutenzione">MANUTENZIONE CAMPO<br><span></span></div>
+    <div class="box" data-ruolo="dirigenti">DIRIGENTI<br><span></span></div>
+    <div class="box" data-ruolo="social">SOCIAL TEAM<br><span></span></div>
+    <div class="box" data-ruolo="marketing">MARKETING & FASHION<br><span></span></div>
+  </div>
+
+</div>
+
 </div>
 
 <div id="chiSiamoPage" class="page">
@@ -431,9 +483,11 @@ style="width:90%; max-width:500px; margin-top:20px; border-radius:10px;">
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } 
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyCvqU28XLWRsfJUso0MuS72O2Qxks-MFP0",
@@ -593,6 +647,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadLinks();
   loadEntrate();
   loadSpese();
+  initOrganigramma();
+  loadOrganigramma();
 
   // 📅 date default contabilità
   if (document.getElementById("dataInizio")) {
@@ -740,6 +796,40 @@ window.addExtraEvent = async () => {
   loadExtraEvents();
 }
 
+window.initOrganigramma = function() {
+  document.querySelectorAll("#organigramma .box").forEach(box => {
+
+    box.onclick = async () => {
+      if (!isAdmin) return;
+
+      const ruolo = box.dataset.ruolo;
+
+      const azione = prompt("Scrivi:\n1 = aggiungi\n2 = rimuovi");
+
+      const ref = doc(db, "organigramma", ruolo);
+      const snap = await getDoc(ref);
+
+      let nomi = snap.exists() ? (snap.data().nomi || []) : [];
+
+      if (azione == "1") {
+        const nome = prompt("Nome da aggiungere:");
+        if (!nome) return;
+        nomi.push(nome);
+      }
+
+      if (azione == "2") {
+        const nome = prompt("Nome da rimuovere:");
+        nomi = nomi.filter(n => n !== nome);
+      }
+
+      await setDoc(ref, { nomi });
+
+      loadOrganigramma();
+    };
+
+  });
+};
+
 window.addEntrata = async () => {
   const nome = prompt("Nome entrata:");
   const valore = parseFloat(prompt("Importo (€):"));
@@ -758,6 +848,24 @@ window.addSpesa = async () => {
 
   await addDoc(collection(db, "spese"), { nome, valore });
   loadSpese();
+}
+
+async function loadOrganigramma() {
+  const snapshot = await getDocs(collection(db, "organigramma"));
+
+  document.querySelectorAll("#organigramma .box span")
+    .forEach(s => s.innerText = "");
+
+  snapshot.forEach(docSnap => {
+    const ruolo = docSnap.id;
+    const d = docSnap.data();
+
+    const box = document.querySelector(`[data-ruolo="${ruolo}"] span`);
+
+    if (box && d.nomi) {
+      box.innerHTML = d.nomi.join("<br>");
+    }
+  });
 }
 
 async function loadEntrate() {

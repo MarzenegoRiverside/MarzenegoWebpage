@@ -266,6 +266,8 @@ input, select, button {
     white-space: normal !important;
   }
 }
+
+
   </style>
 </head>
 
@@ -282,6 +284,7 @@ input, select, button {
   <div onclick="showPage('chiSiamoPage')">Chi siamo</div>
   <div onclick="showPage('modulisticaPage')">Moduli, Link e PDF</div>
   <div onclick="showPage('shopPage')">MarzeNegozio</div>
+  <div onclick="showPage('presenzePage')">🔒Presenze</div>
 </div>
 
 <img id="logo" src="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png">
@@ -353,6 +356,20 @@ input, select, button {
     <div id="speseList"></div>
 
   </div>
+</div>
+
+<div id="presenzePage" class="page">
+
+  <h3>Gestione Presenze</h3>
+
+  <select id="eventoSelect"></select>
+
+  <button onclick="generaQRPDF()">
+    Genera QR PDF
+  </button>
+
+  <div id="qrPreview"></div>
+
 </div>
 
 <div id="lavoroPage" class="page">
@@ -662,7 +679,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   events: eventi,
 
-  eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+  eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false 
+},
 
   // ⭐ NUOVO: layout personalizzato
   eventContent: function(arg) {
@@ -709,7 +727,22 @@ return {
         info.event.remove();
       }
     }
+  },
+
+  dayCellDidMount: function(info) {
+
+  const oggi = new Date();
+  oggi.setHours(0,0,0,0); // azzera orario
+
+  const giorno = new Date(info.date);
+  giorno.setHours(0,0,0,0);
+
+  if (giorno < oggi) {
+    info.el.style.backgroundColor = "rgba(0,0,0,0.06)";
   }
+
+},
+
 });
   calendar.render();
   loadExtraEvents();

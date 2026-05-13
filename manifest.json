@@ -1,13 +1,13 @@
 {
   "name": "Marzenego Riverside",
   "short_name": "Marzenego",
-  "start_url": "/MarzenegoWebpage/",
+  "start_url": ".",
   "display": "standalone",
-  "background_color": "#0b3d1b",
-  "theme_color": "#0b3d1b",
+  "background_color": "#ffffff",
+  "theme_color": "#145a2a",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png",
       "sizes": "192x192",
       "type": "image/png"
     }

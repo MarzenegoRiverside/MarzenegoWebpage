@@ -459,6 +459,36 @@ style="width:90%; max-width:500px; margin-top:20px; border-radius:10px;">
 
 <div id="footer" onclick="openLogin()">v1.1, 28/04/2026, Develop by Marzenego Staff</div>
 
+<div id="installBanner" style="
+  display:none;
+  position:fixed;
+  bottom:10px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#0b3d1b;
+  color:white;
+  padding:10px 15px;
+  border-radius:10px;
+  z-index:9999;
+">
+
+  📲 Installa app
+  <button onclick="installaApp()" style="
+    margin-left:10px;
+    background:white;
+    color:#0b3d1b;
+    border:none;
+    padding:5px 10px;
+    border-radius:5px;
+    cursor:pointer;
+  ">Installa</button>
+
+  <span onclick="chiudiBanner()" style="
+    margin-left:10px;
+    cursor:pointer;
+  ">❌</span>
+</div>
+
 <!-- LOGIN -->
 <div id="loginModal" class="modal">
   <div class="modal-content">
@@ -1201,6 +1231,38 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("service-worker.js")
     .then(() => console.log("Service Worker registrato"));
 }
+
+
+let deferredPrompt;
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+
+  // mostra banner SOLO se non è stato chiuso
+  if (localStorage.getItem("hideInstall") !== "true") {
+    document.getElementById("installBanner").style.display = "block";
+  }
+});
+
+window.installaApp = async function() {
+  if (!deferredPrompt) return;
+
+  deferredPrompt.prompt();
+
+  const choice = await deferredPrompt.userChoice;
+
+  if (choice.outcome === "accepted") {
+    document.getElementById("installBanner").style.display = "none";
+  }
+
+  deferredPrompt = null;
+};
+
+window.chiudiBanner = function() {
+  localStorage.setItem("hideInstall", "true");
+  document.getElementById("installBanner").style.display = "none";
+};
 
 </script>
 

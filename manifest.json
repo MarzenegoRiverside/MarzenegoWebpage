@@ -1,15 +1,20 @@
 {
   "name": "Marzenego Riverside",
   "short_name": "Marzenego",
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#145a2a",
   "icons": [
-    {
-      "src": "https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    }
-  ]
+  {
+    "src": "https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png",
+    "sizes": "192x192",
+    "type": "image/png"
+  },
+  {
+    "src": "https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png",
+    "sizes": "512x512",
+    "type": "image/png"
+  }
+]
 }

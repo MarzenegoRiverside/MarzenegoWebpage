@@ -303,6 +303,7 @@ input, select, button {
   <div onclick="showPage('chiSiamoPage')">Chi siamo</div>
   <div onclick="showPage('modulisticaPage')">Moduli, Link e PDF</div>
   <div onclick="showPage('shopPage')">MarzeNegozio</div>
+  <div onclick="showPage('richiestePage')">🔒 Richieste MarzeNegozio</div>
   <div onclick="showPage('presenzePage')">🔒Presenze</div>
 </div>
 
@@ -481,6 +482,14 @@ style="width:90%; max-width:500px; margin-top:20px; border-radius:10px;">
 </div>
 
 
+<div id="richiestePage" class="page">
+
+  <h3>Elendo richieste</h3>
+
+  <div id="richiesteList"></div>
+
+</div>
+
   <div id="shopPage" class="page">
 
   <div class="miniBtns" id="shopBtns" style="display:none;">
@@ -603,6 +612,8 @@ window.showPage = function(id) {
   toggleMenu();
 
   if (id === "shopPage") loadProducts();
+
+  if (id == "richiestePage") loadRichieste();
 
   if (id === "calendarPage" && calendar) {
     setTimeout(() => {
@@ -730,6 +741,7 @@ async function loadPDF() {
 document.addEventListener('DOMContentLoaded', async () => {
   const eventi = await loadCalendar();
   loadProducts();
+  loadRichieste();
   loadPDF();
   loadLinks();
   await loadStagioni();
@@ -1413,6 +1425,20 @@ card.innerHTML = `
   <div style="margin-top:5px; font-size:14px;">
     <b>${d.nome}</b>
   </div>
+
+  <button onclick="richiediProdotto('${docSnap.id}', '${d.nome}')"
+    style="
+      margin-top:8px;
+      width:100%;
+      padding:6px;
+      background:#145a2a;
+      color:white;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+    ">
+    Richiedi
+  </button>
 `;
     if (deleteMode && isAdmin) {
       const x = document.createElement("div");
@@ -1627,6 +1653,112 @@ window.addEventListener("appinstalled", () => {
   localStorage.setItem("hideInstall", "true");
   document.getElementById("installBanner").style.display = "none";
 });
+
+window.richiediProdotto = async (id, nomeProdotto) => {
+
+  const nome = prompt("Inserisci il tuo nome:");
+  if (!nome) return;
+
+  const taglia = prompt("Inserisci la taglia:");
+  if (!taglia) return;
+
+  await addDoc(collection(db, "richieste_prodotti"), {
+    prodottoId: id,
+    prodottoNome: nomeProdotto,
+    nomeUtente: nome,
+    taglia,
+    data: new Date().toISOString().split("T")[0]
+  });
+
+  alert("Richiesta inviata!");
+
+};
+
+async function loadRichieste() {
+
+  const list =
+    document.getElementById("richiesteList");
+
+  if (!list) return;
+
+  list.innerHTML = "";
+
+  const snap =
+    await getDocs(collection(db,"richieste_prodotti"));
+
+  snap.forEach(docSnap => {
+
+    const d = docSnap.data();
+
+    const div =
+      document.createElement("div");
+
+    div.className = "item";
+
+div.innerHTML = `
+  🛒 <b>${d.prodottoNome}</b><br>
+  👤 ${d.nomeUtente}<br>
+  📏 Taglia: ${d.taglia}<br>
+  📅 ${d.data}<br>
+`;
+
+if (isAdmin) {
+
+  const consegnatoBtn = document.createElement("button");
+
+  consegnatoBtn.innerText = "✔ Consegnato";
+
+consegnatoBtn.style = `
+  margin-top:6px;
+  padding:4px 8px;
+  font-size:12px;
+  background:#0b3d1b;
+  color:white;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  width:auto;
+`;
+
+  consegnatoBtn.onclick = async () => {
+
+    await deleteDoc(
+      doc(db, "richieste_prodotti", docSnap.id)
+    );
+
+    loadRichieste();
+
+  };
+
+  div.appendChild(consegnatoBtn);
+}
+
+    if (isAdmin && deleteMode) {
+
+      const x =
+        document.createElement("span");
+
+      x.innerText = " ❌";
+
+      x.onclick = async () => {
+
+        await deleteDoc(
+          doc(db,"richieste_prodotti",docSnap.id)
+        );
+
+        loadRichieste();
+
+      };
+
+      div.appendChild(x);
+
+    }
+
+    list.appendChild(div);
+
+  });
+
+}
 
 </script>
 

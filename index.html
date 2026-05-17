@@ -169,6 +169,22 @@ content: "";
   text-decoration: underline;
 }
 
+
+.smallSelect{
+  width:auto;
+  min-width:180px;
+  max-width:250px;
+
+  padding:6px 10px;
+
+  font-size:14px;
+
+  display:block;
+
+  margin:8px auto;
+}
+
+
 /* BOTTONI MINI */
 .miniBtns {
   margin: 5px;
@@ -330,13 +346,34 @@ input, select, button {
     
     <h3>Situazione Contabile</h3>
 
-    <!-- FILTRO DATE -->
-    <div style="margin:10px;">
-      Dal <input type="date" id="dataInizio">
-      al <input type="date" id="dataFine">
-      <button onclick="calcolaBilancio()">Calcola</button>
-    </div>
+<!-- STAGIONE CONTABILE -->
 
+<div style="margin:10px;">
+
+  <select id="stagioneSelect"></select>
+
+  <button onclick="calcolaBilancio()">
+    Calcola
+  </button>
+
+</div>
+
+<h4>Filtro elenco Entrate / Spese</h4>
+
+<select id="filtroStagione" class="smallSelect"></select>
+
+<!-- ADMIN CREA STAGIONE -->
+
+<div id="stagioneBtns"
+     class="miniBtns"
+     style="display:none;">
+
+  <span class="miniBtn"
+        onclick="addStagione()">
+    ➕ Stagione
+  </span>
+
+</div>
     <!-- RISULTATI -->
     <div id="risultatoBilancio"></div>
 
@@ -460,7 +497,7 @@ style="width:90%; max-width:500px; margin-top:20px; border-radius:10px;">
 <div id="footer" onclick="openLogin()">v1.1, 28/04/2026, Develop by Marzenego Staff</div>
 
 <div id="installBanner" style="
-  display:none;
+  display:flex;
   position:fixed;
   bottom:10px;
   left:50%;
@@ -602,7 +639,7 @@ window.login = function() {
     document.getElementById("shopBtns").style.display = "block";
     document.getElementById("entrateBtns").style.display = "block";
     document.getElementById("speseBtns").style.display = "block";
-
+    document.getElementById("stagioneBtns").style.display = "block";
     document.getElementById("contabileLock").style.display = "none";
     document.getElementById("contabileContent").style.display = "block";
 
@@ -695,7 +732,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadProducts();
   loadPDF();
   loadLinks();
+  await loadStagioni();
+
   loadEntrate();
+
   loadSpese();
   initOrganigramma();
   loadOrganigramma();
@@ -832,13 +872,18 @@ window.addEvent = async function() {
     return alert("Compila data e ora");
   }
 
-  const docRef = await addDoc(collection(db, "eventi"), {
-    tipo,
-    data,
-    ora,
-    luogo,
-    costo
-  });
+const stagione =
+  document.getElementById("stagioneSelect").value;
+
+const docRef = await addDoc(collection(db, "eventi"), {
+  tipo,
+  data,
+  ora,
+  luogo,
+  costo,
+  stagione
+});
+
 
 let color = "";
 if (tipo === "Altro") color = "#f4d03f";
@@ -896,25 +941,182 @@ window.initOrganigramma = function() {
   });
 };
 
-window.addEntrata = async () => {
-  const nome = prompt("Nome entrata:");
-  const valore = parseFloat(prompt("Importo (€):"));
+async function loadStagioni() {
 
-  if (!nome || !valore) return;
+  const select =
+    document.getElementById("stagioneSelect");
 
-  await addDoc(collection(db, "entrate"), { nome, valore });
-  loadEntrate();
+  const filtro =
+    document.getElementById("filtroStagione");
+
+  select.innerHTML = "";
+  filtro.innerHTML = "";
+
+  const snapshot =
+    await getDocs(
+      collection(db,"stagioniContabili")
+    );
+
+  snapshot.forEach(docSnap => {
+
+    const d = docSnap.data();
+
+    // SELECT BILANCIO
+
+    const option1 =
+      document.createElement("option");
+
+    option1.value = d.nome;
+
+    option1.innerText =
+      `${d.nome} (${d.inizio} → ${d.fine})`;
+
+    select.appendChild(option1);
+
+    // SELECT FILTRO
+
+    const option2 =
+      document.createElement("option");
+
+    option2.value = d.nome;
+
+    option2.innerText = d.nome;
+
+    filtro.appendChild(option2);
+
+  });
+
+filtro.addEventListener("change", () => {
+    loadEntrate();
+    loadSpese();
+});
+
+
 }
+
+window.addStagione = async () => {
+
+  if (!isAdmin) return;
+
+  const nome = prompt("Nome stagione contabile:");
+
+  if (!nome) return;
+
+  const inizio = prompt("Data inizio (AAAA-MM-GG)");
+
+  if (!inizio) return;
+
+  const fine = prompt("Data fine (AAAA-MM-GG)");
+
+  if (!fine) return;
+
+  await addDoc(collection(db, "stagioniContabili"), {
+    nome,
+    inizio,
+    fine
+  });
+
+  loadStagioni();
+
+}
+
+
+window.addEntrata = async () => {
+
+  const nome = prompt("Nome entrata:");
+  if (!nome) return;
+
+  const valore = parseFloat(prompt("Importo (€):"));
+  if (!valore) return;
+
+  const oggi = new Date().toISOString().split("T")[0];
+
+  const data =
+    prompt("Data entrata (AAAA-MM-GG):", oggi);
+
+  if (!data) return;
+
+  const stagioniSnap =
+    await getDocs(collection(db, "stagioniContabili"));
+
+  let stagioneNome = null;
+
+  stagioniSnap.forEach(docSnap => {
+
+    const s = docSnap.data();
+
+    if (data >= s.inizio && data <= s.fine) {
+      stagioneNome = s.nome;
+    }
+
+  });
+
+  if (!stagioneNome) {
+    return alert(
+      "Nessuna stagione contabile trovata per questa data"
+    );
+  }
+
+  await addDoc(collection(db, "entrate"), {
+    nome,
+    valore,
+    data,
+    stagione: stagioneNome
+  });
+
+  loadEntrate();
+
+};
 
 window.addSpesa = async () => {
+
   const nome = prompt("Nome spesa:");
+  if (!nome) return;
+
   const valore = parseFloat(prompt("Importo (€):"));
+  if (!valore) return;
 
-  if (!nome || !valore) return;
+  // DATA DEFAULT = OGGI
+  const oggi = new Date().toISOString().split("T")[0];
 
-  await addDoc(collection(db, "spese"), { nome, valore });
+  const data =
+    prompt("Data spesa (AAAA-MM-GG):", oggi);
+
+  if (!data) return;
+
+  // 🔥 TROVA STAGIONE AUTOMATICA
+  const stagioniSnap =
+    await getDocs(collection(db, "stagioniContabili"));
+
+  let stagioneNome = null;
+
+  stagioniSnap.forEach(docSnap => {
+
+    const s = docSnap.data();
+
+    if (data >= s.inizio && data <= s.fine) {
+      stagioneNome = s.nome;
+    }
+
+  });
+
+  if (!stagioneNome) {
+    return alert(
+      "Nessuna stagione contabile trovata per questa data"
+    );
+  }
+
+  // SALVATAGGIO
+  await addDoc(collection(db, "spese"), {
+    nome,
+    valore,
+    data,
+    stagione: stagioneNome
+  });
+
   loadSpese();
-}
+
+};
 
 async function loadOrganigramma() {
   const snapshot = await getDocs(collection(db, "organigramma"));
@@ -935,100 +1137,188 @@ async function loadOrganigramma() {
 }
 
 async function loadEntrate() {
-  const list = document.getElementById("entrateList");
+
+  const list =
+    document.getElementById("entrateList");
+
   list.innerHTML = "";
 
-  const snap = await getDocs(collection(db, "entrate"));
+  const stagioneFiltro =
+    document.getElementById(
+      "filtroStagione"
+    )?.value;
+
+  const snap =
+    await getDocs(collection(db,"entrate"));
 
   snap.forEach(docSnap => {
+
     const d = docSnap.data();
 
-    const div = document.createElement("div");
+    if (
+      stagioneFiltro &&
+      d.stagione !== stagioneFiltro
+    ) return;
+
+    const div =
+      document.createElement("div");
+
     div.className = "item";
-    div.innerHTML = `💰 ${d.nome} - €${d.valore}`;
+
+    div.innerHTML =
+      `💰 ${d.data || ""} — ${d.nome} — €${d.valore}`;
 
     if (deleteMode && isAdmin) {
-      const x = document.createElement("span");
+
+      const x =
+        document.createElement("span");
+
       x.innerText = "❌";
+
       x.onclick = async () => {
-        await deleteDoc(doc(db, "entrate", docSnap.id));
+
+        await deleteDoc(
+          doc(db,"entrate",docSnap.id)
+        );
+
         loadEntrate();
+
       };
+
       div.appendChild(x);
+
     }
 
     list.appendChild(div);
+
   });
+
 }
 
+
 async function loadSpese() {
-  const list = document.getElementById("speseList");
+
+  const list =
+    document.getElementById("speseList");
+
   list.innerHTML = "";
 
-  const snapshot = await getDocs(collection(db, "spese"));
+  const stagioneFiltro =
+    document.getElementById(
+      "filtroStagione"
+    )?.value;
+
+  const snapshot =
+    await getDocs(collection(db,"spese"));
 
   snapshot.forEach(docSnap => {
+
     const d = docSnap.data();
 
-    const div = document.createElement("div");
+    if (
+      stagioneFiltro &&
+      d.stagione !== stagioneFiltro
+    ) return;
+
+    const div =
+      document.createElement("div");
+
     div.className = "item";
-    div.innerHTML = `💸 ${d.nome} - €${d.valore}`;
+
+    div.innerHTML =
+      `💸 ${d.data || ""} — ${d.nome} — €${d.valore}`;
 
     if (deleteMode && isAdmin) {
-      const x = document.createElement("span");
-      x.innerText = " ❌";
+
+      const x =
+        document.createElement("span");
+
+      x.innerText = "❌";
+
       x.className = "deleteX";
 
       x.onclick = async () => {
-        await deleteDoc(doc(db, "spese", docSnap.id));
+
+        await deleteDoc(
+          doc(db,"spese",docSnap.id)
+        );
+
         loadSpese();
+
       };
 
       div.appendChild(x);
+
     }
 
     list.appendChild(div);
-  });
-}
 
+  });
+
+}
 
 window.calcolaBilancio = async function() {
 
-  const start = document.getElementById("dataInizio").value;
-  const end = document.getElementById("dataFine").value;
+  const stagione =
+    document.getElementById("stagioneSelect").value;
 
   let totaleSpese = 0;
   let totaleEntrate = 0;
 
   // EVENTI
-  const eventiSnap = await getDocs(collection(db, "eventi"));
+
+  const eventiSnap =
+    await getDocs(collection(db, "eventi"));
+
   eventiSnap.forEach(docSnap => {
+
     const d = docSnap.data();
 
-    if (d.data >= start && d.data <= end) {
+    if (d.stagione === stagione) {
       totaleSpese += parseFloat(d.costo || 0);
     }
+
   });
 
   // ENTRATE
-  const entrateSnap = await getDocs(collection(db, "entrate"));
+
+  const entrateSnap =
+    await getDocs(collection(db, "entrate"));
+
   entrateSnap.forEach(docSnap => {
-    totaleEntrate += parseFloat(docSnap.data().valore || 0);
+
+    const d = docSnap.data();
+
+    if (d.stagione === stagione) {
+      totaleEntrate += parseFloat(d.valore || 0);
+    }
+
   });
 
   // SPESE EXTRA
-  const speseSnap = await getDocs(collection(db, "spese"));
+
+  const speseSnap =
+    await getDocs(collection(db, "spese"));
+
   speseSnap.forEach(docSnap => {
-    totaleSpese += parseFloat(docSnap.data().valore || 0);
+
+    const d = docSnap.data();
+
+    if (d.stagione === stagione) {
+      totaleSpese += parseFloat(d.valore || 0);
+    }
+
   });
 
-  const saldo = totaleEntrate - totaleSpese;
+  const saldo =
+    totaleEntrate - totaleSpese;
 
   document.getElementById("risultatoBilancio").innerHTML = `
     <p>Entrate: €${totaleEntrate}</p>
     <p>Spese: €${totaleSpese}</p>
     <h3>Saldo: €${saldo}</h3>
   `;
+
 }
 
 async function loadJobs() {
@@ -1145,10 +1435,13 @@ window.toggleDelete = target => {
 
   if (target === "eventiExtraList") loadExtraEvents();
   if (target === "jobList") loadJobs();
-  if (target === "modulisticaList") loadDocs(); // 👈 AGGIUNGI QUESTA
+  if (target === "modulisticaList") loadDocs(); 
   if (target === "shopList") loadProducts();
   if (target === "pdfList") loadPDF();
   if (target === "linkList") loadLinks();
+  if (target === "entrateList") loadEntrate();   
+  if (target === "speseList") loadSpese();      
+
 }
 
 window.candidati = function() {
@@ -1234,34 +1527,68 @@ if ("serviceWorker" in navigator) {
 
 
 let deferredPrompt;
+document.addEventListener(
+  "DOMContentLoaded",
+  ()=>{
 
-window.addEventListener("beforeinstallprompt", (e) => {
+    if(
+      localStorage.getItem("hideInstall")
+      !== "true"
+    ){
+      document.getElementById(
+        "installBanner"
+      ).style.display = "flex";
+    }
+
+});
+
+window.addEventListener(
+"beforeinstallprompt",
+(e)=>{
+
   e.preventDefault();
+
   deferredPrompt = e;
 
-  // mostra banner SOLO se non è stato chiuso
-  if (localStorage.getItem("hideInstall") !== "true") {
-    document.getElementById("installBanner").style.display = "block";
-  }
 });
 
 window.installaApp = async function() {
-  if (!deferredPrompt) return;
 
-  deferredPrompt.prompt();
+  if (deferredPrompt) {
 
-  const choice = await deferredPrompt.userChoice;
+    deferredPrompt.prompt();
 
-  if (choice.outcome === "accepted") {
-    document.getElementById("installBanner").style.display = "none";
+    const choice =
+      await deferredPrompt.userChoice;
+
+    if(choice.outcome==="accepted"){
+
+      document
+        .getElementById("installBanner")
+        .style.display="none";
+
+    }
+
+    deferredPrompt = null;
+
   }
 
-  deferredPrompt = null;
-};
+  else {
 
-window.chiudiBanner = function() {
-  localStorage.setItem("hideInstall", "true");
-  document.getElementById("installBanner").style.display = "none";
+    alert(
+`Per installare l'app:
+
+ANDROID:
+Apri menu browser ⋮
+→ "Installa app"
+
+IPHONE:
+Condividi ↑
+→ "Aggiungi a schermata Home"`
+    );
+
+  }
+
 };
 
 </script>

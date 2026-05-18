@@ -1415,7 +1415,7 @@ async function loadProducts() {
     const d = docSnap.data();
 
     const card = document.createElement("div");
-    card.style.width = "150px";
+    card.style.width = "180px";
     card.style.margin = "10px";
     card.style.background = "white";
     card.style.borderRadius = "10px";
@@ -1423,14 +1423,35 @@ async function loadProducts() {
     card.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
 
 card.innerHTML = `
-  <img src="${d.img}" 
-       style="width:100%; border-radius:8px; cursor:pointer;"
+
+<img src="${d.img}"
+style="
+  width:100%;
+  height:190px;
+  object-fit:cover;
+  border-radius:8px;
+  cursor:pointer;
+"
+
        onclick="openImageModal('${d.img}', '${d.nome}')"
        onerror="this.src='https://via.placeholder.com/150';">
 
-  <div style="margin-top:5px; font-size:14px;">
-    <b>${d.nome}</b>
+<div style="margin-top:5px; font-size:14px;">
+
+  <b>${d.nome}</b>
+
+  <div style="
+    color:#0b3d1b;
+    font-size:15px;
+    font-weight:700;
+    margin-top:5px;
+  ">
+
+    € ${d.prezzo || "-"}
+
   </div>
+
+</div>
 
   <button onclick="richiediProdotto('${docSnap.id}', '${d.nome}')"
     style="
@@ -1531,26 +1552,46 @@ window.addLink = async () => {
 };
 
 window.addProduct = async () => {
-  if (!isAdmin) return alert("Solo admin");
 
-  const nome = prompt("Nome prodotto:");
+  if (!isAdmin)
+    return alert("Solo admin");
+
+  const nome =
+    prompt("Nome prodotto:");
+
   if (!nome) return;
 
-  const img = prompt("Incolla link immagine (GitHub RAW):");
+  const prezzo =
+    prompt("Prezzo (€):");
+
+  if (!prezzo) return;
+
+  const img =
+    prompt("Incolla link immagine:");
+
   if (!img) return;
 
   try {
-    await addDoc(collection(db, "prodotti"), {
-      nome,
-      img
-    });
+
+    await addDoc(
+      collection(db,"prodotti"),
+      {
+        nome,
+        prezzo,
+        img
+      }
+    );
 
     loadProducts();
 
-  } catch (e) {
+  } catch(e){
+
     alert("Errore salvataggio");
+
     console.error(e);
+
   }
+
 };
 
 if ("serviceWorker" in navigator) {

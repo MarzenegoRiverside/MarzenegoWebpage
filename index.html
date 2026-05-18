@@ -1,7 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+<base href="/MarzenegoWebpage/">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Marzenego">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <title>MARZENEGO RIVERSIDE WEBPAGE</title>
   
   <link rel="manifest" href="manifest.json">
@@ -303,7 +309,7 @@ input, select, button {
   <div onclick="showPage('chiSiamoPage')">Chi siamo</div>
   <div onclick="showPage('modulisticaPage')">Moduli, Link e PDF</div>
   <div onclick="showPage('shopPage')">MarzeNegozio</div>
-  <div onclick="showPage('richiestePage')">🔒 Richieste MarzeNegozio</div>
+  <div onclick="showPage('richiestePage')">Carrello Ordini</div>
   <div onclick="showPage('presenzePage')">🔒Presenze</div>
 </div>
 
@@ -484,7 +490,7 @@ style="width:90%; max-width:500px; margin-top:20px; border-radius:10px;">
 
 <div id="richiestePage" class="page">
 
-  <h3>Elenco richieste</h3>
+  <h3>Elenco ordini</h3>
 
   <div id="richiesteList"></div>
 
@@ -1548,7 +1554,11 @@ window.addProduct = async () => {
 };
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js")
+
+navigator.serviceWorker.register(
+  "/MarzenegoWebpage/service-worker.js"
+)
+
     .then(() => console.log("Service Worker registrato"));
 }
 

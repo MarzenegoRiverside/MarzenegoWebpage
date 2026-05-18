@@ -105,6 +105,25 @@ body::before {
   font-weight: normal;
 }
 
+#closeMenuBtn {
+
+  display:flex;
+  justify-content:flex-start;
+  align-items:center;
+  padding:12px 12px 8px 18px;
+  font-size:22px;
+  color:white;
+  cursor:pointer;
+  font-weight:300;
+
+}
+
+#closeMenuBtn:hover {
+
+  color:#83d789;
+
+}
+
 #sideMenu {
   z-index: 10002;
   position: fixed;
@@ -302,6 +321,7 @@ input, select, button {
 <div id="menuBtn" onclick="toggleMenu()">☰</div>
 
 <div id="sideMenu">
+  <div id="closeMenuBtn" onclick="toggleMenu()">✕</div>
   <div onclick="showPage('calendarPage')">Calendario</div>
   <div onclick="showPage('eventiPage')">Prossimi Eventi</div>
   <div onclick="showPage('contabilePage')">🔒Situazione Contabile</div>

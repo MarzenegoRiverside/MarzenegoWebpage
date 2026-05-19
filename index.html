@@ -324,13 +324,15 @@ input, select, button {
   <div id="closeMenuBtn" onclick="toggleMenu()">✕</div>
   <div onclick="showPage('calendarPage')">Calendario</div>
   <div onclick="showPage('eventiPage')">Prossimi Eventi</div>
-  <div onclick="showPage('contabilePage')">🔒Situazione Contabile</div>
   <div onclick="showPage('lavoroPage')">Lavora con noi</div>
   <div onclick="showPage('chiSiamoPage')">Chi siamo</div>
   <div onclick="showPage('modulisticaPage')">Moduli, Link e PDF</div>
   <div onclick="showPage('shopPage')">MarzeNegozio</div>
   <div onclick="showPage('richiestePage')">Carrello Ordini</div>
   <div onclick="showPage('presenzePage')">🔒Presenze</div>
+  <div onclick="showPage('contabilePage')">🔒Situazione Contabile</div>
+  <div onclick="showPage('candidaturePage')" style="display:none;">🔒 Candidature</div>
+
 </div>
 
 <img id="logo" src="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png">
@@ -349,6 +351,17 @@ input, select, button {
   <h3>Calendario Squadra</h3>
   <div id="calendar"></div>
 </div>
+
+
+<!-- CANDIODATURE -->
+<div id="candidaturePage" class="page">
+
+  <h3>🔒 Candidature ricevute</h3>
+
+  <div id="candidatureList"></div>
+
+</div>
+
 
 <!-- EVENTI -->
 <div id="eventiPage" class="page">
@@ -641,6 +654,10 @@ window.showPage = function(id) {
 
   if (id == "richiestePage") loadRichieste();
 
+  if (id === "candidaturePage") {
+    loadCandidature();
+  }
+
   if (id === "calendarPage" && calendar) {
     setTimeout(() => {
       calendar.updateSize();
@@ -679,6 +696,7 @@ window.login = function() {
     document.getElementById("stagioneBtns").style.display = "block";
     document.getElementById("contabileLock").style.display = "none";
     document.getElementById("contabileContent").style.display = "block";
+    document.querySelector('[onclick="showPage(\'candidaturePage\')"]').style.display = "block";
 
     closeModal("loginModal");
   } else alert("Credenziali errate");
@@ -1575,9 +1593,22 @@ window.toggleDelete = target => {
 
 }
 
-window.candidati = function() {
-  alert("Grazie per la candidatura!\n\nPuoi contattare Filippo Cortella su WhatsApp indicando la posizione a cui sei interessato.");
-}
+window.candidati = async function() {
+
+  const nome = prompt("Inserisci il tuo nome e cognome:");
+  if (!nome) return;
+
+  const posizione = prompt("Per quale posizione ti candidi?");
+  if (!posizione) return;
+
+  await addDoc(collection(db, "candidature"), {
+    nome,
+    posizione,
+    data: new Date().toISOString().split("T")[0]
+  });
+
+  alert("Candidatura inviata con successo!");
+};
 
 window.addDocLink = async () => {
   if (!isAdmin) return alert("Solo admin");
@@ -1975,6 +2006,82 @@ box.style = `
   }
 
 }
+
+async function loadCandidature() {
+
+  const list =
+    document.getElementById("candidatureList");
+
+  if (!list) return;
+
+  list.innerHTML = "";
+
+  const snap =
+    await getDocs(collection(db,"candidature"));
+
+  snap.forEach(docSnap => {
+
+    const d = docSnap.data();
+
+    const div =
+      document.createElement("div");
+
+    div.style = `
+      background:white;
+      padding:12px;
+      margin:10px auto;
+      border-radius:10px;
+      max-width:400px;
+      text-align:left;
+      box-shadow:0 2px 6px rgba(0,0,0,0.15);
+    `;
+
+    div.innerHTML = `
+      👤 <b>${d.nome}</b><br>
+      📌 ${d.posizione}<br>
+      📅 ${d.data}
+    `;
+
+    if (isAdmin) {
+
+      const btn =
+        document.createElement("button");
+
+      btn.innerText = "❌ Elimina";
+
+      btn.style = `
+        margin-top:10px;
+        padding:5px 8px;
+        font-size:12px;
+        background:#b71c1c;
+        color:white;
+        border:none;
+        border-radius:6px;
+        cursor:pointer;
+        width:auto;
+      `;
+
+      btn.onclick = async () => {
+
+        await deleteDoc(
+          doc(db,"candidature",docSnap.id)
+        );
+
+        loadCandidature();
+
+      };
+
+      div.appendChild(btn);
+
+    }
+
+    list.appendChild(div);
+
+  });
+
+}
+
+
 </script>
 
 </body>

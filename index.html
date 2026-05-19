@@ -529,7 +529,7 @@ style="width:90%; max-width:500px; margin-top:20px; border-radius:10px;">
 
 </div>
 
-<div id="footer" onclick="openLogin()">v1.1, 28/04/2026, Develop by Marzenego Staff</div>
+<div id="footer" onclick="openLogin()">v1.2, 19/05/2026, Develop by Marzenego Staff</div>
 
 <div id="installBanner" style="
   display:flex;
@@ -880,20 +880,78 @@ async function loadExtraEvents() {
   const snapshot = await getDocs(collection(db, "eventiExtra"));
 
   snapshot.forEach(docSnap => {
-    const div = document.createElement("div");
-    div.className = "item";
-    div.innerHTML = "🐭 " + docSnap.data().testo;
 
-    if (deleteMode && isAdmin) {
-      const x = document.createElement("span");
-      x.innerText = "❌";
-      x.className = "deleteX";
-      x.onclick = async () => {
-        await deleteDoc(doc(db, "eventiExtra", docSnap.id));
-        loadExtraEvents();
-      };
-      div.appendChild(x);
-    }
+const div = document.createElement("div");
+
+div.style = `
+  background:white;
+  border-radius:14px;
+  padding:14px;
+  margin:14px auto;
+  width:92%;
+  max-width:520px;
+
+  box-shadow:
+    0 3px 10px rgba(0,0,0,0.12);
+
+  text-align:left;
+`;
+
+div.innerHTML = `
+  <div style="
+    color:#145a2a;
+    font-size:13px;
+    font-weight:700;
+    margin-bottom:8px;
+  ">
+    📅 🐭 PROSSIMO EVENTO
+  </div>
+
+  <div style="
+    font-size:19px;
+    font-weight:700;
+    line-height:1.4em;
+  ">
+    ${docSnap.data().testo}
+  </div>
+`;
+
+
+if (deleteMode && isAdmin) {
+
+  const x =
+    document.createElement("button");
+
+  x.innerText = "❌ Elimina";
+
+  x.style = `
+    margin-top:12px;
+    padding:6px 10px;
+
+    background:#b71c1c;
+    color:white;
+
+    border:none;
+    border-radius:8px;
+
+    cursor:pointer;
+    width:auto;
+    font-size:12px;
+  `;
+
+  x.onclick = async () => {
+
+    await deleteDoc(
+      doc(db,"eventiExtra",docSnap.id)
+    );
+
+    loadExtraEvents();
+
+  };
+
+  div.appendChild(x);
+
+}
 
     list.appendChild(div);
   });
@@ -1726,7 +1784,7 @@ window.addEventListener("appinstalled", () => {
 
 window.richiediProdotto = async (id, nomeProdotto) => {
 
-  const nome = prompt("Inserisci il tuo nome:");
+  const nome = prompt("Inserisci il tuo nome: (NO NOMIGNOLI O SOPRANNOMI, GRAZIE!!!)");
   if (!nome) return;
 
   const taglia = prompt("Inserisci la taglia:");

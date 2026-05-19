@@ -523,7 +523,7 @@ style="width:90%; max-width:500px; margin-top:20px; border-radius:10px;">
     <span class="miniBtn" onclick="toggleDelete('shopList')">❌</span>
   </div>
 
-  <h3>🛒 MarzeNegozio 🛒</h3>
+  <h3>🛒 MarzeNegozio 🛒 (ATTENZIONE: non RICHIEDERE oggetti che non hanno il prezzo)</h3>
 
   <div id="shopList" style="display:flex; flex-wrap:wrap; justify-content:center;"></div>
 
@@ -767,7 +767,6 @@ async function loadPDF() {
 document.addEventListener('DOMContentLoaded', async () => {
   const eventi = await loadCalendar();
   loadProducts();
-  loadRichieste();
   loadPDF();
   loadLinks();
   await loadStagioni();
@@ -1754,83 +1753,170 @@ async function loadRichieste() {
 
   list.innerHTML = "";
 
+list.style.display="flex";
+list.style.flexWrap="wrap";
+list.style.justifyContent="center";
+list.style.gap="12px";
+
   const snap =
-    await getDocs(collection(db,"richieste_prodotti"));
+    await getDocs(
+      collection(db,"richieste_prodotti")
+    );
+
+  // GROUPING PER PRODOTTO
+
+  const gruppi = {};
 
   snap.forEach(docSnap => {
 
     const d = docSnap.data();
 
-    const div =
-      document.createElement("div");
-
-    div.className = "item";
-
-div.innerHTML = `
-  🛒 <b>${d.prodottoNome}</b><br>
-  👤 ${d.nomeUtente}<br>
-  📏 Taglia: ${d.taglia}<br>
-  📅 ${d.data}<br>
-`;
-
-if (isAdmin) {
-
-  const consegnatoBtn = document.createElement("button");
-
-  consegnatoBtn.innerText = "✔ Consegnato";
-
-consegnatoBtn.style = `
-  margin-top:6px;
-  padding:4px 8px;
-  font-size:12px;
-  background:#0b3d1b;
-  color:white;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-  width:auto;
-`;
-
-  consegnatoBtn.onclick = async () => {
-
-    await deleteDoc(
-      doc(db, "richieste_prodotti", docSnap.id)
-    );
-
-    loadRichieste();
-
-  };
-
-  div.appendChild(consegnatoBtn);
-}
-
-    if (isAdmin && deleteMode) {
-
-      const x =
-        document.createElement("span");
-
-      x.innerText = " ❌";
-
-      x.onclick = async () => {
-
-        await deleteDoc(
-          doc(db,"richieste_prodotti",docSnap.id)
-        );
-
-        loadRichieste();
-
-      };
-
-      div.appendChild(x);
-
+    if (!gruppi[d.prodottoNome]) {
+      gruppi[d.prodottoNome] = [];
     }
 
-    list.appendChild(div);
+    gruppi[d.prodottoNome].push({
+      id: docSnap.id,
+      ...d
+    });
 
   });
 
-}
+  // CREAZIONE BOX PRODOTTI
 
+  for (const prodotto in gruppi) {
+
+    const richieste =
+      gruppi[prodotto];
+
+    const box =
+      document.createElement("div");
+
+box.style = `
+  background:white;
+  border-radius:12px;
+  padding:12px;
+
+  width:45%;
+  min-width:280px;
+
+  box-shadow:0 2px 6px rgba(0,0,0,0.15);
+`;
+
+    box.innerHTML = `
+
+<h4 style="
+  margin-top:0;
+  color:#145a2a;
+">
+        🛒 ${prodotto}
+        (${richieste.length})
+      </h4>
+    `;
+
+    richieste.forEach(r => {
+
+      const riga =
+        document.createElement("div");
+
+      riga.style = `
+        border-top:1px solid #ddd;
+        padding:8px 0;
+      `;
+
+      riga.innerHTML = `
+        👤 ${r.nomeUtente}<br>
+        📏 Taglia: ${r.taglia}<br>
+        📅 ${r.data}
+      `;
+
+      if (isAdmin) {
+
+        // CONSEGNATO
+
+        const btn =
+          document.createElement("button");
+
+        btn.innerText =
+          "✔ Consegnato";
+
+        btn.style = `
+          margin-top:6px;
+          padding:4px 8px;
+          font-size:12px;
+          width:auto;
+          background:#0b3d1b;
+          color:white;
+          border:none;
+          border-radius:6px;
+          cursor:pointer;
+          margin-right:8px;
+        `;
+
+        btn.onclick =
+          async () => {
+
+          await deleteDoc(
+            doc(
+              db,
+              "richieste_prodotti",
+              r.id
+            )
+          );
+
+          loadRichieste();
+
+        };
+
+        riga.appendChild(btn);
+
+        // DELETE MODE
+
+        if (deleteMode) {
+
+          const x =
+            document.createElement(
+              "span"
+            );
+
+          x.innerText = "❌";
+
+          x.style = `
+            cursor:pointer;
+            color:red;
+            margin-left:8px;
+          `;
+
+          x.onclick =
+            async () => {
+
+            await deleteDoc(
+              doc(
+                db,
+                "richieste_prodotti",
+                r.id
+              )
+            );
+
+            loadRichieste();
+
+          };
+
+          riga.appendChild(x);
+
+        }
+
+      }
+
+      box.appendChild(riga);
+
+    });
+
+    list.appendChild(box);
+
+  }
+
+}
 </script>
 
 </body>

@@ -23,7 +23,7 @@ body {
   text-align: center;
   background: rgba(131,215,137,0.5);
   color: black;
-  //text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  /*text-shadow: 0 2px 6px rgba(0,0,0,0.6); */
 
 }
 
@@ -331,6 +331,7 @@ input, select, button {
   <div onclick="showPage('richiestePage')">Carrello Ordini</div>
   <div onclick="showPage('presenzePage')">🔒Presenze</div>
   <div onclick="showPage('contabilePage')">🔒Situazione Contabile</div>
+  <div onclick="showPage('quotePage')"style="display:none;">🔒Quote Tesserati</div>
   <div onclick="showPage('candidaturePage')" style="display:none;">🔒 Candidature</div>
 
 </div>
@@ -457,6 +458,25 @@ input, select, button {
 
 </div>
 
+<div id="quotePage" class="page">
+
+<h3>Gestione Quote Tesserati</h3>
+
+<div class="miniBtns"
+     id="quoteBtns"
+     style="display:none;">
+
+  <span class="miniBtn"
+        onclick="addTesserato()">
+    ➕ Tesserato
+  </span>
+
+</div>
+
+<div id="quoteList"></div>
+
+</div>
+
 <div id="lavoroPage" class="page">
 
   <div class="miniBtns" id="jobBtns" style="display:none;">
@@ -464,16 +484,34 @@ input, select, button {
     <span class="miniBtn" onclick="toggleDelete('jobList')">❌</span>
   </div>
 
-  <h3>Posizioni aperte:</h3>
-<button class="candidatiBtn" onclick="candidati()" style="
-  margin:8px;
-  padding:6px 12px;
-  border-radius:8px;
-  cursor:pointer;
-  background:#145a2a;
-  color:white;
-  border:none;
-  font-size:16px;
+<h3 style="
+  margin-bottom:8px;
+  color:#145a2a;
+">
+  Elenco delle posizioni aperte
+</h3>
+
+<p style="
+  margin-top:0;
+  color:#444;
+  font-size:15px;
+">
+  Vuoi entrare nello staff del Marzenego? Candidati, non esitare!
+</p>
+<button class="candidatiBtn"
+        onclick="candidati()"
+        style="
+          margin:14px auto 22px auto;
+          padding:10px 20px;
+          border-radius:12px;
+          cursor:pointer;
+          background:#145a2a;
+          color:white;
+          border:none;
+          font-size:17px;
+          font-weight:600;
+          box-shadow:0 2px 8px rgba(0,0,0,0.18);
+          width:auto;
 ">
   Candidati
 </button>
@@ -499,7 +537,7 @@ input, select, button {
 
 <div id="chiSiamoPage" class="page">
   <h3>Chi siamo</h3>
-  <p>Marzenego Riverside nasce nel mese di luglio 2025, dalle ceneri del progetto Aston Villa Salus. Il Marzenego, fonte d'ispirazione per il concept di squadra, è un fiume che attraversa molti dei paesi in cui siamo nati e cresciuti, ci congiunge e ci unisce come unica grande famiglia. Il nostro spirito, in campo e fuori, è quello di giocare sempre al massimo delle nostre possibilità, unendo passione a grande spirito di miglioramento. Tuttavia, una grande società, una grande squadra, non è niente senza un grande gruppo di uomini. Per sempre, #KeepFordingNutries! </p><img src="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/IMG-20251117-WA0030(1).jpg" 
+  <p>Marzenego Riverside nasce nel mese di luglio 2025, dalle ceneri del progetto Aston Villa Salus. Il Marzenego, fonte d'ispirazione per il concept di squadra, è un fiume che attraversa molti dei paesi in cui siamo nati e cresciuti, ci congiunge e ci unisce come unica grande famiglia. Il nostro spirito, in campo e fuori, è quello di giocare sempre al massimo delle nostre possibilità, unendo passione a grande spirito di miglioramento. Tuttavia, una grande società, una grande squadra, non è niente senza un grande gruppo di uomini. #KeepFordingNutries! </p><img src="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/IMG-20251117-WA0030(1).jpg" 
 style="width:90%; max-width:500px; margin-top:20px; border-radius:10px;">
 </div>
 
@@ -701,7 +739,9 @@ window.login = function() {
     document.getElementById("stagioneBtns").style.display = "block";
     document.getElementById("contabileLock").style.display = "none";
     document.getElementById("contabileContent").style.display = "block";
+    document.getElementById("quoteBtns").style.display="block";
     document.querySelector('[onclick="showPage(\'candidaturePage\')"]').style.display = "block";
+    document.querySelector('[onclick="showPage(\'quotePage\')"]').style.display ="block";
 
     closeModal("loginModal");
   } else alert("Credenziali errate");
@@ -793,9 +833,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadPDF();
   loadLinks();
   await loadStagioni();
-
   loadEntrate();
-
+  loadQuote();
   loadSpese();
   initOrganigramma();
   loadOrganigramma();
@@ -1381,23 +1420,79 @@ window.calcolaBilancio = async function() {
   const stagione =
     document.getElementById("stagioneSelect").value;
 
-  let totaleSpese = 0;
-  let totaleEntrate = 0;
+let totaleSpese=0;
+let totaleEntrate=0;
 
-  // EVENTI
+let costoAllenamenti=0;
+let costoPartite=0;
 
-  const eventiSnap =
-    await getDocs(collection(db, "eventi"));
+let nAllenamenti=0;
+let nPartite=0;
 
-  eventiSnap.forEach(docSnap => {
+// RECUPERO DATE DELLA STAGIONE SELEZIONATA
 
-    const d = docSnap.data();
+const stagioniSnap =
+  await getDocs(
+    collection(db,"stagioniContabili")
+  );
 
-    if (d.stagione === stagione) {
-      totaleSpese += parseFloat(d.costo || 0);
+let dataInizio="";
+let dataFine="";
+
+stagioniSnap.forEach(docSnap=>{
+
+  const s = docSnap.data();
+
+  if(s.nome===stagione){
+
+    dataInizio = s.inizio;
+    dataFine = s.fine;
+
+  }
+
+});
+
+
+// EVENTI
+
+const eventiSnap =
+  await getDocs(collection(db,"eventi"));
+
+eventiSnap.forEach(docSnap=>{
+
+  const d = docSnap.data();
+
+  // CONTROLLO SULLA DATA REALE EVENTO
+
+  if(
+    d.data >= dataInizio &&
+    d.data <= dataFine
+  ){
+
+    const costo =
+      parseFloat(d.costo || 0);
+
+    totaleSpese += costo;
+
+    if(d.tipo==="Allenamento"){
+
+      costoAllenamenti += costo;
+
+      nAllenamenti++;
+
     }
 
-  });
+    if(d.tipo==="Partita"){
+
+      costoPartite += costo;
+
+      nPartite++;
+
+    }
+
+  }
+
+});
 
   // ENTRATE
 
@@ -1432,13 +1527,39 @@ window.calcolaBilancio = async function() {
   const saldo =
     totaleEntrate - totaleSpese;
 
-  document.getElementById("risultatoBilancio").innerHTML = `
-    <p>Entrate: €${totaleEntrate}</p>
-    <p>Spese: €${totaleSpese}</p>
-    <h3>Saldo: €${saldo}</h3>
-  `;
+document.getElementById(
+ "risultatoBilancio"
+).innerHTML=
+`
+<p><b>Entrate:</b> €${totaleEntrate}</p>
 
-}
+<p>
+<b>Spese:</b> €${totaleSpese}
+</p>
+
+<div style="
+  font-size:14px;
+  color:#444;
+  margin-bottom:10px;
+">
+
+⚽ Allenamenti
+(${nAllenamenti})
+:
+€${costoAllenamenti}
+
+🏆 Partite
+(${nPartite})
+:
+€${costoPartite}
+</div>
+
+<h3>
+Saldo: €${saldo}
+</h3>
+`;
+};
+
 
 async function loadJobs() {
   const list = document.getElementById("jobList");
@@ -1447,9 +1568,37 @@ async function loadJobs() {
   const snapshot = await getDocs(collection(db, "posizioni"));
 
   snapshot.forEach(docSnap => {
-    const div = document.createElement("div");
-    div.className = "item";
-    div.innerHTML = "🐭 " + docSnap.data().testo;
+const div = document.createElement("div");
+
+div.className = "item";
+
+div.style = `
+  background:white;
+  border-left:6px solid #145a2a;
+  border-radius:12px;
+  padding:14px;
+  margin:12px auto;
+  max-width:650px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);
+`;
+
+div.innerHTML = `
+  <div style="
+    font-size:18px;
+    font-weight:600;
+    color:#145a2a;
+    margin-bottom:8px;
+  ">
+    💼 Posizione aperta 🐭
+  </div>
+
+  <div style="
+    font-size:17px;
+    line-height:1.5em;
+  ">
+    ${docSnap.data().testo}
+  </div>
+`;
 
     if (deleteMode && isAdmin) {
       const x = document.createElement("span");
@@ -2083,6 +2232,185 @@ async function loadCandidature() {
     list.appendChild(div);
 
   });
+
+}
+
+window.addTesserato = async function(){
+
+  if(!isAdmin)
+    return alert("Solo admin");
+
+  const nome =
+    prompt("Nome tesserato:");
+
+  if(!nome) return;
+
+  await addDoc(
+    collection(db,"tesserati"),
+    {
+      nome
+    }
+  );
+
+  loadQuote();
+
+}
+
+
+async function loadQuote(){
+
+const list =
+document.getElementById("quoteList");
+
+if(!list) return;
+
+list.innerHTML="";
+
+const snapshot =
+await getDocs(
+collection(db,"tesserati")
+);
+
+snapshot.forEach(docSnap=>{
+
+const d =
+docSnap.data();
+
+const div =
+document.createElement("div");
+
+div.style=`
+background:white;
+padding:14px;
+margin:12px auto;
+border-radius:12px;
+max-width:700px;
+box-shadow:0 2px 8px rgba(0,0,0,0.15);
+`;
+
+div.innerHTML=`
+
+<h4>${d.nome}</h4>
+
+<button
+onclick="aggiungiRata(
+'${docSnap.id}',
+'${d.nome}'
+)"
+style="
+width:auto;
+background:#145a2a;
+color:white;
+border:none;
+padding:8px 12px;
+border-radius:8px;
+cursor:pointer;
+">
+➕ Registra rata
+</button>
+
+<div id="rate_${docSnap.id}">
+</div>
+
+`;
+
+list.appendChild(div);
+
+loadRate(docSnap.id);
+
+});
+
+}
+
+
+window.aggiungiRata =
+async function(id,nome){
+
+const nomeRata =
+prompt("Numero rata:");
+
+if(!nomeRata) return;
+
+const importo =
+parseFloat(
+prompt("Importo €:")
+);
+
+if(!importo) return;
+
+const pagata =
+confirm(
+"Segnare come PAGATA?"
+);
+
+await addDoc(
+collection(db,"rate"),
+{
+tesseratoId:id,
+tesserato:nome,
+nomeRata,
+importo,
+pagata,
+data:
+new Date()
+.toISOString()
+.split("T")[0]
+}
+);
+
+loadQuote();
+
+}
+
+async function loadRate(id){
+
+const container =
+document.getElementById(
+`rate_${id}`
+);
+
+if(!container) return;
+
+container.innerHTML="";
+
+const snap =
+await getDocs(
+collection(db,"rate")
+);
+
+snap.forEach(docSnap=>{
+
+const d =
+docSnap.data();
+
+if(d.tesseratoId!==id)
+return;
+
+const div =
+document.createElement("div");
+
+div.style=`
+margin-top:10px;
+padding:10px;
+background:#f5f5f5;
+border-radius:10px;
+`;
+
+div.innerHTML=`
+
+${d.pagata?"✅":"❌"}
+
+<b>Rata n. ${d.nomeRata}</b>
+
+—
+
+€${d.importo}
+
+`;
+
+container.appendChild(div);
+
+});
 
 }
 

@@ -396,12 +396,6 @@ input, select, button {
     Calcola
   </button>
 
-</div>
-
-<h4>Filtro elenco Entrate / Spese</h4>
-
-<select id="filtroStagione" class="smallSelect"></select>
-
 <!-- ADMIN CREA STAGIONE -->
 
 <div id="stagioneBtns"
@@ -414,26 +408,37 @@ input, select, button {
   </span>
 
 </div>
+
+</div>
+
     <!-- RISULTATI -->
     <div id="risultatoBilancio"></div>
 
+<h4 style="margin-top:25px;">
+  Filtro elenco Entrate / Spese
+</h4>
+
+<select id="filtroStagione"
+        class="smallSelect">
+</select>
+
     <!-- ENTRATE -->
+    <h4>Entrate</h4>
     <div class="miniBtns" id="entrateBtns" style="display:none;">
       <span class="miniBtn" onclick="addEntrata()">➕</span>
       <span class="miniBtn" onclick="toggleDelete('entrateList')">❌</span>
     </div>
 
-    <h4>Entrate</h4>
     <div id="entrateList"></div>
 
     <!-- SPESE EXTRA -->
+    <h4>Spese extra</h4>
     <div class="miniBtns" id="speseBtns" style="display:none;">
       <span class="miniBtn" onclick="addSpesa()">➕</span>
       <span class="miniBtn" onclick="toggleDelete('speseList')">❌</span>
     </div>
-
-    <h4>Spese extra</h4>
-    <div id="speseList"></div>
+ 
+   <div id="speseList"></div>
 
   </div>
 </div>

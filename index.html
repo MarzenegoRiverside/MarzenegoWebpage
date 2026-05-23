@@ -23,8 +23,6 @@ body {
   text-align: center;
   background: rgba(131,215,137,0.5);
   color: black;
-  /*text-shadow: 0 2px 6px rgba(0,0,0,0.6); */
-
 }
 
 body::before {
@@ -34,9 +32,8 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(131,215,137,0.5); /* filtro verde scuro */
+  background: rgba(131,215,137,0.5);
   z-index: -1;
- 
 }
 
 .loginInput {
@@ -46,7 +43,7 @@ body::before {
 }
 
 .candidatiBtn {
-  width: auto;              /* 🔥 evita che occupi tutta la riga */
+  width: auto;
   padding: 8px 16px;
   font-size: 14px;
   background: #0b3d1b;
@@ -91,12 +88,11 @@ body::before {
 }
 
 .box.presidente {
-  min-width: 100px;   /* 👈 più piccolo davvero */
+  min-width: 100px;
   padding: 6px 8px;
   font-size: 13px;
   margin: 10px auto;
 }
-
 
 .box span {
   display: block;
@@ -106,22 +102,18 @@ body::before {
 }
 
 #closeMenuBtn {
-
-  display:flex;
-  justify-content:flex-start;
-  align-items:center;
-  padding:12px 12px 8px 18px;
-  font-size:22px;
-  color:white;
-  cursor:pointer;
-  font-weight:300;
-
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 12px 12px 8px 18px;
+  font-size: 22px;
+  color: white;
+  cursor: pointer;
+  font-weight: 300;
 }
 
 #closeMenuBtn:hover {
-
-  color:#83d789;
-
+  color: #83d789;
 }
 
 #sideMenu {
@@ -131,14 +123,11 @@ body::before {
   left: -250px;
   width: 250px;
   height: 100%;
-  
-  background: #0b3d1b; /* verde scuro solido */
-  
+  background: #0b3d1b;
   color: white;
   transition: 0.3s;
   padding-top: 60px;
-
-  opacity: 1; /* sicurezza: niente trasparenza */
+  opacity: 1;
 }
 
 #sideMenu div {
@@ -160,23 +149,20 @@ body::before {
   border-radius: 10px;
 }
 
-
 #calendar::before {
-content: "";
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
- background-image:   url("https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/IMG-20251117-WA0030(1).jpg");
+  background-image: url("https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/IMG-20251117-WA0030(1).jpg");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  z-index:-2;
-  opacity: 0.5; /* 👈 regola intensità */
-
+  z-index: -2;
+  opacity: 0.5;
 }
-
 
 #jobList .item {
   font-size: 18px;
@@ -194,23 +180,16 @@ content: "";
   text-decoration: underline;
 }
 
-
-.smallSelect{
-  width:auto;
-  min-width:180px;
-  max-width:250px;
-
-  padding:6px 10px;
-
-  font-size:14px;
-
-  display:block;
-
-  margin:8px auto;
+.smallSelect {
+  width: auto;
+  min-width: 180px;
+  max-width: 250px;
+  padding: 6px 10px;
+  font-size: 14px;
+  display: block;
+  margin: 8px auto;
 }
 
-
-/* BOTTONI MINI */
 .miniBtns {
   margin: 5px;
 }
@@ -232,8 +211,8 @@ content: "";
 .item {
   margin: 10px auto;
   text-align: center;
-  font-size: 18px;   /* 👈 più grande */
-  font-weight: 500;  /* 👈 leggermente più marcato */
+  font-size: 18px;
+  font-weight: 500;
 }
 
 .deleteX { color: red; cursor: pointer; margin-left: 10px; }
@@ -275,48 +254,38 @@ input, select, button {
   font-size: 11px;
   line-height: 1.2em;
 }
-@media (max-width: 768px) {
 
+.fc {
+  z-index: 1;
+  font-size: 14px !important;
+}
+
+.fc .fc-daygrid-day-number {
+  font-size: 12px;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 16px !important;
+}
+
+.fc .fc-button {
+  padding: 4px 6px !important;
+  font-size: 12px !important;
+}
+
+@media (max-width: 768px) {
   #calendar {
     width: 94%;
     margin: 15px auto;
-
     padding: 6px;
     border-radius: 14px;
-
     box-shadow: 0 2px 10px rgba(0,0,0,0.15);
   }
 }
-  .fc {
-    z-index: 1;
-    font-size: 14px !important;
-  }
-
-  .fc .fc-daygrid-day-number {
-    font-size: 12px;
-  }
-
-  .fc .fc-toolbar-title {
-    font-size: 16px !important;
-  }
-
-  .fc .fc-button {
-    padding: 4px 6px !important;
-    font-size: 12px !important;
-  }
-
-  .fc .fc-daygrid-event {
-    font-size: 12px !important;
-    white-space: normal !important;
-  }
-}
-
-
   </style>
 </head>
 
 <body>
-
 
 <div id="menuBtn" onclick="toggleMenu()">☰</div>
 
@@ -326,14 +295,11 @@ input, select, button {
   <div onclick="showPage('eventiPage')">Prossimi Eventi</div>
   <div onclick="showPage('lavoroPage')">Lavora con noi</div>
   <div onclick="showPage('chiSiamoPage')">Chi siamo</div>
-  <div onclick="showPage('modulisticaPage')">Moduli, Link e PDF</div>
+  <div onclick="showPage('modulisticaPage')">Comunicati, Link e PDF</div>
   <div onclick="showPage('shopPage')">MarzeNegozio</div>
   <div onclick="showPage('richiestePage')">Carrello Ordini</div>
-  <div onclick="showPage('presenzePage')">🔒Presenze</div>
-  <div onclick="showPage('contabilePage')">🔒Situazione Contabile</div>
-  <div onclick="showPage('quotePage')"style="display:none;">🔒Quote Tesserati</div>
-  <div onclick="showPage('candidaturePage')" style="display:none;">🔒 Candidature</div>
-
+  <div onclick="showPage('contabilePage')" id="contabileMenuBtn" style="display:none;">🔒Situazione Contabile</div>
+  <div onclick="showPage('candidaturePage')" id="candidatureMenuBtn" style="display:none;">🔒 Candidature</div>
 </div>
 
 <img id="logo" src="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png">
@@ -343,39 +309,31 @@ input, select, button {
 
 <!-- CALENDARIO -->
 <div id="calendarPage" class="page active">
-
   <div class="miniBtns" id="calendarBtns" style="display:none;">
     <span class="miniBtn" onclick="openAdmin()">➕</span>
     <span class="miniBtn" onclick="toggleCalendarDelete()">❌</span>
   </div>
-
   <h3>Calendario Squadra</h3>
   <div id="calendar"></div>
 </div>
 
-
-<!-- CANDIODATURE -->
+<!-- CANDIDATURE -->
 <div id="candidaturePage" class="page">
-
   <h3>🔒 Candidature ricevute</h3>
-
   <div id="candidatureList"></div>
-
 </div>
-
 
 <!-- EVENTI -->
 <div id="eventiPage" class="page">
-
   <div class="miniBtns" id="eventiBtns" style="display:none;">
     <span class="miniBtn" onclick="addExtraEvent()">➕</span>
     <span class="miniBtn" onclick="toggleDelete('eventiExtraList')">❌</span>
   </div>
-
   <h3>Prossimi Eventi</h3>
   <div id="eventiExtraList"></div>
 </div>
 
+<!-- CONTABILITÀ -->
 <div id="contabilePage" class="page">
   
   <div id="contabileLock">
@@ -384,237 +342,149 @@ input, select, button {
   </div>
 
   <div id="contabileContent" style="display:none;">
-    
     <h3>Situazione Contabile</h3>
 
-<!-- STAGIONE CONTABILE -->
+    <!-- 1. STAGIONE + CALCOLA BILANCIO -->
+    <div style="margin:10px;">
+      <select id="stagioneSelect"></select>
+      <button onclick="calcolaBilancio()">Calcola bilancio</button>
 
-<div style="margin:10px;">
+      <div id="stagioneBtns" class="miniBtns" style="display:none;">
+        <span class="miniBtn" onclick="addStagione()">➕ Stagione</span>
+      </div>
+    </div>
 
-  <select id="stagioneSelect"></select>
-
-  <button onclick="calcolaBilancio()">
-    Calcola
-  </button>
-
-<!-- ADMIN CREA STAGIONE -->
-
-<div id="stagioneBtns"
-     class="miniBtns"
-     style="display:none;">
-
-  <span class="miniBtn"
-        onclick="addStagione()">
-    ➕ Stagione
-  </span>
-
-</div>
-
-</div>
-
-    <!-- RISULTATI -->
+    <!-- 2. RISULTATO BILANCIO -->
     <div id="risultatoBilancio"></div>
 
-<h4 style="margin-top:25px;">
-  Filtro elenco Entrate / Spese
-</h4>
+    <!-- 3. QUOTE TESSERATI (con select stagione dedicata) -->
+    <h4 style="margin-top:25px;">Quote Tesserati</h4>
+    <select id="quoteStagioneInlineSelect" class="smallSelect"></select>
+    <div class="miniBtns" id="quoteInlineBtns" style="display:none;">
+      <span class="miniBtn" onclick="addTesserato()">➕ Tesserato</span>
+      <span class="miniBtn" onclick="toggleDelete('quoteInlineList')">❌ Rimuovi</span>
+    </div>
+    <div id="quoteInlineList"></div>
 
-<select id="filtroStagione"
-        class="smallSelect">
-</select>
+    <!-- 4. FILTRO ELENCO ENTRATE/SPESE -->
+    <h4 style="margin-top:25px;">Filtro elenco Entrate / Spese</h4>
+    <select id="filtroStagione" class="smallSelect"></select>
 
-    <!-- ENTRATE -->
+    <!-- 5. ENTRATE -->
     <h4>Entrate</h4>
     <div class="miniBtns" id="entrateBtns" style="display:none;">
       <span class="miniBtn" onclick="addEntrata()">➕</span>
       <span class="miniBtn" onclick="toggleDelete('entrateList')">❌</span>
     </div>
-
     <div id="entrateList"></div>
 
-    <!-- SPESE EXTRA -->
+    <!-- 6. SPESE EXTRA -->
     <h4>Spese extra</h4>
     <div class="miniBtns" id="speseBtns" style="display:none;">
       <span class="miniBtn" onclick="addSpesa()">➕</span>
       <span class="miniBtn" onclick="toggleDelete('speseList')">❌</span>
     </div>
- 
-   <div id="speseList"></div>
-
+    <div id="speseList"></div>
   </div>
 </div>
 
-<div id="presenzePage" class="page">
-
-  <h3>Gestione Presenze</h3>
-
-  <select id="eventoSelect"></select>
-
-  <button onclick="generaQRPDF()">
-    Genera QR PDF
-  </button>
-
-  <div id="qrPreview"></div>
-
-</div>
-
-<div id="quotePage" class="page">
-
-<h3>Gestione Quote Tesserati</h3>
-
-<div class="miniBtns"
-     id="quoteBtns"
-     style="display:none;">
-
-  <span class="miniBtn"
-        onclick="addTesserato()">
-    ➕ Tesserato
-  </span>
-
-</div>
-
-<div id="quoteList"></div>
-
-</div>
-
+<!-- LAVORA CON NOI -->
 <div id="lavoroPage" class="page">
-
   <div class="miniBtns" id="jobBtns" style="display:none;">
     <span class="miniBtn" onclick="addJob()">➕</span>
     <span class="miniBtn" onclick="toggleDelete('jobList')">❌</span>
   </div>
 
-<h3 style="
-  margin-bottom:8px;
-  color:#145a2a;
-">
-  Elenco delle posizioni aperte
-</h3>
+  <h3 style="margin-bottom:8px; color:#145a2a;">Elenco delle posizioni aperte</h3>
+  <p style="margin-top:0; color:#444; font-size:15px;">Vuoi entrare nello staff del Marzenego? Candidati, non esitare!</p>
 
-<p style="
-  margin-top:0;
-  color:#444;
-  font-size:15px;
-">
-  Vuoi entrare nello staff del Marzenego? Candidati, non esitare!
-</p>
-<button class="candidatiBtn"
-        onclick="candidati()"
-        style="
-          margin:14px auto 22px auto;
-          padding:10px 20px;
-          border-radius:12px;
-          cursor:pointer;
-          background:#145a2a;
-          color:white;
-          border:none;
-          font-size:17px;
-          font-weight:600;
-          box-shadow:0 2px 8px rgba(0,0,0,0.18);
-          width:auto;
-">
-  Candidati
-</button>
+  <button class="candidatiBtn"
+    onclick="candidati()"
+    style="margin:14px auto 22px auto; padding:10px 20px; border-radius:12px; cursor:pointer; background:#145a2a; color:white; border:none; font-size:17px; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,0.18); width:auto;">
+    Candidati
+  </button>
+
   <div id="jobList"></div>
-  
+
   <h3>ORGANIGRAMMA AZIENDALE</h3>
-
-<div id="organigramma">
-
-  <div class="box" data-ruolo="presidente">PRESIDENTE<br><span></span></div>
-
-  <div class="row">
-    <div class="box" data-ruolo="tesoreria">TESORERIA<br><span></span></div>
-    <div class="box" data-ruolo="manutenzione">MANUTENZIONE CAMPO<br><span></span></div>
-    <div class="box" data-ruolo="dirigenti">DIRIGENTI<br><span></span></div>
-    <div class="box" data-ruolo="social">SOCIAL TEAM<br><span></span></div>
-    <div class="box" data-ruolo="marketing">MARKETING & FASHION<br><span></span></div>
+  <div id="organigramma">
+    <div class="box" data-ruolo="presidente">PRESIDENTE<br><span></span></div>
+    <div class="row">
+      <div class="box" data-ruolo="tesoreria">TESORERIA<br><span></span></div>
+      <div class="box" data-ruolo="manutenzione">MANUTENZIONE CAMPO<br><span></span></div>
+      <div class="box" data-ruolo="dirigenti">DIRIGENTI<br><span></span></div>
+      <div class="box" data-ruolo="social">SOCIAL TEAM<br><span></span></div>
+      <div class="box" data-ruolo="marketing">MARKETING & FASHION<br><span></span></div>
+      <div class="box" data-ruolo="planning">PLANNING SPECIAL EVENTS<br><span></span></div>
+    </div>
   </div>
-
 </div>
 
-</div>
-
+<!-- CHI SIAMO -->
 <div id="chiSiamoPage" class="page">
   <h3>Chi siamo</h3>
-  <p>Marzenego Riverside nasce nel mese di luglio 2025, dalle ceneri del progetto Aston Villa Salus. Il Marzenego, fonte d'ispirazione per il concept di squadra, è un fiume che attraversa molti dei paesi in cui siamo nati e cresciuti, ci congiunge e ci unisce come unica grande famiglia. Il nostro spirito, in campo e fuori, è quello di giocare sempre al massimo delle nostre possibilità, unendo passione a grande spirito di miglioramento. Tuttavia, una grande società, una grande squadra, non è niente senza un grande gruppo di uomini. #KeepFordingNutries! </p><img src="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/IMG-20251117-WA0030(1).jpg" 
-style="width:90%; max-width:500px; margin-top:20px; border-radius:10px;">
+  <p>Marzenego Riverside nasce nel mese di luglio 2025, dalle ceneri del progetto Aston Villa Salus. Il Marzenego, fonte d'ispirazione per il concept di squadra, è un fiume che attraversa molti dei paesi in cui siamo nati e cresciuti, ci congiunge e ci unisce come unica grande famiglia. Il nostro spirito, in campo e fuori, è quello di giocare sempre al massimo delle nostre possibilità, unendo passione a grande spirito di miglioramento. Tuttavia, una grande società, una grande squadra, non è niente senza un grande gruppo di uomini. #KeepFordingNutries!</p>
+  <img src="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/IMG-20251117-WA0030(1).jpg"
+    style="width:90%; max-width:500px; margin-top:20px; border-radius:10px;">
 </div>
 
+<!-- MODULISTICA -->
 <div id="modulisticaPage" class="page">
 
-  <!-- PDF -->
+  <div class="miniBtns" id="comunicatiBtns" style="display:none;">
+    <span class="miniBtn" onclick="addComunicato()">➕ Comunicato</span>
+    <span class="miniBtn" onclick="toggleDelete('comunicatiList')">❌</span>
+  </div>
+  <h3>📢 Comunicati</h3>
+  <div id="comunicatiList"></div>
+
   <div class="miniBtns" id="pdfBtns" style="display:none;">
     <span class="miniBtn" onclick="addPDF()">➕ PDF</span>
     <span class="miniBtn" onclick="toggleDelete('pdfList')">❌</span>
   </div>
-
   <h3>📄 PDF</h3>
   <div id="pdfList"></div>
 
-  <!-- LINK -->
   <div class="miniBtns" id="linkBtns" style="display:none;">
     <span class="miniBtn" onclick="addLink()">➕ Link</span>
     <span class="miniBtn" onclick="toggleDelete('linkList')">❌</span>
   </div>
-
   <h3>🔗 Link utili</h3>
   <div id="linkList"></div>
-
 </div>
 
+<!-- MODAL COMUNICATO -->
+<div id="comunicatoModal" class="modal">
+  <div class="modal-content" style="width:85%; max-width:500px;">
+    <span class="close" onclick="closeModal('comunicatoModal')">✖</span>
+    <h3 id="comunicatoModalTitolo" style="margin-top:0;"></h3>
+    <div id="comunicatoModalTesto" style="text-align:left; line-height:1.6em; white-space:pre-wrap; color:black; background:white; margin-top:10px;"></div>
+  </div>
+</div>
 
+<!-- CARRELLO ORDINI -->
 <div id="richiestePage" class="page">
-
   <h3>Elenco ordini</h3>
-
   <div id="richiesteList"></div>
-
 </div>
 
-  <div id="shopPage" class="page">
-
+<!-- SHOP -->
+<div id="shopPage" class="page">
   <div class="miniBtns" id="shopBtns" style="display:none;">
     <span class="miniBtn" onclick="addProduct()">➕</span>
     <span class="miniBtn" onclick="toggleDelete('shopList')">❌</span>
   </div>
-
   <h3>🛒 MarzeNegozio 🛒 (ATTENZIONE: non RICHIEDERE oggetti che non hanno il prezzo)</h3>
-
   <div id="shopList" style="display:flex; flex-wrap:wrap; justify-content:center;"></div>
-
 </div>
 
 <div id="footer" onclick="openLogin()">v1.2, 19/05/2026, Develop by Marzenego Staff</div>
 
-<div id="installBanner" style="
-  display:flex;
-  position:fixed;
-  bottom:10px;
-  left:50%;
-  transform:translateX(-50%);
-  background:#0b3d1b;
-  color:white;
-  padding:10px 15px;
-  border-radius:10px;
-  z-index:9999;
-">
-
+<!-- INSTALL BANNER -->
+<div id="installBanner" style="display:flex; position:fixed; bottom:10px; left:50%; transform:translateX(-50%); background:#0b3d1b; color:white; padding:10px 15px; border-radius:10px; z-index:9999;">
   📲 Installa app
-  <button onclick="installaApp()" style="
-    margin-left:10px;
-    background:white;
-    color:#0b3d1b;
-    border:none;
-    padding:5px 10px;
-    border-radius:5px;
-    cursor:pointer;
-  ">Installa</button>
-
-  <span onclick="chiudiBanner()" style="
-    margin-left:10px;
-    cursor:pointer;
-  ">❌</span>
+  <button onclick="installaApp()" style="margin-left:10px; background:white; color:#0b3d1b; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Installa</button>
+  <span onclick="chiudiBanner()" style="margin-left:10px; cursor:pointer;">❌</span>
 </div>
 
 <!-- LOGIN -->
@@ -628,6 +498,7 @@ style="width:90%; max-width:500px; margin-top:20px; border-radius:10px;">
   </div>
 </div>
 
+<!-- MODAL IMMAGINE -->
 <div id="imgModal" class="modal">
   <div class="modal-content" style="width:auto; max-width:90%;">
     <span class="close" onclick="closeModal('imgModal')">✖</span>
@@ -641,18 +512,15 @@ style="width:90%; max-width:500px; margin-top:20px; border-radius:10px;">
   <div class="modal-content">
     <span class="close" onclick="closeModal('adminModal')">✖</span>
     <h3>Nuovo Evento</h3>
-
     <select id="tipo">
       <option>Allenamento</option>
       <option>Partita</option>
       <option>Altro</option>
     </select>
-
     <input type="date" id="data">
     <input type="time" id="ora">
     <input type="text" id="luogo" placeholder="Dove">
     <input type="number" id="costo" placeholder="Costo (€)">
-
     <button onclick="addEvent()">INVIA</button>
   </div>
 </div>
@@ -661,11 +529,8 @@ style="width:90%; max-width:500px; margin-top:20px; border-radius:10px;">
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } 
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-import { getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCvqU28XLWRsfJUso0MuS72O2Qxks-MFP0",
@@ -679,10 +544,23 @@ const storage = getStorage(app);
 
 let calendar;
 let isAdmin = false;
-let deleteMode = false;
 let calendarDeleteMode = false;
 
-// MENU
+// deleteModes per sezione — evita interferenze tra sezioni diverse
+const deleteModes = {
+  eventiExtraList: false,
+  jobList: false,
+  shopList: false,
+  pdfList: false,
+  linkList: false,
+  comunicatiList: false,
+  entrateList: false,
+  speseList: false,
+  quoteInlineList: false,
+};
+function dm(target) { return deleteModes[target] && isAdmin; }
+
+// ─── MENU ───────────────────────────────────────────────
 window.toggleMenu = function() {
   const m = document.getElementById("sideMenu");
   m.style.left = m.style.left === "0px" ? "-250px" : "0px";
@@ -694,20 +572,14 @@ window.showPage = function(id) {
   toggleMenu();
 
   if (id === "shopPage") loadProducts();
-
-  if (id == "richiestePage") loadRichieste();
-
-  if (id === "candidaturePage") {
-    loadCandidature();
-  }
-
+  if (id === "richiestePage") loadRichieste();
+  if (id === "candidaturePage") loadCandidature();
   if (id === "calendarPage" && calendar) {
-    setTimeout(() => {
-      calendar.updateSize();
-    }, 100);
+    setTimeout(() => calendar.updateSize(), 100);
   }
 }
 
+// ─── MODALI ─────────────────────────────────────────────
 window.openImageModal = function(img, nome) {
   document.getElementById("modalImg").src = img;
   document.getElementById("modalTitle").innerText = nome;
@@ -716,20 +588,20 @@ window.openImageModal = function(img, nome) {
 
 window.onclick = function(event) {
   const modal = document.getElementById("imgModal");
-  if (event.target === modal) {
-    modal.style.display = "none";
-  }
+  if (event.target === modal) modal.style.display = "none";
 }
 
-// LOGIN
 window.openLogin = () => document.getElementById("loginModal").style.display = "flex";
+window.closeModal = id => document.getElementById(id).style.display = "none";
 
+// ─── LOGIN ───────────────────────────────────────────────
 window.login = function() {
   if (username.value === "pippo" && password.value === "pippo") {
     isAdmin = true;
     document.getElementById("adminBanner").style.display = "block";
     document.getElementById("pdfBtns").style.display = "block";
     document.getElementById("linkBtns").style.display = "block";
+    document.getElementById("comunicatiBtns").style.display = "block";
     document.getElementById("calendarBtns").style.display = "block";
     document.getElementById("eventiBtns").style.display = "block";
     document.getElementById("jobBtns").style.display = "block";
@@ -739,191 +611,36 @@ window.login = function() {
     document.getElementById("stagioneBtns").style.display = "block";
     document.getElementById("contabileLock").style.display = "none";
     document.getElementById("contabileContent").style.display = "block";
-    document.getElementById("quoteBtns").style.display="block";
-    document.querySelector('[onclick="showPage(\'candidaturePage\')"]').style.display = "block";
-    document.querySelector('[onclick="showPage(\'quotePage\')"]').style.display ="block";
-
+    document.getElementById("quoteInlineBtns").style.display = "block";
+    document.getElementById("contabileMenuBtn").style.display = "block";
+    document.getElementById("candidatureMenuBtn").style.display = "block";
     closeModal("loginModal");
-  } else alert("Credenziali errate");
+  } else {
+    alert("Credenziali errate");
+  }
 }
 
-window.closeModal = id => document.getElementById(id).style.display = "none";
-
-// CALENDARIO
+// ─── CALENDARIO ──────────────────────────────────────────
 async function loadCalendar() {
   const snapshot = await getDocs(collection(db, "eventi"));
   let eventi = [];
 
   snapshot.forEach(docSnap => {
     const d = docSnap.data();
-let color = "";
-if (d.tipo === "Altro") color = "#f4d03f"; // giallo
+    let color = d.tipo === "Altro" ? "#f4d03f" : "";
 
-eventi.push({
-  id: docSnap.id,
-  title: d.luogo ? (d.tipo + " - " + d.luogo) : d.tipo,
-  start: d.data + "T" + d.ora,
-  backgroundColor: color,
-  borderColor: color
-});
+    eventi.push({
+      id: docSnap.id,
+      title: d.luogo ? (d.tipo + " - " + d.luogo) : d.tipo,
+      start: d.data + "T" + d.ora,
+      backgroundColor: color,
+      borderColor: color
+    });
   });
 
   return eventi;
 }
 
-async function loadLinks() {
-  const list = document.getElementById("linkList");
-  list.innerHTML = "";
-
-  const snapshot = await getDocs(collection(db, "modulistica_link"));
-
-  snapshot.forEach(docSnap => {
-    const d = docSnap.data();
-
-    const div = document.createElement("div");
-    div.className = "item";
-    div.innerHTML = `🔗 <a href="${d.url}" target="_blank">${d.nome}</a>`;
-
-    if (deleteMode && isAdmin) {
-      const x = document.createElement("span");
-      x.innerText = " ❌";
-      x.className = "deleteX";
-      x.onclick = async () => {
-        await deleteDoc(doc(db, "modulistica_link", docSnap.id));
-        loadLinks();
-      };
-      div.appendChild(x);
-    }
-
-    list.appendChild(div);
-  });
-}
-
-async function loadPDF() {
-  const list = document.getElementById("pdfList");
-  list.innerHTML = "";
-
-  const snapshot = await getDocs(collection(db, "modulistica_pdf"));
-
-  snapshot.forEach(docSnap => {
-    const d = docSnap.data();
-
-    const div = document.createElement("div");
-    div.className = "item";
-    div.innerHTML = `📄 <a href="${d.url}" target="_blank">${d.nome}</a>`;
-
-    if (deleteMode && isAdmin) {
-      const x = document.createElement("span");
-      x.innerText = " ❌";
-      x.className = "deleteX";
-      x.onclick = async () => {
-        await deleteDoc(doc(db, "modulistica_pdf", docSnap.id));
-        loadPDF();
-      };
-      div.appendChild(x);
-    }
-
-    list.appendChild(div);
-  });
-}
-
-document.addEventListener('DOMContentLoaded', async () => {
-  const eventi = await loadCalendar();
-  loadProducts();
-  loadPDF();
-  loadLinks();
-  await loadStagioni();
-  loadEntrate();
-  loadQuote();
-  loadSpese();
-  initOrganigramma();
-  loadOrganigramma();
-  checkInstallBanner();
-
-  // 📅 date default contabilità
-  if (document.getElementById("dataInizio")) {
-    document.getElementById("dataInizio").value = "2025-09-01";
-    document.getElementById("dataFine").value = "2026-08-29";
-  }
-
-  calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
-  initialView: 'dayGridMonth',
-  firstDay: 1,
-
-  events: eventi,
-
-  eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false 
-},
-
-  // ⭐ NUOVO: layout personalizzato
-  eventContent: function(arg) {
-    const d = arg.event.extendedProps;
-
-    const tipo = arg.event.title.split(" - ")[0] || "";
-    const luogo = arg.event.title.split(" - ")[1] || "";
-
-    const time = arg.timeText || "";
-
-    const isMatch = tipo.toLowerCase().includes("partita");
-
-const isAltro = tipo.toLowerCase().includes("altro");
-
-// 🎨 colore dinamico
-let bgColor = "";
-if (isAltro) bgColor = "#f4d03f"; // giallo
-
-return {
-  html: `
-    <div style="
-      font-size:11px;
-      line-height:1.2em;
-      background:${bgColor};
-      border-radius:4px;
-      padding:2px;
-    ">
-      <div><b>${time}</b></div>
-      <div>
-        ${isMatch ? "⚽ " : ""}${tipo}
-      </div>
-      <div>${luogo || ""}</div>
-    </div>
-  `
-};
-},
-
-  eventClick: async function(info) {
-    if (!isAdmin) return alert("Solo admin");
-
-    if (calendarDeleteMode) {
-      if (confirm("Eliminare evento?")) {
-        await deleteDoc(doc(db, "eventi", info.event.id));
-        info.event.remove();
-      }
-    }
-  },
-
-  dayCellDidMount: function(info) {
-
-  const oggi = new Date();
-  oggi.setHours(0,0,0,0); // azzera orario
-
-  const giorno = new Date(info.date);
-  giorno.setHours(0,0,0,0);
-
-  if (giorno < oggi) {
-    info.el.style.backgroundColor = "rgba(0,0,0,0.06)";
-  }
-
-},
-
-});
-  calendar.render();
-  loadExtraEvents();
-  loadJobs();
-  loadDocs();
-});
-
-// CALENDARIO ACTIONS
 window.openAdmin = function() {
   if (!isAdmin) return alert("Solo admin");
   document.getElementById("adminModal").style.display = "flex";
@@ -934,91 +651,6 @@ window.toggleCalendarDelete = function() {
   calendarDeleteMode = !calendarDeleteMode;
 }
 
-// resto codice invariato (eventi extra + job + delete)
-async function loadExtraEvents() {
-  const list = document.getElementById("eventiExtraList");
-  list.innerHTML = "";
-
-  const snapshot = await getDocs(collection(db, "eventiExtra"));
-
-  snapshot.forEach(docSnap => {
-
-const div = document.createElement("div");
-
-div.style = `
-  background:white;
-  border-radius:14px;
-  padding:14px;
-  margin:14px auto;
-  width:92%;
-  max-width:520px;
-
-  box-shadow:
-    0 3px 10px rgba(0,0,0,0.12);
-
-  text-align:left;
-`;
-
-div.innerHTML = `
-  <div style="
-    color:#145a2a;
-    font-size:13px;
-    font-weight:700;
-    margin-bottom:8px;
-  ">
-    📅 🐭 PROSSIMO EVENTO
-  </div>
-
-  <div style="
-    font-size:19px;
-    font-weight:700;
-    line-height:1.4em;
-  ">
-    ${docSnap.data().testo}
-  </div>
-`;
-
-
-if (deleteMode && isAdmin) {
-
-  const x =
-    document.createElement("button");
-
-  x.innerText = "❌ Elimina";
-
-  x.style = `
-    margin-top:12px;
-    padding:6px 10px;
-
-    background:#b71c1c;
-    color:white;
-
-    border:none;
-    border-radius:8px;
-
-    cursor:pointer;
-    width:auto;
-    font-size:12px;
-  `;
-
-  x.onclick = async () => {
-
-    await deleteDoc(
-      doc(db,"eventiExtra",docSnap.id)
-    );
-
-    loadExtraEvents();
-
-  };
-
-  div.appendChild(x);
-
-}
-
-    list.appendChild(div);
-  });
-}
-
 window.addEvent = async function() {
   const tipo = document.getElementById("tipo").value;
   const data = document.getElementById("data").value;
@@ -1026,36 +658,58 @@ window.addEvent = async function() {
   const luogo = document.getElementById("luogo").value;
   const costo = parseFloat(document.getElementById("costo").value) || 0;
 
-  if (!data || !ora) {
-    return alert("Compila data e ora");
-  }
+  if (!data || !ora) return alert("Compila data e ora");
 
-const stagione =
-  document.getElementById("stagioneSelect").value;
+  const stagione = document.getElementById("stagioneSelect").value;
 
-const docRef = await addDoc(collection(db, "eventi"), {
-  tipo,
-  data,
-  ora,
-  luogo,
-  costo,
-  stagione
-});
+  const docRef = await addDoc(collection(db, "eventi"), { tipo, data, ora, luogo, costo, stagione });
 
+  let color = tipo === "Altro" ? "#f4d03f" : "";
 
-let color = "";
-if (tipo === "Altro") color = "#f4d03f";
-
-calendar.addEvent({
-  id: docRef.id,
-  title: luogo ? (tipo + " - " + luogo) : tipo,
-  start: data + "T" + ora,
-  backgroundColor: color,
-  borderColor: color
-});
+  calendar.addEvent({
+    id: docRef.id,
+    title: luogo ? (tipo + " - " + luogo) : tipo,
+    start: data + "T" + ora,
+    backgroundColor: color,
+    borderColor: color
+  });
 
   closeModal("adminModal");
 };
+
+// ─── EVENTI EXTRA ────────────────────────────────────────
+async function loadExtraEvents() {
+  const list = document.getElementById("eventiExtraList");
+  list.innerHTML = "";
+
+  const snapshot = await getDocs(collection(db, "eventiExtra"));
+
+  snapshot.forEach(docSnap => {
+    const div = document.createElement("div");
+    div.style = `
+      background:white; border-radius:14px; padding:14px;
+      margin:14px auto; width:92%; max-width:520px;
+      box-shadow:0 3px 10px rgba(0,0,0,0.12); text-align:left;
+    `;
+    div.innerHTML = `
+      <div style="color:#145a2a; font-size:13px; font-weight:700; margin-bottom:8px;">📅 🐭 PROSSIMO EVENTO</div>
+      <div style="font-size:19px; font-weight:700; line-height:1.4em;">${docSnap.data().testo}</div>
+    `;
+
+    if (dm("eventiExtraList")) {
+      const x = document.createElement("button");
+      x.innerText = "❌ Elimina";
+      x.style = `margin-top:12px; padding:6px 10px; background:#b71c1c; color:white; border:none; border-radius:8px; cursor:pointer; width:auto; font-size:12px;`;
+      x.onclick = async () => {
+        await deleteDoc(doc(db, "eventiExtra", docSnap.id));
+        loadExtraEvents();
+      };
+      div.appendChild(x);
+    }
+
+    list.appendChild(div);
+  });
+}
 
 window.addExtraEvent = async () => {
   if (!isAdmin) return alert("Solo admin");
@@ -1065,19 +719,16 @@ window.addExtraEvent = async () => {
   loadExtraEvents();
 }
 
+// ─── ORGANIGRAMMA ────────────────────────────────────────
 window.initOrganigramma = function() {
   document.querySelectorAll("#organigramma .box").forEach(box => {
-
     box.onclick = async () => {
       if (!isAdmin) return;
 
       const ruolo = box.dataset.ruolo;
-
       const azione = prompt("Scrivi:\n1 = aggiungi\n2 = rimuovi");
-
       const ref = doc(db, "organigramma", ruolo);
       const snap = await getDoc(ref);
-
       let nomi = snap.exists() ? (snap.data().nomi || []) : [];
 
       if (azione == "1") {
@@ -1085,482 +736,253 @@ window.initOrganigramma = function() {
         if (!nome) return;
         nomi.push(nome);
       }
-
       if (azione == "2") {
         const nome = prompt("Nome da rimuovere:");
         nomi = nomi.filter(n => n !== nome);
       }
 
       await setDoc(ref, { nomi });
-
       loadOrganigramma();
     };
-
   });
-};
-
-async function loadStagioni() {
-
-  const select =
-    document.getElementById("stagioneSelect");
-
-  const filtro =
-    document.getElementById("filtroStagione");
-
-  select.innerHTML = "";
-  filtro.innerHTML = "";
-
-  const snapshot =
-    await getDocs(
-      collection(db,"stagioniContabili")
-    );
-
-  snapshot.forEach(docSnap => {
-
-    const d = docSnap.data();
-
-    // SELECT BILANCIO
-
-    const option1 =
-      document.createElement("option");
-
-    option1.value = d.nome;
-
-    option1.innerText =
-      `${d.nome} (${d.inizio} → ${d.fine})`;
-
-    select.appendChild(option1);
-
-    // SELECT FILTRO
-
-    const option2 =
-      document.createElement("option");
-
-    option2.value = d.nome;
-
-    option2.innerText = d.nome;
-
-    filtro.appendChild(option2);
-
-  });
-
-filtro.addEventListener("change", () => {
-    loadEntrate();
-    loadSpese();
-});
-
-
-}
-
-window.addStagione = async () => {
-
-  if (!isAdmin) return;
-
-  const nome = prompt("Nome stagione contabile:");
-
-  if (!nome) return;
-
-  const inizio = prompt("Data inizio (AAAA-MM-GG)");
-
-  if (!inizio) return;
-
-  const fine = prompt("Data fine (AAAA-MM-GG)");
-
-  if (!fine) return;
-
-  await addDoc(collection(db, "stagioniContabili"), {
-    nome,
-    inizio,
-    fine
-  });
-
-  loadStagioni();
-
-}
-
-
-window.addEntrata = async () => {
-
-  const nome = prompt("Nome entrata:");
-  if (!nome) return;
-
-  const valore = parseFloat(prompt("Importo (€):"));
-  if (!valore) return;
-
-  const oggi = new Date().toISOString().split("T")[0];
-
-  const data =
-    prompt("Data entrata (AAAA-MM-GG):", oggi);
-
-  if (!data) return;
-
-  const stagioniSnap =
-    await getDocs(collection(db, "stagioniContabili"));
-
-  let stagioneNome = null;
-
-  stagioniSnap.forEach(docSnap => {
-
-    const s = docSnap.data();
-
-    if (data >= s.inizio && data <= s.fine) {
-      stagioneNome = s.nome;
-    }
-
-  });
-
-  if (!stagioneNome) {
-    return alert(
-      "Nessuna stagione contabile trovata per questa data"
-    );
-  }
-
-  await addDoc(collection(db, "entrate"), {
-    nome,
-    valore,
-    data,
-    stagione: stagioneNome
-  });
-
-  loadEntrate();
-
-};
-
-window.addSpesa = async () => {
-
-  const nome = prompt("Nome spesa:");
-  if (!nome) return;
-
-  const valore = parseFloat(prompt("Importo (€):"));
-  if (!valore) return;
-
-  // DATA DEFAULT = OGGI
-  const oggi = new Date().toISOString().split("T")[0];
-
-  const data =
-    prompt("Data spesa (AAAA-MM-GG):", oggi);
-
-  if (!data) return;
-
-  // 🔥 TROVA STAGIONE AUTOMATICA
-  const stagioniSnap =
-    await getDocs(collection(db, "stagioniContabili"));
-
-  let stagioneNome = null;
-
-  stagioniSnap.forEach(docSnap => {
-
-    const s = docSnap.data();
-
-    if (data >= s.inizio && data <= s.fine) {
-      stagioneNome = s.nome;
-    }
-
-  });
-
-  if (!stagioneNome) {
-    return alert(
-      "Nessuna stagione contabile trovata per questa data"
-    );
-  }
-
-  // SALVATAGGIO
-  await addDoc(collection(db, "spese"), {
-    nome,
-    valore,
-    data,
-    stagione: stagioneNome
-  });
-
-  loadSpese();
-
 };
 
 async function loadOrganigramma() {
   const snapshot = await getDocs(collection(db, "organigramma"));
-
-  document.querySelectorAll("#organigramma .box span")
-    .forEach(s => s.innerText = "");
+  document.querySelectorAll("#organigramma .box span").forEach(s => s.innerText = "");
 
   snapshot.forEach(docSnap => {
     const ruolo = docSnap.id;
     const d = docSnap.data();
-
     const box = document.querySelector(`[data-ruolo="${ruolo}"] span`);
-
-    if (box && d.nomi) {
-      box.innerHTML = d.nomi.join("<br>");
-    }
+    if (box && d.nomi) box.innerHTML = d.nomi.join("<br>");
   });
 }
 
-async function loadEntrate() {
+// ─── STAGIONI CONTABILI ──────────────────────────────────
+async function loadStagioni() {
+  const select = document.getElementById("stagioneSelect");
+  const filtro = document.getElementById("filtroStagione");
+  const quoteSelect = document.getElementById("quoteStagioneInlineSelect");
 
-  const list =
-    document.getElementById("entrateList");
+  select.innerHTML = "";
+  filtro.innerHTML = "";
+  if (quoteSelect) quoteSelect.innerHTML = "";
 
-  list.innerHTML = "";
-
-  const stagioneFiltro =
-    document.getElementById(
-      "filtroStagione"
-    )?.value;
-
-  const snap =
-    await getDocs(collection(db,"entrate"));
-
-  snap.forEach(docSnap => {
-
-    const d = docSnap.data();
-
-    if (
-      stagioneFiltro &&
-      d.stagione !== stagioneFiltro
-    ) return;
-
-    const div =
-      document.createElement("div");
-
-    div.className = "item";
-
-    div.innerHTML =
-      `💰 ${d.data || ""} — ${d.nome} — €${d.valore}`;
-
-    if (deleteMode && isAdmin) {
-
-      const x =
-        document.createElement("span");
-
-      x.innerText = "❌";
-
-      x.onclick = async () => {
-
-        await deleteDoc(
-          doc(db,"entrate",docSnap.id)
-        );
-
-        loadEntrate();
-
-      };
-
-      div.appendChild(x);
-
-    }
-
-    list.appendChild(div);
-
-  });
-
-}
-
-
-async function loadSpese() {
-
-  const list =
-    document.getElementById("speseList");
-
-  list.innerHTML = "";
-
-  const stagioneFiltro =
-    document.getElementById(
-      "filtroStagione"
-    )?.value;
-
-  const snapshot =
-    await getDocs(collection(db,"spese"));
+  const snapshot = await getDocs(collection(db, "stagioniContabili"));
 
   snapshot.forEach(docSnap => {
-
     const d = docSnap.data();
 
-    if (
-      stagioneFiltro &&
-      d.stagione !== stagioneFiltro
-    ) return;
+    const opt1 = document.createElement("option");
+    opt1.value = d.nome;
+    opt1.innerText = `${d.nome} (${d.inizio} → ${d.fine})`;
+    select.appendChild(opt1);
 
-    const div =
-      document.createElement("div");
+    const opt2 = document.createElement("option");
+    opt2.value = d.nome;
+    opt2.innerText = d.nome;
+    filtro.appendChild(opt2);
 
+    if (quoteSelect) {
+      const opt3 = document.createElement("option");
+      opt3.value = d.nome;
+      opt3.innerText = d.nome;
+      quoteSelect.appendChild(opt3);
+    }
+  });
+
+  filtro.addEventListener("change", () => {
+    loadEntrate();
+    loadSpese();
+  });
+
+  if (quoteSelect) {
+    quoteSelect.addEventListener("change", () => loadQuoteInline());
+  }
+
+  loadQuoteInline();
+}
+
+window.addStagione = async () => {
+  if (!isAdmin) return;
+  const nome = prompt("Nome stagione contabile:");
+  if (!nome) return;
+  const inizio = prompt("Data inizio (AAAA-MM-GG)");
+  if (!inizio) return;
+  const fine = prompt("Data fine (AAAA-MM-GG)");
+  if (!fine) return;
+  await addDoc(collection(db, "stagioniContabili"), { nome, inizio, fine });
+  loadStagioni();
+}
+
+// ─── ENTRATE ─────────────────────────────────────────────
+window.addEntrata = async () => {
+  const nome = prompt("Nome entrata:");
+  if (!nome) return;
+  const valore = parseFloat(prompt("Importo (€):"));
+  if (!valore) return;
+  const oggi = new Date().toISOString().split("T")[0];
+  const data = prompt("Data entrata (AAAA-MM-GG):", oggi);
+  if (!data) return;
+
+  const stagioniSnap = await getDocs(collection(db, "stagioniContabili"));
+  let stagioneNome = null;
+  stagioniSnap.forEach(docSnap => {
+    const s = docSnap.data();
+    if (data >= s.inizio && data <= s.fine) stagioneNome = s.nome;
+  });
+
+  if (!stagioneNome) return alert("Nessuna stagione contabile trovata per questa data");
+
+  await addDoc(collection(db, "entrate"), { nome, valore, data, stagione: stagioneNome });
+  loadEntrate();
+};
+
+async function loadEntrate() {
+  const list = document.getElementById("entrateList");
+  list.innerHTML = "";
+
+  const stagioneFiltro = document.getElementById("filtroStagione")?.value;
+  const snap = await getDocs(collection(db, "entrate"));
+
+  snap.forEach(docSnap => {
+    const d = docSnap.data();
+    if (stagioneFiltro && d.stagione !== stagioneFiltro) return;
+
+    const div = document.createElement("div");
     div.className = "item";
+    div.innerHTML = `💰 ${d.data || ""} — ${d.nome} — €${d.valore}`;
 
-    div.innerHTML =
-      `💸 ${d.data || ""} — ${d.nome} — €${d.valore}`;
-
-    if (deleteMode && isAdmin) {
-
-      const x =
-        document.createElement("span");
-
+    if (dm("entrateList")) {
+      const x = document.createElement("span");
       x.innerText = "❌";
-
-      x.className = "deleteX";
-
       x.onclick = async () => {
-
-        await deleteDoc(
-          doc(db,"spese",docSnap.id)
-        );
-
-        loadSpese();
-
+        await deleteDoc(doc(db, "entrate", docSnap.id));
+        loadEntrate();
       };
-
       div.appendChild(x);
-
     }
 
     list.appendChild(div);
-
   });
-
 }
 
-window.calcolaBilancio = async function() {
+// ─── SPESE ───────────────────────────────────────────────
+window.addSpesa = async () => {
+  const nome = prompt("Nome spesa:");
+  if (!nome) return;
+  const valore = parseFloat(prompt("Importo (€):"));
+  if (!valore) return;
+  const oggi = new Date().toISOString().split("T")[0];
+  const data = prompt("Data spesa (AAAA-MM-GG):", oggi);
+  if (!data) return;
 
-  const stagione =
-    document.getElementById("stagioneSelect").value;
-
-let totaleSpese=0;
-let totaleEntrate=0;
-
-let costoAllenamenti=0;
-let costoPartite=0;
-
-let nAllenamenti=0;
-let nPartite=0;
-
-// RECUPERO DATE DELLA STAGIONE SELEZIONATA
-
-const stagioniSnap =
-  await getDocs(
-    collection(db,"stagioniContabili")
-  );
-
-let dataInizio="";
-let dataFine="";
-
-stagioniSnap.forEach(docSnap=>{
-
-  const s = docSnap.data();
-
-  if(s.nome===stagione){
-
-    dataInizio = s.inizio;
-    dataFine = s.fine;
-
-  }
-
-});
-
-
-// EVENTI
-
-const eventiSnap =
-  await getDocs(collection(db,"eventi"));
-
-eventiSnap.forEach(docSnap=>{
-
-  const d = docSnap.data();
-
-  // CONTROLLO SULLA DATA REALE EVENTO
-
-  if(
-    d.data >= dataInizio &&
-    d.data <= dataFine
-  ){
-
-    const costo =
-      parseFloat(d.costo || 0);
-
-    totaleSpese += costo;
-
-    if(d.tipo==="Allenamento"){
-
-      costoAllenamenti += costo;
-
-      nAllenamenti++;
-
-    }
-
-    if(d.tipo==="Partita"){
-
-      costoPartite += costo;
-
-      nPartite++;
-
-    }
-
-  }
-
-});
-
-  // ENTRATE
-
-  const entrateSnap =
-    await getDocs(collection(db, "entrate"));
-
-  entrateSnap.forEach(docSnap => {
-
-    const d = docSnap.data();
-
-    if (d.stagione === stagione) {
-      totaleEntrate += parseFloat(d.valore || 0);
-    }
-
+  const stagioniSnap = await getDocs(collection(db, "stagioniContabili"));
+  let stagioneNome = null;
+  stagioniSnap.forEach(docSnap => {
+    const s = docSnap.data();
+    if (data >= s.inizio && data <= s.fine) stagioneNome = s.nome;
   });
 
-  // SPESE EXTRA
+  if (!stagioneNome) return alert("Nessuna stagione contabile trovata per questa data");
 
-  const speseSnap =
-    await getDocs(collection(db, "spese"));
-
-  speseSnap.forEach(docSnap => {
-
-    const d = docSnap.data();
-
-    if (d.stagione === stagione) {
-      totaleSpese += parseFloat(d.valore || 0);
-    }
-
-  });
-
-  const saldo =
-    totaleEntrate - totaleSpese;
-
-document.getElementById(
- "risultatoBilancio"
-).innerHTML=
-`
-<p><b>Entrate:</b> €${totaleEntrate}</p>
-
-<p>
-<b>Spese:</b> €${totaleSpese}
-</p>
-
-<div style="
-  font-size:14px;
-  color:#444;
-  margin-bottom:10px;
-">
-
-⚽ Allenamenti
-(${nAllenamenti})
-:
-€${costoAllenamenti}
-
-🏆 Partite
-(${nPartite})
-:
-€${costoPartite}
-</div>
-
-<h3>
-Saldo: €${saldo}
-</h3>
-`;
+  await addDoc(collection(db, "spese"), { nome, valore, data, stagione: stagioneNome });
+  loadSpese();
 };
 
+async function loadSpese() {
+  const list = document.getElementById("speseList");
+  list.innerHTML = "";
 
+  const stagioneFiltro = document.getElementById("filtroStagione")?.value;
+  const snapshot = await getDocs(collection(db, "spese"));
+
+  snapshot.forEach(docSnap => {
+    const d = docSnap.data();
+    if (stagioneFiltro && d.stagione !== stagioneFiltro) return;
+
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `💸 ${d.data || ""} — ${d.nome} — €${d.valore}`;
+
+    if (dm("speseList")) {
+      const x = document.createElement("span");
+      x.innerText = "❌";
+      x.className = "deleteX";
+      x.onclick = async () => {
+        await deleteDoc(doc(db, "spese", docSnap.id));
+        loadSpese();
+      };
+      div.appendChild(x);
+    }
+
+    list.appendChild(div);
+  });
+}
+
+// ─── BILANCIO ────────────────────────────────────────────
+window.calcolaBilancio = async function() {
+  const stagione = document.getElementById("stagioneSelect").value;
+
+  let totaleSpese = 0, totaleEntrate = 0, entrateQuote = 0;
+  let costoAllenamenti = 0, costoPartite = 0;
+  let nAllenamenti = 0, nPartite = 0;
+
+  const stagioniSnap = await getDocs(collection(db, "stagioniContabili"));
+  let dataInizio = "", dataFine = "";
+  stagioniSnap.forEach(docSnap => {
+    const s = docSnap.data();
+    if (s.nome === stagione) { dataInizio = s.inizio; dataFine = s.fine; }
+  });
+
+  const eventiSnap = await getDocs(collection(db, "eventi"));
+  eventiSnap.forEach(docSnap => {
+    const d = docSnap.data();
+    if (d.data >= dataInizio && d.data <= dataFine) {
+      const costo = parseFloat(d.costo || 0);
+      totaleSpese += costo;
+      if (d.tipo === "Allenamento") { costoAllenamenti += costo; nAllenamenti++; }
+      if (d.tipo === "Partita") { costoPartite += costo; nPartite++; }
+    }
+  });
+
+  const entrateSnap = await getDocs(collection(db, "entrate"));
+  entrateSnap.forEach(docSnap => {
+    const d = docSnap.data();
+    if (d.stagione === stagione) totaleEntrate += parseFloat(d.valore || 0);
+  });
+
+  const rateSnap = await getDocs(collection(db, "rate"));
+  rateSnap.forEach(docSnap => {
+    const d = docSnap.data();
+    if (d.stagione === stagione && d.pagata === true) {
+      totaleEntrate += parseFloat(d.importo || 0);
+      entrateQuote += parseFloat(d.importo || 0);
+    }
+  });
+
+  const speseSnap = await getDocs(collection(db, "spese"));
+  speseSnap.forEach(docSnap => {
+    const d = docSnap.data();
+    if (d.stagione === stagione) totaleSpese += parseFloat(d.valore || 0);
+  });
+
+  const saldo = totaleEntrate - totaleSpese;
+
+  document.getElementById("risultatoBilancio").innerHTML = `
+    <p><b>Entrate:</b> €${totaleEntrate}</p>
+    <div style="font-size:14px; color:#444; margin-bottom:10px;">💳 Di cui quote tesserati: €${entrateQuote}</div>
+    <p><b>Spese:</b> €${totaleSpese}</p>
+    <div style="font-size:14px; color:#444; margin-bottom:10px;">
+      ⚽ Di cui allenamenti (${nAllenamenti}): €${costoAllenamenti}
+      🏆 Di cui partite (${nPartite}): €${costoPartite}
+    </div>
+    <h3>Saldo: €${saldo}</h3>
+  `;
+};
+
+// ─── POSIZIONI LAVORO ────────────────────────────────────
 async function loadJobs() {
   const list = document.getElementById("jobList");
   list.innerHTML = "";
@@ -1568,39 +990,19 @@ async function loadJobs() {
   const snapshot = await getDocs(collection(db, "posizioni"));
 
   snapshot.forEach(docSnap => {
-const div = document.createElement("div");
+    const div = document.createElement("div");
+    div.className = "item";
+    div.style = `
+      background:white; border-left:6px solid #145a2a; border-radius:12px;
+      padding:14px; margin:12px auto; max-width:650px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.12);
+    `;
+    div.innerHTML = `
+      <div style="font-size:18px; font-weight:600; color:#145a2a; margin-bottom:8px;">💼 Posizione aperta 🐭</div>
+      <div style="font-size:17px; line-height:1.5em;">${docSnap.data().testo}</div>
+    `;
 
-div.className = "item";
-
-div.style = `
-  background:white;
-  border-left:6px solid #145a2a;
-  border-radius:12px;
-  padding:14px;
-  margin:12px auto;
-  max-width:650px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.12);
-`;
-
-div.innerHTML = `
-  <div style="
-    font-size:18px;
-    font-weight:600;
-    color:#145a2a;
-    margin-bottom:8px;
-  ">
-    💼 Posizione aperta 🐭
-  </div>
-
-  <div style="
-    font-size:17px;
-    line-height:1.5em;
-  ">
-    ${docSnap.data().testo}
-  </div>
-`;
-
-    if (deleteMode && isAdmin) {
+    if (dm("jobList")) {
       const x = document.createElement("span");
       x.innerText = "❌";
       x.className = "deleteX";
@@ -1623,29 +1025,39 @@ window.addJob = async () => {
   loadJobs();
 }
 
-async function loadDocs() {
-  const list = document.getElementById("modulisticaList");
+// ─── MODULISTICA ─────────────────────────────────────────
+async function loadLinks() {
+  const list = document.getElementById("linkList");
   list.innerHTML = "";
 
-  const snapshot = await getDocs(collection(db, "modulistica"));
+  const snapshot = await getDocs(collection(db, "modulistica_link"));
 
   snapshot.forEach(docSnap => {
     const d = docSnap.data();
 
     const div = document.createElement("div");
-    div.className = "item";
-
-    div.innerHTML = `
-      📄 <a href="${d.url}" target="_blank">${d.nome}</a>
+    div.style = `
+      background:white; border-left:6px solid #145a2a; border-radius:12px;
+      padding:12px 16px; margin:10px auto; max-width:650px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.1);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
     `;
 
-    if (deleteMode && isAdmin) {
+    const link = document.createElement("a");
+    link.href = d.url;
+    link.target = "_blank";
+    link.style = "font-size:16px; font-weight:600; color:#145a2a; flex:1; text-align:left; text-decoration:none;";
+    link.innerText = `🔗 ${d.nome}`;
+    div.appendChild(link);
+
+    if (dm("linkList")) {
       const x = document.createElement("span");
-      x.innerText = " ❌";
+      x.innerText = "❌";
       x.className = "deleteX";
+      x.style = "font-size:18px; cursor:pointer;";
       x.onclick = async () => {
-        await deleteDoc(doc(db, "modulistica", docSnap.id));
-        loadDocs();
+        await deleteDoc(doc(db, "modulistica_link", docSnap.id));
+        loadLinks();
       };
       div.appendChild(x);
     }
@@ -1654,6 +1066,67 @@ async function loadDocs() {
   });
 }
 
+async function loadPDF() {
+  const list = document.getElementById("pdfList");
+  list.innerHTML = "";
+
+  const snapshot = await getDocs(collection(db, "modulistica_pdf"));
+
+  snapshot.forEach(docSnap => {
+    const d = docSnap.data();
+
+    const div = document.createElement("div");
+    div.style = `
+      background:white; border-left:6px solid #145a2a; border-radius:12px;
+      padding:12px 16px; margin:10px auto; max-width:650px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.1);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    `;
+
+    const link = document.createElement("a");
+    link.href = d.url;
+    link.target = "_blank";
+    link.style = "font-size:16px; font-weight:600; color:#145a2a; flex:1; text-align:left; text-decoration:none;";
+    link.innerText = `📄 ${d.nome}`;
+    div.appendChild(link);
+
+    if (dm("pdfList")) {
+      const x = document.createElement("span");
+      x.innerText = "❌";
+      x.className = "deleteX";
+      x.style = "font-size:18px; cursor:pointer;";
+      x.onclick = async () => {
+        await deleteDoc(doc(db, "modulistica_pdf", docSnap.id));
+        loadPDF();
+      };
+      div.appendChild(x);
+    }
+
+    list.appendChild(div);
+  });
+}
+
+window.addPDF = async () => {
+  if (!isAdmin) return alert("Solo admin");
+  const nome = prompt("Nome PDF:");
+  if (!nome) return;
+  const url = prompt("Link PDF (GitHub RAW):");
+  if (!url) return;
+  await addDoc(collection(db, "modulistica_pdf"), { nome, url });
+  loadPDF();
+};
+
+window.addLink = async () => {
+  if (!isAdmin) return alert("Solo admin");
+  const nome = prompt("Nome link:");
+  if (!nome) return;
+  const url = prompt("Incolla link:");
+  if (!url) return;
+  await addDoc(collection(db, "modulistica_link"), { nome, url });
+  loadLinks();
+};
+
+// ─── SHOP ────────────────────────────────────────────────
 async function loadProducts() {
   const list = document.getElementById("shopList");
   list.innerHTML = "";
@@ -1662,7 +1135,6 @@ async function loadProducts() {
 
   snapshot.forEach(docSnap => {
     const d = docSnap.data();
-
     const card = document.createElement("div");
     card.style.width = "180px";
     card.style.margin = "10px";
@@ -1671,52 +1143,22 @@ async function loadProducts() {
     card.style.padding = "10px";
     card.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
 
-card.innerHTML = `
+    card.innerHTML = `
+      <img src="${d.img}"
+        style="width:100%; height:190px; object-fit:cover; border-radius:8px; cursor:pointer;"
+        onclick="openImageModal('${d.img}', '${d.nome}')"
+        onerror="this.src='https://via.placeholder.com/150';">
+      <div style="margin-top:5px; font-size:14px;">
+        <b>${d.nome}</b>
+        <div style="color:#0b3d1b; font-size:15px; font-weight:700; margin-top:5px;">€ ${d.prezzo || "-"}</div>
+      </div>
+      <button onclick="richiediProdotto('${docSnap.id}', '${d.nome}')"
+        style="margin-top:8px; width:100%; padding:6px; background:#145a2a; color:white; border:none; border-radius:6px; cursor:pointer;">
+        Richiedi
+      </button>
+    `;
 
-<img src="${d.img}"
-style="
-  width:100%;
-  height:190px;
-  object-fit:cover;
-  border-radius:8px;
-  cursor:pointer;
-"
-
-       onclick="openImageModal('${d.img}', '${d.nome}')"
-       onerror="this.src='https://via.placeholder.com/150';">
-
-<div style="margin-top:5px; font-size:14px;">
-
-  <b>${d.nome}</b>
-
-  <div style="
-    color:#0b3d1b;
-    font-size:15px;
-    font-weight:700;
-    margin-top:5px;
-  ">
-
-    € ${d.prezzo || "-"}
-
-  </div>
-
-</div>
-
-  <button onclick="richiediProdotto('${docSnap.id}', '${d.nome}')"
-    style="
-      margin-top:8px;
-      width:100%;
-      padding:6px;
-      background:#145a2a;
-      color:white;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
-    ">
-    Richiedi
-  </button>
-`;
-    if (deleteMode && isAdmin) {
+    if (dm("shopList")) {
       const x = document.createElement("div");
       x.innerText = "❌";
       x.style.cursor = "pointer";
@@ -1731,235 +1173,358 @@ style="
   });
 }
 
-window.toggleDelete = target => {
-  if (!isAdmin) return alert("Solo admin");
-
-  deleteMode = !deleteMode;
-
-  if (target === "eventiExtraList") loadExtraEvents();
-  if (target === "jobList") loadJobs();
-  if (target === "modulisticaList") loadDocs(); 
-  if (target === "shopList") loadProducts();
-  if (target === "pdfList") loadPDF();
-  if (target === "linkList") loadLinks();
-  if (target === "entrateList") loadEntrate();   
-  if (target === "speseList") loadSpese();      
-
-}
-
-window.candidati = async function() {
-
-  const nome = prompt("Inserisci il tuo nome e cognome:");
-  if (!nome) return;
-
-  const posizione = prompt("Per quale posizione ti candidi?");
-  if (!posizione) return;
-
-  await addDoc(collection(db, "candidature"), {
-    nome,
-    posizione,
-    data: new Date().toISOString().split("T")[0]
-  });
-
-  alert("Candidatura inviata con successo!");
-};
-
-window.addDocLink = async () => {
-  if (!isAdmin) return alert("Solo admin");
-
-  const nome = prompt("Nome documento:");
-  if (!nome) return;
-
-  const url = prompt("Dammi il link Raw");
-  if (!url) return;
-
-  try {
-    await addDoc(collection(db, "modulistica"), {
-      nome,
-      url
-    });
-
-    loadDocs();
-
-  } catch (e) {
-    alert("Errore salvataggio");
-    console.error(e);
-  }
-};
-
-window.addPDF = async () => {
-  if (!isAdmin) return alert("Solo admin");
-
-  const nome = prompt("Nome PDF:");
-  if (!nome) return;
-
-  const url = prompt("Link PDF (GitHub RAW):");
-  if (!url) return;
-
-  await addDoc(collection(db, "modulistica_pdf"), { nome, url });
-  loadPDF();
-};
-
-window.addLink = async () => {
-  if (!isAdmin) return alert("Solo admin");
-
-  const nome = prompt("Nome link:");
-  if (!nome) return;
-
-  const url = prompt("Incolla link:");
-  if (!url) return;
-
-  await addDoc(collection(db, "modulistica_link"), { nome, url });
-  loadLinks();
-};
-
 window.addProduct = async () => {
-
-  if (!isAdmin)
-    return alert("Solo admin");
-
-  const nome =
-    prompt("Nome prodotto:");
-
+  if (!isAdmin) return alert("Solo admin");
+  const nome = prompt("Nome prodotto:");
   if (!nome) return;
-
-  const prezzo =
-    prompt("Prezzo (€):");
-
+  const prezzo = prompt("Prezzo (€):");
   if (!prezzo) return;
-
-  const img =
-    prompt("Incolla link immagine:");
-
+  const img = prompt("Incolla link immagine:");
   if (!img) return;
 
   try {
-
-    await addDoc(
-      collection(db,"prodotti"),
-      {
-        nome,
-        prezzo,
-        img
-      }
-    );
-
+    await addDoc(collection(db, "prodotti"), { nome, prezzo, img });
     loadProducts();
-
-  } catch(e){
-
+  } catch(e) {
     alert("Errore salvataggio");
-
     console.error(e);
-
   }
-
 };
 
-if ("serviceWorker" in navigator) {
+// ─── RICHIESTE / ORDINI ──────────────────────────────────
+window.richiediProdotto = async (id, nomeProdotto) => {
+  const nome = prompt("Inserisci il tuo nome: (NO NOMIGNOLI O SOPRANNOMI, GRAZIE!!!)");
+  if (!nome) return;
+  const taglia = prompt("Inserisci la taglia:");
+  if (!taglia) return;
+  await addDoc(collection(db, "richieste_prodotti"), {
+    prodottoId: id, prodottoNome: nomeProdotto, nomeUtente: nome,
+    taglia, data: new Date().toISOString().split("T")[0]
+  });
+  alert("Richiesta inviata!");
+};
 
-navigator.serviceWorker.register(
-  "/MarzenegoWebpage/service-worker.js"
-)
+async function loadRichieste() {
+  const list = document.getElementById("richiesteList");
+  if (!list) return;
 
-    .then(() => console.log("Service Worker registrato"));
+  list.innerHTML = "";
+  list.style.display = "flex";
+  list.style.flexWrap = "wrap";
+  list.style.justifyContent = "center";
+  list.style.gap = "12px";
+
+  const snap = await getDocs(collection(db, "richieste_prodotti"));
+  const gruppi = {};
+
+  snap.forEach(docSnap => {
+    const d = docSnap.data();
+    if (!gruppi[d.prodottoNome]) gruppi[d.prodottoNome] = [];
+    gruppi[d.prodottoNome].push({ id: docSnap.id, ...d });
+  });
+
+  for (const prodotto in gruppi) {
+    const richieste = gruppi[prodotto];
+    const box = document.createElement("div");
+    box.style = `background:white; border-radius:12px; padding:12px; width:45%; min-width:280px; box-shadow:0 2px 6px rgba(0,0,0,0.15);`;
+    box.innerHTML = `<h4 style="margin-top:0; color:#145a2a;">🛒 ${prodotto} (${richieste.length})</h4>`;
+
+    richieste.forEach(r => {
+      const riga = document.createElement("div");
+      riga.style = `border-top:1px solid #ddd; padding:8px 0;`;
+      riga.innerHTML = `👤 ${r.nomeUtente}<br>📏 Taglia: ${r.taglia}<br>📅 ${r.data}`;
+
+      if (isAdmin) {
+        const btn = document.createElement("button");
+        btn.innerText = "✔ Consegnato";
+        btn.style = `margin-top:6px; padding:4px 8px; font-size:12px; width:auto; background:#0b3d1b; color:white; border:none; border-radius:6px; cursor:pointer; margin-right:8px;`;
+        btn.onclick = async () => {
+          await deleteDoc(doc(db, "richieste_prodotti", r.id));
+          loadRichieste();
+        };
+        riga.appendChild(btn);
+
+        if (dm("shopList")) {
+          const x = document.createElement("span");
+          x.innerText = "❌";
+          x.style = `cursor:pointer; color:red; margin-left:8px;`;
+          x.onclick = async () => {
+            await deleteDoc(doc(db, "richieste_prodotti", r.id));
+            loadRichieste();
+          };
+          riga.appendChild(x);
+        }
+      }
+
+      box.appendChild(riga);
+    });
+
+    list.appendChild(box);
+  }
+}
+
+// ─── CANDIDATURE ─────────────────────────────────────────
+window.candidati = async function() {
+  const nome = prompt("Inserisci il tuo nome e cognome:");
+  if (!nome) return;
+  const posizione = prompt("Per quale posizione ti candidi?");
+  if (!posizione) return;
+  await addDoc(collection(db, "candidature"), {
+    nome, posizione, data: new Date().toISOString().split("T")[0]
+  });
+  alert("Candidatura inviata con successo!");
+};
+
+async function loadCandidature() {
+  const list = document.getElementById("candidatureList");
+  if (!list) return;
+
+  list.innerHTML = "";
+  const snap = await getDocs(collection(db, "candidature"));
+
+  snap.forEach(docSnap => {
+    const d = docSnap.data();
+    const div = document.createElement("div");
+    div.style = `background:white; padding:12px; margin:10px auto; border-radius:10px; max-width:400px; text-align:left; box-shadow:0 2px 6px rgba(0,0,0,0.15);`;
+    div.innerHTML = `👤 <b>${d.nome}</b><br>📌 ${d.posizione}<br>📅 ${d.data}`;
+
+    if (isAdmin) {
+      const btn = document.createElement("button");
+      btn.innerText = "❌ Elimina";
+      btn.style = `margin-top:10px; padding:5px 8px; font-size:12px; background:#b71c1c; color:white; border:none; border-radius:6px; cursor:pointer; width:auto;`;
+      btn.onclick = async () => {
+        await deleteDoc(doc(db, "candidature", docSnap.id));
+        loadCandidature();
+      };
+      div.appendChild(btn);
+    }
+
+    list.appendChild(div);
+  });
+}
+
+// ─── QUOTE TESSERATI ─────────────────────────────────────
+window.addTesserato = async function() {
+  if (!isAdmin) return alert("Solo admin");
+
+  const nome = prompt("Nome tesserato:");
+  if (!nome) return;
+
+  const stagione = document.getElementById("quoteStagioneInlineSelect")?.value;
+  if (!stagione) return alert("Seleziona una stagione");
+
+  await addDoc(collection(db, "tesserati"), { nome, stagione });
+  loadQuoteInline();
+}
+
+async function loadQuoteInline() {
+  const list = document.getElementById("quoteInlineList");
+  if (!list) return;
+
+  list.innerHTML = "";
+
+  const stagione = document.getElementById("quoteStagioneInlineSelect")?.value;
+  const snap = await getDocs(collection(db, "tesserati"));
+
+  snap.forEach(docSnap => {
+    const d = docSnap.data();
+    if (stagione && d.stagione !== stagione) return;
+
+    const div = document.createElement("div");
+    div.style = `background:white; padding:14px; margin:12px auto; border-radius:12px; max-width:700px; box-shadow:0 2px 8px rgba(0,0,0,0.15);`;
+    div.innerHTML = `
+      <h4>${d.nome} <span style="font-size:12px; color:#888;">(${d.stagione})</span></h4>
+      <div id="rate_inline_${docSnap.id}"></div>
+      <button onclick="aggiungiRata('${docSnap.id}','${d.nome}')"
+        style="width:auto; background:#145a2a; color:white; border:none; padding:8px 12px; border-radius:8px; cursor:pointer;">
+        ➕ Registra rata
+      </button>
+      ${dm("quoteInlineList") ? `
+      <button onclick="eliminaTesserato('${docSnap.id}')"
+        style="width:auto; background:#b71c1c; color:white; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; margin-left:8px;">
+        ❌ Elimina tesserato
+      </button>` : ""}
+    `;
+
+    list.appendChild(div);
+    loadRateInline(docSnap.id);
+  });
+}
+
+window.aggiungiRata = async function(id, nome) {
+  if (!isAdmin) return alert("Solo admin");
+
+  const nomeRata = prompt("Numero rata:");
+  if (!nomeRata) return;
+  const importo = parseFloat(prompt("Importo €:"));
+  if (!importo) return;
+  const pagata = confirm("Segnare come PAGATA?");
+  const oggi = new Date().toISOString().split("T")[0];
+
+  // La rata eredita la stagione del tesserato
+  const tesSnap = await getDocs(collection(db, "tesserati"));
+  let stagioneNome = "";
+  tesSnap.forEach(docSnap => {
+    if (docSnap.id === id) stagioneNome = docSnap.data().stagione;
+  });
+
+  await addDoc(collection(db, "rate"), {
+    tesseratoId: id, tesserato: nome, nomeRata,
+    importo, pagata, stagione: stagioneNome, data: oggi
+  });
+
+  loadQuoteInline();
+}
+
+async function loadRateInline(id) {
+  const container = document.getElementById(`rate_inline_${id}`);
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const snap = await getDocs(collection(db, "rate"));
+  const stagione = document.getElementById("quoteStagioneInlineSelect")?.value;
+
+  snap.forEach(docSnap => {
+    const d = docSnap.data();
+    if (d.tesseratoId !== id) return;
+    if (stagione && d.stagione !== stagione) return;
+
+    const div = document.createElement("div");
+    div.style = `margin-top:8px; padding:8px; background:#f5f5f5; border-radius:8px; font-size:14px;`;
+    div.innerHTML = `${d.pagata ? "✅" : "❌"} <b>Rata ${d.nomeRata}</b> — €${d.importo}`;
+
+    container.appendChild(div);
+  });
+}
+
+window.eliminaTesserato = async function(id) {
+  if (!confirm("Eliminare tesserato e tutte le rate?")) return;
+
+  const rateSnap = await getDocs(collection(db, "rate"));
+  for (const r of rateSnap.docs) {
+    if (r.data().tesseratoId === id) await deleteDoc(doc(db, "rate", r.id));
+  }
+
+  await deleteDoc(doc(db, "tesserati", id));
+  loadQuoteInline();
+}
+
+// ─── COMUNICATI ──────────────────────────────────────────
+window.addComunicato = async () => {
+  if (!isAdmin) return alert("Solo admin");
+
+  const titolo = prompt("Titolo comunicato (es. Comunicato n.1 del 2026):");
+  if (!titolo) return;
+
+  const testo = prompt("Testo del comunicato:");
+  if (!testo) return;
+
+  const data = new Date().toISOString().split("T")[0];
+
+  await addDoc(collection(db, "comunicati"), { titolo, testo, data });
+  loadComunicati();
+};
+
+window.openComunicato = function(titolo, testo) {
+  document.getElementById("comunicatoModalTitolo").innerText = titolo;
+  document.getElementById("comunicatoModalTesto").innerText = testo;
+  document.getElementById("comunicatoModal").style.display = "flex";
+};
+
+async function loadComunicati() {
+  const list = document.getElementById("comunicatiList");
+  if (!list) return;
+  list.innerHTML = "";
+
+  const snapshot = await getDocs(collection(db, "comunicati"));
+
+  snapshot.forEach(docSnap => {
+    const d = docSnap.data();
+
+    const div = document.createElement("div");
+    div.className = "item";
+    div.style = `
+      background:white; border-left:6px solid #145a2a; border-radius:12px;
+      padding:12px 16px; margin:10px auto; max-width:650px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.1);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      cursor:pointer;
+    `;
+
+    const titolo = document.createElement("span");
+    titolo.style = "font-size:16px; font-weight:600; color:#145a2a; flex:1; text-align:left;";
+    titolo.innerText = `📢 ${d.titolo}`;
+    titolo.onclick = () => openComunicato(d.titolo, d.testo);
+    div.appendChild(titolo);
+
+    const dataSpan = document.createElement("span");
+    dataSpan.style = "font-size:12px; color:#888; white-space:nowrap;";
+    dataSpan.innerText = d.data || "";
+    div.appendChild(dataSpan);
+
+    if (dm("comunicatiList")) {
+      const x = document.createElement("span");
+      x.innerText = "❌";
+      x.className = "deleteX";
+      x.style = "font-size:18px;";
+      x.onclick = async (e) => {
+        e.stopPropagation();
+        await deleteDoc(doc(db, "comunicati", docSnap.id));
+        loadComunicati();
+      };
+      div.appendChild(x);
+    }
+
+    list.appendChild(div);
+  });
 }
 
 
+window.toggleDelete = target => {
+  if (!isAdmin) return alert("Solo admin");
+  deleteModes[target] = !deleteModes[target];
+
+  if (target === "comunicatiList") loadComunicati();
+  if (target === "jobList") loadJobs();
+  if (target === "shopList") loadProducts();
+  if (target === "pdfList") loadPDF();
+  if (target === "linkList") loadLinks();
+  if (target === "entrateList") loadEntrate();
+  if (target === "speseList") loadSpese();
+  if (target === "quoteInlineList") loadQuoteInline();
+}
+
+// ─── INSTALL PWA ─────────────────────────────────────────
 let deferredPrompt;
-document.addEventListener(
-  "DOMContentLoaded",
-  ()=>{
 
-    if(
-      localStorage.getItem("hideInstall")
-      !== "true"
-    ){
-      document.getElementById(
-        "installBanner"
-      ).style.display = "flex";
-    }
+function checkInstallBanner() {
+  const banner = document.getElementById("installBanner");
+  if (!banner) return;
+  const hidden = localStorage.getItem("hideInstall") === "true";
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+  banner.style.display = (hidden || isStandalone) ? "none" : "flex";
+}
 
-});
-
-window.addEventListener(
-"beforeinstallprompt",
-(e)=>{
-
+window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
-
   deferredPrompt = e;
-
 });
 
 window.installaApp = async function() {
-
   if (deferredPrompt) {
-
     deferredPrompt.prompt();
-
-    const choice =
-      await deferredPrompt.userChoice;
-
-    if(choice.outcome==="accepted"){
-
-      document
-        .getElementById("installBanner")
-        .style.display="none";
-
-    }
-
+    const choice = await deferredPrompt.userChoice;
+    if (choice.outcome === "accepted") document.getElementById("installBanner").style.display = "none";
     deferredPrompt = null;
-
+  } else {
+    alert(`Per installare l'app:\n\nANDROID:\nApri menu browser ⋮\n→ "Installa app"\n\nIPHONE:\nCondividi ↑\n→ "Aggiungi a schermata Home"`);
   }
-
-  else {
-
-    alert(
-`Per installare l'app:
-
-ANDROID:
-Apri menu browser ⋮
-→ "Installa app"
-
-IPHONE:
-Condividi ↑
-→ "Aggiungi a schermata Home"`
-    );
-
-  }
-
 };
 
-function checkInstallBanner() {
-
-  const banner =
-    document.getElementById("installBanner");
-
-  if (!banner) return;
-
-  const hidden =
-    localStorage.getItem("hideInstall") === "true";
-
-  const isStandalone =
-    window.matchMedia('(display-mode: standalone)').matches;
-
-  if (hidden || isStandalone) {
-    banner.style.display = "none";
-  } else {
-    banner.style.display = "flex";
-  }
-
-}
-
 window.chiudiBanner = function() {
-
   localStorage.setItem("hideInstall", "true");
-
-  document
-    .getElementById("installBanner")
-    .style.display = "none";
-
+  document.getElementById("installBanner").style.display = "none";
 };
 
 window.addEventListener("appinstalled", () => {
@@ -1967,455 +1532,75 @@ window.addEventListener("appinstalled", () => {
   document.getElementById("installBanner").style.display = "none";
 });
 
-window.richiediProdotto = async (id, nomeProdotto) => {
-
-  const nome = prompt("Inserisci il tuo nome: (NO NOMIGNOLI O SOPRANNOMI, GRAZIE!!!)");
-  if (!nome) return;
-
-  const taglia = prompt("Inserisci la taglia:");
-  if (!taglia) return;
-
-  await addDoc(collection(db, "richieste_prodotti"), {
-    prodottoId: id,
-    prodottoNome: nomeProdotto,
-    nomeUtente: nome,
-    taglia,
-    data: new Date().toISOString().split("T")[0]
-  });
-
-  alert("Richiesta inviata!");
-
-};
-
-async function loadRichieste() {
-
-  const list =
-    document.getElementById("richiesteList");
-
-  if (!list) return;
-
-  list.innerHTML = "";
-
-list.style.display="flex";
-list.style.flexWrap="wrap";
-list.style.justifyContent="center";
-list.style.gap="12px";
-
-  const snap =
-    await getDocs(
-      collection(db,"richieste_prodotti")
-    );
-
-  // GROUPING PER PRODOTTO
-
-  const gruppi = {};
-
-  snap.forEach(docSnap => {
-
-    const d = docSnap.data();
-
-    if (!gruppi[d.prodottoNome]) {
-      gruppi[d.prodottoNome] = [];
-    }
-
-    gruppi[d.prodottoNome].push({
-      id: docSnap.id,
-      ...d
-    });
-
-  });
-
-  // CREAZIONE BOX PRODOTTI
-
-  for (const prodotto in gruppi) {
-
-    const richieste =
-      gruppi[prodotto];
-
-    const box =
-      document.createElement("div");
-
-box.style = `
-  background:white;
-  border-radius:12px;
-  padding:12px;
-
-  width:45%;
-  min-width:280px;
-
-  box-shadow:0 2px 6px rgba(0,0,0,0.15);
-`;
-
-    box.innerHTML = `
-
-<h4 style="
-  margin-top:0;
-  color:#145a2a;
-">
-        🛒 ${prodotto}
-        (${richieste.length})
-      </h4>
-    `;
-
-    richieste.forEach(r => {
-
-      const riga =
-        document.createElement("div");
-
-      riga.style = `
-        border-top:1px solid #ddd;
-        padding:8px 0;
-      `;
-
-      riga.innerHTML = `
-        👤 ${r.nomeUtente}<br>
-        📏 Taglia: ${r.taglia}<br>
-        📅 ${r.data}
-      `;
-
-      if (isAdmin) {
-
-        // CONSEGNATO
-
-        const btn =
-          document.createElement("button");
-
-        btn.innerText =
-          "✔ Consegnato";
-
-        btn.style = `
-          margin-top:6px;
-          padding:4px 8px;
-          font-size:12px;
-          width:auto;
-          background:#0b3d1b;
-          color:white;
-          border:none;
-          border-radius:6px;
-          cursor:pointer;
-          margin-right:8px;
-        `;
-
-        btn.onclick =
-          async () => {
-
-          await deleteDoc(
-            doc(
-              db,
-              "richieste_prodotti",
-              r.id
-            )
-          );
-
-          loadRichieste();
-
-        };
-
-        riga.appendChild(btn);
-
-        // DELETE MODE
-
-        if (deleteMode) {
-
-          const x =
-            document.createElement(
-              "span"
-            );
-
-          x.innerText = "❌";
-
-          x.style = `
-            cursor:pointer;
-            color:red;
-            margin-left:8px;
-          `;
-
-          x.onclick =
-            async () => {
-
-            await deleteDoc(
-              doc(
-                db,
-                "richieste_prodotti",
-                r.id
-              )
-            );
-
-            loadRichieste();
-
-          };
-
-          riga.appendChild(x);
-
-        }
-
-      }
-
-      box.appendChild(riga);
-
-    });
-
-    list.appendChild(box);
-
-  }
-
-}
-
-async function loadCandidature() {
-
-  const list =
-    document.getElementById("candidatureList");
-
-  if (!list) return;
-
-  list.innerHTML = "";
-
-  const snap =
-    await getDocs(collection(db,"candidature"));
-
-  snap.forEach(docSnap => {
-
-    const d = docSnap.data();
-
-    const div =
-      document.createElement("div");
-
-    div.style = `
-      background:white;
-      padding:12px;
-      margin:10px auto;
-      border-radius:10px;
-      max-width:400px;
-      text-align:left;
-      box-shadow:0 2px 6px rgba(0,0,0,0.15);
-    `;
-
-    div.innerHTML = `
-      👤 <b>${d.nome}</b><br>
-      📌 ${d.posizione}<br>
-      📅 ${d.data}
-    `;
-
-    if (isAdmin) {
-
-      const btn =
-        document.createElement("button");
-
-      btn.innerText = "❌ Elimina";
-
-      btn.style = `
-        margin-top:10px;
-        padding:5px 8px;
-        font-size:12px;
-        background:#b71c1c;
-        color:white;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-        width:auto;
-      `;
-
-      btn.onclick = async () => {
-
-        await deleteDoc(
-          doc(db,"candidature",docSnap.id)
-        );
-
-        loadCandidature();
-
+// ─── INIT ────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  const eventi = await loadCalendar();
+  loadProducts();
+  loadPDF();
+  loadLinks();
+  loadComunicati();
+  await loadStagioni();
+  loadEntrate();
+  loadSpese();
+  initOrganigramma();
+  loadOrganigramma();
+  checkInstallBanner();
+
+  calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    initialView: 'dayGridMonth',
+    firstDay: 1,
+    events: eventi,
+    eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+
+    eventContent: function(arg) {
+      const tipo = arg.event.title.split(" - ")[0] || "";
+      const luogo = arg.event.title.split(" - ")[1] || "";
+      const time = arg.timeText || "";
+      const isMatch = tipo.toLowerCase().includes("partita");
+      const isAltro = tipo.toLowerCase().includes("altro");
+      const bgColor = isAltro ? "#f4d03f" : "";
+
+      return {
+        html: `
+          <div style="font-size:11px; line-height:1.2em; background:${bgColor}; border-radius:4px; padding:2px;">
+            <div><b>${time}</b></div>
+            <div>${isMatch ? "⚽ " : ""}${tipo}</div>
+            <div>${luogo || ""}</div>
+          </div>
+        `
       };
+    },
 
-      div.appendChild(btn);
+    eventClick: async function(info) {
+      if (!isAdmin) return alert("Solo admin");
+      if (calendarDeleteMode) {
+        if (confirm("Eliminare evento?")) {
+          await deleteDoc(doc(db, "eventi", info.event.id));
+          info.event.remove();
+        }
+      }
+    },
 
+    dayCellDidMount: function(info) {
+      const oggi = new Date();
+      oggi.setHours(0, 0, 0, 0);
+      const giorno = new Date(info.date);
+      giorno.setHours(0, 0, 0, 0);
+      if (giorno < oggi) info.el.style.backgroundColor = "rgba(0,0,0,0.06)";
     }
-
-    list.appendChild(div);
-
   });
 
-}
-
-window.addTesserato = async function(){
-
-  if(!isAdmin)
-    return alert("Solo admin");
-
-  const nome =
-    prompt("Nome tesserato:");
-
-  if(!nome) return;
-
-  await addDoc(
-    collection(db,"tesserati"),
-    {
-      nome
-    }
-  );
-
-  loadQuote();
-
-}
-
-
-async function loadQuote(){
-
-const list =
-document.getElementById("quoteList");
-
-if(!list) return;
-
-list.innerHTML="";
-
-const snapshot =
-await getDocs(
-collection(db,"tesserati")
-);
-
-snapshot.forEach(docSnap=>{
-
-const d =
-docSnap.data();
-
-const div =
-document.createElement("div");
-
-div.style=`
-background:white;
-padding:14px;
-margin:12px auto;
-border-radius:12px;
-max-width:700px;
-box-shadow:0 2px 8px rgba(0,0,0,0.15);
-`;
-
-div.innerHTML=`
-
-<h4>${d.nome}</h4>
-
-<button
-onclick="aggiungiRata(
-'${docSnap.id}',
-'${d.nome}'
-)"
-style="
-width:auto;
-background:#145a2a;
-color:white;
-border:none;
-padding:8px 12px;
-border-radius:8px;
-cursor:pointer;
-">
-➕ Registra rata
-</button>
-
-<div id="rate_${docSnap.id}">
-</div>
-
-`;
-
-list.appendChild(div);
-
-loadRate(docSnap.id);
-
+  calendar.render();
+  loadExtraEvents();
+  loadJobs();
 });
 
+// ─── SERVICE WORKER ──────────────────────────────────────
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/MarzenegoWebpage/service-worker.js")
+    .then(() => console.log("Service Worker registrato"));
 }
-
-
-window.aggiungiRata =
-async function(id,nome){
-
-const nomeRata =
-prompt("Numero rata:");
-
-if(!nomeRata) return;
-
-const importo =
-parseFloat(
-prompt("Importo €:")
-);
-
-if(!importo) return;
-
-const pagata =
-confirm(
-"Segnare come PAGATA?"
-);
-
-await addDoc(
-collection(db,"rate"),
-{
-tesseratoId:id,
-tesserato:nome,
-nomeRata,
-importo,
-pagata,
-data:
-new Date()
-.toISOString()
-.split("T")[0]
-}
-);
-
-loadQuote();
-
-}
-
-async function loadRate(id){
-
-const container =
-document.getElementById(
-`rate_${id}`
-);
-
-if(!container) return;
-
-container.innerHTML="";
-
-const snap =
-await getDocs(
-collection(db,"rate")
-);
-
-snap.forEach(docSnap=>{
-
-const d =
-docSnap.data();
-
-if(d.tesseratoId!==id)
-return;
-
-const div =
-document.createElement("div");
-
-div.style=`
-margin-top:10px;
-padding:10px;
-background:#f5f5f5;
-border-radius:10px;
-`;
-
-div.innerHTML=`
-
-${d.pagata?"✅":"❌"}
-
-<b>Rata n. ${d.nomeRata}</b>
-
-—
-
-€${d.importo}
-
-`;
-
-container.appendChild(div);
-
-});
-
-}
-
 
 </script>
-
 </body>
 </html>

@@ -103,7 +103,8 @@ body {
   color: white;
   transition: 0.3s;
   padding-top: 0;
-  border-right: 2px solid var(--gold);
+  border-right: none;
+  box-shadow: none;
 }
 
 /* intestazione menu */
@@ -473,6 +474,23 @@ button:hover { background: var(--green-dark); }
     padding: 6px;
     border-radius: 12px;
   }
+
+  /* Card bacheca, eventi, job, ordini: mai più larghe del viewport */
+  #novitaList > div,
+  #eventiExtraList > div,
+  #jobList > div {
+    width: calc(100vw - 32px) !important;
+    max-width: calc(100vw - 32px) !important;
+    box-sizing: border-box !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* Hero bacheca */
+  #homePage > div > div[style*="border:2px solid"] {
+    box-sizing: border-box;
+    width: calc(100vw - 32px);
+  }
 }
   </style>
 </head>
@@ -840,7 +858,10 @@ function dm(target) { return deleteModes[target] && isAdmin; }
 // ─── MENU ───────────────────────────────────────────────
 window.toggleMenu = function() {
   const m = document.getElementById("sideMenu");
-  m.style.left = m.style.left === "0px" ? "-250px" : "0px";
+  const isOpen = m.style.left === "0px";
+  m.style.left = isOpen ? "-262px" : "0px";
+  m.style.borderRight = isOpen ? "none" : "2px solid var(--gold)";
+  m.style.boxShadow = isOpen ? "none" : "4px 0 20px rgba(0,0,0,0.4)";
 }
 
 window.showPage = function(id) {

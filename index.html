@@ -838,6 +838,8 @@ const storage = getStorage(app);
 let calendar;
 let isAdmin = false;
 let calendarDeleteMode = false;
+let quoteSortKey = null;   // 'nome' | 'importo' | 'pagata'
+let quoteSortDir = 1;       // 1 = asc, -1 = desc
 
 // deleteModes per sezione — evita interferenze tra sezioni diverse
 const deleteModes = {
@@ -1717,51 +1719,178 @@ window.addTesserato = async function() {
   loadQuoteInline();
 }
 
+// Stato sort quote (globale, persiste tra ricaricamenti)
+// quoteSortKey e quoteSortDir già definiti sopra
+
+window.setQuoteSort = function(key) {
+  if (quoteSortKey === key) {
+    quoteSortDir *= -1; // inverti direzione
+  } else {
+    quoteSortKey = key;
+    quoteSortDir = key === 'importo' ? -1 : 1; // € parte da maggiore, nome da A
+  }
+  loadQuoteInline();
+}
+
 async function loadQuoteInline() {
   const list = document.getElementById("quoteInlineList");
   if (!list) return;
-
   list.innerHTML = "";
 
   const stagione = document.getElementById("quoteStagioneInlineSelect")?.value;
-  const snap = await getDocs(collection(db, "tesserati"));
+  const [tesSnap, rateSnap] = await Promise.all([
+    getDocs(collection(db, "tesserati")),
+    getDocs(collection(db, "rate"))
+  ]);
 
-  snap.forEach(docSnap => {
+  // Raggruppa rate per tesseratoId
+  const ratePerTes = {};
+  rateSnap.forEach(r => {
+    const d = r.data();
+    if (!ratePerTes[d.tesseratoId]) ratePerTes[d.tesseratoId] = [];
+    ratePerTes[d.tesseratoId].push({ id: r.id, ...d });
+  });
+
+  // Filtra tesserati per stagione
+  const tesserati = [];
+  tesSnap.forEach(docSnap => {
     const d = docSnap.data();
     if (stagione && d.stagione !== stagione) return;
-
-    const div = document.createElement("div");
-    div.style = `background:white; padding:14px; margin:12px auto; border-radius:12px; max-width:700px; box-shadow:0 2px 8px rgba(0,0,0,0.15);`;
-    div.innerHTML = `
-      <h4>${d.nome} <span style="font-size:12px; color:#888;">(${d.stagione})</span></h4>
-      <div id="rate_inline_${docSnap.id}"></div>
-      <button onclick="aggiungiRata('${docSnap.id}','${d.nome}')"
-        style="width:auto; background:#145a2a; color:white; border:none; padding:8px 12px; border-radius:8px; cursor:pointer;">
-        ➕ Registra rata
-      </button>
-      ${dm("quoteInlineList") ? `
-      <button onclick="eliminaTesserato('${docSnap.id}')"
-        style="width:auto; background:#b71c1c; color:white; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; margin-left:8px;">
-        ❌ Elimina tesserato
-      </button>` : ""}
-    `;
-
-    list.appendChild(div);
-    loadRateInline(docSnap.id);
+    tesserati.push({ id: docSnap.id, ...d });
   });
+
+  if (tesserati.length === 0) {
+    list.innerHTML = `<div style="color:rgba(255,255,255,0.4);font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;margin:16px auto;">NESSUN TESSERATO PER QUESTA STAGIONE</div>`;
+    return;
+  }
+
+  // Ordina tesserati
+  if (quoteSortKey) {
+    tesserati.sort((a, b) => {
+      if (quoteSortKey === 'nome') {
+        return a.nome.localeCompare(b.nome) * quoteSortDir;
+      }
+      if (quoteSortKey === 'importo') {
+        const totA = (ratePerTes[a.id] || []).reduce((s, r) => s + parseFloat(r.importo || 0), 0);
+        const totB = (ratePerTes[b.id] || []).reduce((s, r) => s + parseFloat(r.importo || 0), 0);
+        return (totA - totB) * quoteSortDir;
+      }
+      if (quoteSortKey === 'pagata') {
+        const pagA = (ratePerTes[a.id] || []).every(r => r.pagata) ? 1 : 0;
+        const pagB = (ratePerTes[b.id] || []).every(r => r.pagata) ? 1 : 0;
+        return (pagA - pagB) * quoteSortDir;
+      }
+      return 0;
+    });
+  }
+
+  // Helper freccia sort
+  const arrow = (key) => {
+    if (quoteSortKey !== key) return ` <span style="opacity:0.3;">↕</span>`;
+    return quoteSortDir === 1 ? ` ↑` : ` ↓`;
+  };
+
+  const thStyle = "padding:8px 6px;text-align:center;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1.5px;color:var(--gold);font-weight:600;white-space:nowrap;cursor:pointer;user-select:none;";
+  const thStyleLeft = "padding:8px 10px;text-align:left;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1.5px;color:var(--gold);font-weight:600;white-space:nowrap;cursor:pointer;user-select:none;";
+
+  // Wrapper tabella unica
+  const wrapper = document.createElement("div");
+  wrapper.style = "overflow-x:auto;margin:0 auto;max-width:700px;width:calc(100vw - 24px);";
+
+  const table = document.createElement("table");
+  table.style = "width:100%;border-collapse:collapse;font-size:13px;";
+
+  // Intestazione colonne cliccabili
+  table.innerHTML = `
+    <thead>
+      <tr style="border-bottom:2px solid var(--gold);">
+        <th style="${thStyleLeft}" onclick="setQuoteSort('nome')">NOME${arrow('nome')}</th>
+        <th style="${thStyle}">N. RATA</th>
+        <th style="${thStyle}" onclick="setQuoteSort('importo')">€${arrow('importo')}</th>
+        <th style="${thStyle}" onclick="setQuoteSort('pagata')">PAG.${arrow('pagata')}</th>
+        <th style="${thStyle}">NOTE</th>
+        ${isAdmin ? `<th style="padding:8px 6px;width:20px;"></th>` : ""}
+      </tr>
+    </thead>
+    <tbody id="quoteTableBody"></tbody>
+  `;
+
+  wrapper.appendChild(table);
+  list.appendChild(wrapper);
+
+  const tbody = document.getElementById("quoteTableBody");
+
+  tesserati.forEach((tes, ti) => {
+    const rate = (ratePerTes[tes.id] || []).filter(r => !stagione || r.stagione === stagione);
+    const rowBg = ti % 2 === 0 ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.08)";
+
+    if (rate.length === 0) {
+      // Tesserato senza rate: riga singola
+      const tr = document.createElement("tr");
+      tr.style = `background:${rowBg};border-bottom:1px solid rgba(255,255,255,0.07);`;
+      tr.innerHTML = `
+        <td style="padding:9px 10px;color:white;font-weight:600;white-space:nowrap;">
+          ${isAdmin ? `<span style="cursor:pointer;font-size:11px;color:var(--gold);margin-right:6px;" onclick="aggiungiRata('${tes.id}','${tes.nome}')">➕</span>` : ""}
+          ${tes.nome}
+        </td>
+        <td style="padding:9px 6px;text-align:center;color:rgba(255,255,255,0.35);font-style:italic;font-size:12px;" colspan="3">—</td>
+        <td style="padding:9px 6px;color:rgba(255,255,255,0.35);font-size:12px;font-style:italic;">nessuna rata</td>
+        ${isAdmin && dm("quoteInlineList") ? `<td style="padding:9px 6px;text-align:center;"><span style="cursor:pointer;font-size:13px;color:#ff8a80;" onclick="eliminaTesserato('${tes.id}')">🗑</span></td>` : (isAdmin ? `<td></td>` : "")}
+      `;
+      tbody.appendChild(tr);
+    } else {
+      // Tesserato con rate: una riga per rata, nome solo sulla prima
+      rate.forEach((r, ri) => {
+        const tr = document.createElement("tr");
+        tr.style = `background:${rowBg};border-bottom:1px solid rgba(255,255,255,0.07);`;
+
+        const isFirst = ri === 0;
+        const isLast = ri === rate.length - 1;
+
+        tr.innerHTML = `
+          <td style="padding:9px 10px;color:white;font-weight:600;white-space:nowrap;${!isFirst ? 'color:rgba(255,255,255,0);font-size:0;' : ''}">
+            ${isFirst ? `
+              ${isAdmin ? `<span style="cursor:pointer;font-size:11px;color:var(--gold);margin-right:6px;" onclick="aggiungiRata('${tes.id}','${tes.nome}')">➕</span>` : ""}
+              ${tes.nome}
+            ` : ""}
+          </td>
+          <td style="padding:9px 6px;text-align:center;color:rgba(255,255,255,0.85);">${r.nomeRata}</td>
+          <td style="padding:9px 6px;text-align:center;color:var(--gold);font-weight:700;">€${r.importo}</td>
+          <td style="padding:9px 6px;text-align:center;font-size:15px;">${r.pagata ? "✅" : "❌"}</td>
+          <td style="padding:9px 6px;text-align:center;color:rgba(255,255,255,0.45);font-size:12px;">${r.data || ""}</td>
+          ${isAdmin ? `<td style="padding:9px 6px;text-align:center;">
+            <span style="cursor:pointer;font-size:13px;color:#ff8a80;" onclick="eliminaRata('${r.id}','${tes.id}')">🗑</span>
+            ${isLast && dm("quoteInlineList") ? `<span style="cursor:pointer;font-size:13px;color:#ff8a80;margin-left:4px;" onclick="eliminaTesserato('${tes.id}')">✖</span>` : ""}
+          </td>` : ""}
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Separatore visivo tra tesserati
+    const sep = document.createElement("tr");
+    sep.innerHTML = `<td colspan="${isAdmin ? 6 : 5}" style="padding:0;height:1px;background:rgba(244,196,48,0.15);"></td>`;
+    tbody.appendChild(sep);
+  });
+}
+
+window.eliminaRata = async function(rataId, tesId) {
+  if (!isAdmin) return;
+  if (!confirm("Eliminare questa rata?")) return;
+  await deleteDoc(doc(db, "rate", rataId));
+  loadQuoteInline();
 }
 
 window.aggiungiRata = async function(id, nome) {
   if (!isAdmin) return alert("Solo admin");
 
-  const nomeRata = prompt("Numero rata:");
+  const nomeRata = prompt("Descrizione rata (es. Rata 1, Rata annuale):");
   if (!nomeRata) return;
   const importo = parseFloat(prompt("Importo €:"));
   if (!importo) return;
   const pagata = confirm("Segnare come PAGATA?");
   const oggi = new Date().toISOString().split("T")[0];
 
-  // La rata eredita la stagione del tesserato
   const tesSnap = await getDocs(collection(db, "tesserati"));
   let stagioneNome = "";
   tesSnap.forEach(docSnap => {
@@ -1774,28 +1903,6 @@ window.aggiungiRata = async function(id, nome) {
   });
 
   loadQuoteInline();
-}
-
-async function loadRateInline(id) {
-  const container = document.getElementById(`rate_inline_${id}`);
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  const snap = await getDocs(collection(db, "rate"));
-  const stagione = document.getElementById("quoteStagioneInlineSelect")?.value;
-
-  snap.forEach(docSnap => {
-    const d = docSnap.data();
-    if (d.tesseratoId !== id) return;
-    if (stagione && d.stagione !== stagione) return;
-
-    const div = document.createElement("div");
-    div.style = `margin-top:8px; padding:8px; background:#f5f5f5; border-radius:8px; font-size:14px;`;
-    div.innerHTML = `${d.pagata ? "✅" : "❌"} <b>Rata ${d.nomeRata}</b> — €${d.importo}`;
-
-    container.appendChild(div);
-  });
 }
 
 window.eliminaTesserato = async function(id) {

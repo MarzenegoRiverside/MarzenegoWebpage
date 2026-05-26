@@ -237,7 +237,7 @@ h4 {
 .candidatiBtn:hover { background: var(--gold-dark); color: white; }
 
 /* ── INPUT / SELECT / BUTTON GLOBALI ────────────── */
-input, select {
+input, select, textarea {
   width: 100%;
   margin-top: 10px;
   padding: 8px;
@@ -467,12 +467,99 @@ button:hover { background: var(--green-dark); }
   letter-spacing: 0.5px;
 }
 
+/* ── BANNER STICKY COMPATTO ─────────────────────── */
+#scrollBrandBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  min-height: 43px;
+  padding: 10px 14px 10px 64px;
+  background: rgba(11, 61, 27, 0.96);
+  border-bottom: 1px solid rgba(244, 196, 48, 0.35);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(8px);
+  transform: translateY(-110%);
+  opacity: 0;
+  transition: transform 0.22s ease, opacity 0.22s ease;
+  pointer-events: none;
+}
+
+#scrollBrandBar.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+#scrollBrandBar img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.35));
+}
+
+#scrollBrandBar span {
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 16px;
+  color: white;
+}
+
+#scrollBrandBar strong {
+  color: var(--gold);
+}
+
+#scrollBrandBar .brandTitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+  #scrollBrandBar {
+    min-height: 62px;
+    padding: 10px 12px 10px 70px;
+  }
+
+  #scrollBrandBar img {
+    width: 34px;
+    height: 34px;
+  }
+
+  #scrollBrandBar span {
+    font-size: 17px;
+    letter-spacing: 2.1px;
+  }
+}
+
 @media (max-width: 768px) {
   #calendar {
-    width: 94%;
-    margin: 12px auto;
-    padding: 6px;
+    width: calc(100vw - 12px);
+    margin: 10px auto;
+    padding: 4px;
     border-radius: 12px;
+  }
+
+  .fc .fc-toolbar-title {
+    font-size: 14px !important;
+  }
+
+  .fc .fc-button {
+    padding: 4px 10px !important;
+    font-size: 11px !important;
+  }
+
+  .fc .fc-daygrid-day-number {
+    font-size: 11px !important;
+  }
+
+  .fc .fc-col-header-cell-cushion {
+    font-size: 12px !important;
   }
 
   /* Card bacheca, eventi, job, ordini: mai più larghe del viewport */
@@ -499,6 +586,11 @@ button:hover { background: var(--green-dark); }
 
 <div id="menuBtn" onclick="toggleMenu()">☰</div>
 
+<div id="scrollBrandBar">
+  <img src="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png" alt="Marzenego">
+  <span class="brandTitle">Marzenego <strong>Riverside</strong></span>
+</div>
+
 <div id="sideMenu">
   <div id="closeMenuBtn" onclick="toggleMenu()">✕</div>
   <div onclick="showPage('homePage')">Home</div>
@@ -509,8 +601,10 @@ button:hover { background: var(--green-dark); }
   <div onclick="showPage('modulisticaPage')">Comunicati, Link e PDF</div>
   <div onclick="showPage('shopPage')">MarzeNegozio</div>
   <div onclick="showPage('richiestePage')">Carrello Ordini</div>
-  <div onclick="showPage('contabilePage')" id="contabileMenuBtn" style="display:none;">🔒Situazione Contabile</div>
+  <div onclick="showPage('contabilePage')" id="contabileMenuBtn" style="display:none;">🔒 Situazione Contabile</div>
   <div onclick="showPage('candidaturePage')" id="candidatureMenuBtn" style="display:none;">🔒 Candidature</div>
+  <div onclick="showPage('exportPage')" id="exportMenuBtn" style="display:none;">🔒 Export Appuntamenti</div>
+  <div onclick="showPage('grafichePage')" id="graficheMenuBtn" style="display:none;">🔒 Grafiche Instagram</div>
 </div>
 
 <div style="display:flex; flex-direction:column; align-items:center; margin-top:14px;">
@@ -759,6 +853,86 @@ button:hover { background: var(--green-dark); }
   <div id="richiesteList"></div>
 </div>
 
+<!-- EXPORT APPUNTAMENTI -->
+<div id="exportPage" class="page">
+  <h3>Export Appuntamenti</h3>
+  <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:20px;margin:-6px 0 12px 0;">genera una lista .txt degli impegni</div>
+
+  <div style="max-width:700px;margin:0 auto;padding:0 14px;">
+    <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(244,196,48,0.28);border-radius:14px;padding:16px 14px;text-align:left;">
+      <div style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">Filtro periodo</div>
+      <select id="exportModeSelect" class="smallSelect" onchange="toggleExportMode()">
+        <option value="stagione">Stagione contabile</option>
+        <option value="periodo">Periodo date</option>
+      </select>
+
+      <div id="exportStagioneWrap">
+        <select id="exportStagioneSelect" class="smallSelect"></select>
+      </div>
+
+      <div id="exportDateRangeWrap" style="display:none;gap:10px;flex-wrap:wrap;justify-content:center;">
+        <input id="exportDataDa" type="date" style="max-width:230px;">
+        <input id="exportDataA" type="date" style="max-width:230px;">
+      </div>
+
+      <div style="margin-top:16px;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);">Tipologie impegno</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:10px;">
+        <label style="background:rgba(255,255,255,0.06);padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.12);">
+          <input type="checkbox" class="exportTipo" value="Partita" checked> Partite
+        </label>
+        <label style="background:rgba(255,255,255,0.06);padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.12);">
+          <input type="checkbox" class="exportTipo" value="Allenamento" checked> Allenamenti
+        </label>
+        <label style="background:rgba(255,255,255,0.06);padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.12);">
+          <input type="checkbox" class="exportTipo" value="Altro" checked> Altro
+        </label>
+      </div>
+
+      <button onclick="generaExportAppuntamenti()" style="margin-top:16px;">Genera lista</button>
+    </div>
+
+    <textarea id="exportPreview" readonly style="width:100%;min-height:260px;margin-top:14px;padding:14px;border-radius:12px;border:1px solid rgba(244,196,48,0.25);box-sizing:border-box;font-family:monospace;font-size:13px;line-height:1.6em;background:#fff;color:#111;" placeholder="Qui apparirà l'export..."></textarea>
+    <div id="exportDownloadWrap" style="margin-top:10px;"></div>
+  </div>
+</div>
+
+<!-- GRAFICHE INSTAGRAM -->
+<div id="grafichePage" class="page">
+  <h3>Grafiche Instagram</h3>
+  <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:20px;margin:-6px 0 12px 0;">full time, half time e convocati</div>
+
+  <div style="max-width:820px;margin:0 auto;padding:0 14px;">
+    <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(244,196,48,0.28);border-radius:14px;padding:16px 14px;margin-bottom:18px;text-align:left;">
+      <div style="font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">FULL &amp; HALF TIME</div>
+      <input id="scoreLogoInput" type="file" accept="image/*" style="margin-top:0;">
+      <input id="scoreResultInput" type="text" placeholder="Risultato, es. 2-1">
+      <select id="scoreTypeSelect">
+        <option value="FULL TIME">FULL TIME</option>
+        <option value="HALF TIME">HALF TIME</option>
+      </select>
+      <textarea id="scoreScorersInput" rows="4" placeholder="Marcatori su righe separate o separati da virgole"></textarea>
+      <button onclick="generaGraficaRisultato()">Genera grafica</button>
+      <canvas id="scoreCanvas" width="1080" height="1350" style="width:100%;height:auto;margin-top:14px;border-radius:14px;background:#0f4d23;box-shadow:0 6px 18px rgba(0,0,0,0.28);"></canvas>
+      <a id="scoreDownloadLink" href="#" download="marzenego-score.png" style="display:none;margin-top:10px;color:var(--gold);font-family:'Oswald',sans-serif;letter-spacing:1px;text-decoration:none;">Scarica PNG</a>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(244,196,48,0.28);border-radius:14px;padding:16px 14px;text-align:left;">
+      <div style="font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">CONVOCATI</div>
+      <input id="convLogoInput" type="file" accept="image/*" style="margin-top:0;">
+      <textarea id="convPlayersInput" rows="6" placeholder="Inserisci i convocati, uno per riga, meglio se con numero maglia&#10;Es: 1 Rossi&#10;7 Bianchi"></textarea>
+      <input id="convDateInput" type="date">
+      <input id="convTimeInput" type="time">
+      <select id="convPlaceSelect">
+        <option value="CASA">SEVEN GAZZERA ARENA</option>
+        <option value="TRASFERTA">✈️✈️✈️</option>
+      </select>
+      <button onclick="generaGraficaConvocati()">Genera grafica</button>
+      <canvas id="convCanvas" width="1080" height="1350" style="width:100%;height:auto;margin-top:14px;border-radius:14px;background:#0f4d23;box-shadow:0 6px 18px rgba(0,0,0,0.28);"></canvas>
+      <a id="convDownloadLink" href="#" download="marzenego-convocati.png" style="display:none;margin-top:10px;color:var(--gold);font-family:'Oswald',sans-serif;letter-spacing:1px;text-decoration:none;">Scarica PNG</a>
+    </div>
+  </div>
+</div>
+
 <!-- SHOP -->
 <div id="shopPage" class="page">
   <div class="miniBtns" id="shopBtns" style="display:none;">
@@ -917,6 +1091,9 @@ window.login = function() {
     document.getElementById("quoteInlineBtns").style.display = "block";
     document.getElementById("contabileMenuBtn").style.display = "block";
     document.getElementById("candidatureMenuBtn").style.display = "block";
+    document.getElementById("exportMenuBtn").style.display = "block";
+    document.getElementById("graficheMenuBtn").style.display = "block";
+    loadAdminDocs();
     closeModal("loginModal");
   } else {
     alert("Credenziali errate");
@@ -1087,10 +1264,12 @@ async function loadStagioni() {
   const select = document.getElementById("stagioneSelect");
   const filtro = document.getElementById("filtroStagione");
   const quoteSelect = document.getElementById("quoteStagioneInlineSelect");
+  const exportSelect = document.getElementById("exportStagioneSelect");
 
   select.innerHTML = "";
   filtro.innerHTML = "";
   if (quoteSelect) quoteSelect.innerHTML = "";
+  if (exportSelect) exportSelect.innerHTML = "";
 
   const snapshot = await getDocs(collection(db, "stagioniContabili"));
 
@@ -1113,6 +1292,13 @@ async function loadStagioni() {
       opt3.innerText = d.nome;
       quoteSelect.appendChild(opt3);
     }
+
+    if (exportSelect) {
+      const opt4 = document.createElement("option");
+      opt4.value = d.nome;
+      opt4.innerText = `${d.nome} (${d.inizio} → ${d.fine})`;
+      exportSelect.appendChild(opt4);
+    }
   });
 
   filtro.addEventListener("change", () => {
@@ -1126,6 +1312,317 @@ async function loadStagioni() {
 
   loadQuoteInline();
 }
+
+// ─── EXPORT APPUNTAMENTI ────────────────────────────────
+window.toggleExportMode = function() {
+  const mode = document.getElementById("exportModeSelect")?.value || "stagione";
+  document.getElementById("exportStagioneWrap").style.display = mode === "stagione" ? "block" : "none";
+  document.getElementById("exportDateRangeWrap").style.display = mode === "periodo" ? "flex" : "none";
+};
+
+async function getSeasonRange(nomeStagione) {
+  if (!nomeStagione) return null;
+  const snap = await getDocs(collection(db, "stagioniContabili"));
+  let range = null;
+  snap.forEach(docSnap => {
+    const d = docSnap.data();
+    if (d.nome === nomeStagione) range = { inizio: d.inizio, fine: d.fine };
+  });
+  return range;
+}
+
+function normalizeDateTime(data, ora) {
+  return `${data || ""} ${ora || "00:00"}`.trim();
+}
+
+window.generaExportAppuntamenti = async function() {
+  const mode = document.getElementById("exportModeSelect").value;
+  const selezioni = [...document.querySelectorAll(".exportTipo:checked")].map(el => el.value);
+  if (selezioni.length === 0) return alert("Seleziona almeno una tipologia");
+
+  let dataDa = "";
+  let dataA = "";
+
+  if (mode === "stagione") {
+    const stagione = document.getElementById("exportStagioneSelect").value;
+    if (!stagione) return alert("Seleziona una stagione contabile");
+    const range = await getSeasonRange(stagione);
+    if (!range) return alert("Stagione non trovata");
+    dataDa = range.inizio;
+    dataA = range.fine;
+  } else {
+    dataDa = document.getElementById("exportDataDa").value;
+    dataA = document.getElementById("exportDataA").value;
+    if (!dataDa || !dataA) return alert("Seleziona entrambe le date");
+  }
+
+  const snap = await getDocs(collection(db, "eventi"));
+  const eventi = [];
+
+  snap.forEach(docSnap => {
+    const d = docSnap.data();
+    if (!d.data) return;
+    const isInRange = d.data >= dataDa && d.data <= dataA;
+    const isType = selezioni.includes(d.tipo);
+    if (!isInRange || !isType) return;
+    eventi.push({
+      data: d.data,
+      ora: d.ora || "00:00",
+      tipo: d.tipo,
+      luogo: d.luogo || ""
+    });
+  });
+
+  eventi.sort((a, b) => {
+    const ad = `${a.data}T${a.ora}`;
+    const bd = `${b.data}T${b.ora}`;
+    return ad.localeCompare(bd);
+  });
+
+  if (eventi.length === 0) {
+    document.getElementById("exportPreview").value = "Nessun appuntamento trovato con i filtri selezionati.";
+    document.getElementById("exportDownloadWrap").innerHTML = "";
+    return;
+  }
+
+  const lines = eventi.map(e => {
+    const luogo = e.luogo ? ` - ${e.luogo}` : "";
+    return `${normalizeDateTime(e.data, e.ora)} - ${e.tipo}${luogo}`;
+  });
+  const text = lines.join("\n");
+
+  document.getElementById("exportPreview").value = text;
+
+  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  if (window._exportTxtUrl) URL.revokeObjectURL(window._exportTxtUrl);
+  window._exportTxtUrl = url;
+  document.getElementById("exportDownloadWrap").innerHTML = `
+    <a href="${url}" download="appuntamenti.txt" style="display:inline-block;background:var(--gold);color:var(--green-dark);padding:10px 16px;border-radius:8px;font-family:'Oswald',sans-serif;letter-spacing:1px;text-decoration:none;font-weight:700;">Scarica .txt</a>
+  `;
+};
+
+// ─── GRAFICHE IG ────────────────────────────────────────
+function loadCanvasImage(file) {
+  if (!file) return Promise.resolve(null);
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function drawRoundedRect(ctx, x, y, w, h, r) {
+  const radius = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + w, y, x + w, y + h, radius);
+  ctx.arcTo(x + w, y + h, x, y + h, radius);
+  ctx.arcTo(x, y + h, x, y, radius);
+  ctx.arcTo(x, y, x + w, y, radius);
+  ctx.closePath();
+}
+
+function fitFont(ctx, text, maxWidth, startSize, family, weight = "700") {
+  let size = startSize;
+  while (size > 18) {
+    ctx.font = `${weight} ${size}px ${family}`;
+    if (ctx.measureText(text).width <= maxWidth) break;
+    size -= 2;
+  }
+  ctx.font = `${weight} ${size}px ${family}`;
+  return size;
+}
+
+function formatDateReadable(isoDate) {
+  if (!isoDate) return "";
+  const parts = isoDate.split("-");
+  if (parts.length !== 3) return isoDate;
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
+function splitLines(text) {
+  return (text || "").split(/\n|,/).map(s => s.trim()).filter(Boolean);
+}
+
+function createDownloadLink(canvas, linkId, filename) {
+  const link = document.getElementById(linkId);
+  link.href = canvas.toDataURL("image/png");
+  link.download = filename;
+  link.style.display = "inline-block";
+}
+
+async function renderScoreGraphic(logoImg) {
+  const canvas = document.getElementById("scoreCanvas");
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width, h = canvas.height;
+
+  const grad = ctx.createLinearGradient(0, 0, w, h);
+  grad.addColorStop(0, "#0f4d23");
+  grad.addColorStop(1, "#0a3116");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.fillStyle = "rgba(255,255,255,0.05)";
+  for (let i = -h; i < w; i += 60) {
+    ctx.fillRect(i, 0, 10, h);
+  }
+
+  ctx.strokeStyle = "rgba(244,196,48,0.3)";
+  ctx.lineWidth = 4;
+  drawRoundedRect(ctx, 60, 60, w - 120, h - 120, 44);
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(255,255,255,0.96)";
+  ctx.font = "700 60px Oswald, Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("MARZENEGO RIVERSIDE", w / 2, 160);
+
+  ctx.fillStyle = "rgba(244,196,48,0.95)";
+  ctx.font = "700 34px Oswald, Arial, sans-serif";
+  ctx.fillText((document.getElementById("scoreTypeSelect").value || "FULL TIME").toUpperCase(), w / 2, 230);
+
+  if (logoImg) {
+    const size = 240;
+    const x = (w - size) / 2;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(w / 2, 440, 130, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+    ctx.drawImage(logoImg, x, 320, size, size);
+    ctx.restore();
+  } else {
+    ctx.fillStyle = "rgba(255,255,255,0.14)";
+    ctx.beginPath();
+    ctx.arc(w / 2, 440, 120, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const result = document.getElementById("scoreResultInput").value.trim() || "-";
+  ctx.fillStyle = "#fff";
+  fitFont(ctx, result, w - 200, 170, "Oswald, Arial, sans-serif", "700");
+  ctx.fillText(result, w / 2, 640);
+
+  const scorers = splitLines(document.getElementById("scoreScorersInput").value);
+  ctx.fillStyle = "rgba(255,255,255,0.9)";
+  ctx.font = "600 42px Barlow, Arial, sans-serif";
+  ctx.fillText("MARCATORI", w / 2, 760);
+
+  ctx.font = "500 34px Barlow, Arial, sans-serif";
+  const startY = 820;
+  if (scorers.length === 0) {
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.fillText("Inserisci i marcatori", w / 2, startY);
+  } else {
+    scorers.slice(0, 8).forEach((line, idx) => {
+      fitFont(ctx, line, w - 220, 34, "Barlow, Arial, sans-serif", "500");
+      ctx.fillText(line, w / 2, startY + idx * 48);
+    });
+  }
+
+  ctx.fillStyle = "rgba(244,196,48,0.95)";
+  ctx.font = "700 28px Oswald, Arial, sans-serif";
+  ctx.fillText("#KeepFordingNutries 🌊🐭", w / 2, h - 100);
+
+  createDownloadLink(canvas, "scoreDownloadLink", "marzenego-score.png");
+}
+
+async function renderConvocatiGraphic(logoImg) {
+  const canvas = document.getElementById("convCanvas");
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width, h = canvas.height;
+
+  const grad = ctx.createLinearGradient(0, 0, w, h);
+  grad.addColorStop(0, "#0f4d23");
+  grad.addColorStop(1, "#092d14");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.fillStyle = "rgba(255,255,255,0.05)";
+  for (let i = -h; i < w; i += 60) {
+    ctx.fillRect(i, 0, 10, h);
+  }
+
+  ctx.strokeStyle = "rgba(244,196,48,0.3)";
+  ctx.lineWidth = 4;
+  drawRoundedRect(ctx, 50, 50, w - 100, h - 100, 42);
+  ctx.stroke();
+
+  ctx.fillStyle = "#fff";
+  ctx.font = "700 54px Oswald, Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("CONVOCATI", w / 2, 150);
+
+  const date = formatDateReadable(document.getElementById("convDateInput").value);
+  const time = document.getElementById("convTimeInput").value || "--:--";
+  const place = document.getElementById("convPlaceSelect").value;
+  ctx.fillStyle = "rgba(244,196,48,0.95)";
+  ctx.font = "600 34px Oswald, Arial, sans-serif";
+  ctx.fillText(`${date}  ${time}  ${place}`, w / 2, 210);
+
+  if (logoImg) {
+    const size = 220;
+    const x = w - 300;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(w - 190, 360, 120, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+    ctx.drawImage(logoImg, x, 250, size, size);
+    ctx.restore();
+  } else {
+    ctx.fillStyle = "rgba(255,255,255,0.14)";
+    ctx.beginPath();
+    ctx.arc(w - 190, 360, 115, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = "#fff";
+  ctx.font = "700 44px Oswald, Arial, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("LISTA CONVOCATI", 90, 320);
+
+  const players = splitLines(document.getElementById("convPlayersInput").value);
+  ctx.font = "500 34px Barlow, Arial, sans-serif";
+  ctx.fillStyle = "rgba(255,255,255,0.94)";
+  const startY = 390;
+  if (players.length === 0) {
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.fillText("Inserisci i convocati", 90, startY);
+  } else {
+    players.slice(0, 20).forEach((line, idx) => {
+      const text = `${idx + 1}. ${line}`;
+      fitFont(ctx, text, w - 180, 34, "Barlow, Arial, sans-serif", "500");
+      ctx.fillText(text, 90, startY + idx * 44);
+    });
+  }
+
+  ctx.fillStyle = "rgba(244,196,48,0.95)";
+  ctx.font = "700 28px Oswald, Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("#KeepFordingNutries 🌊🐭", w / 2, h - 100);
+
+  createDownloadLink(canvas, "convDownloadLink", "marzenego-convocati.png");
+}
+
+window.generaGraficaRisultato = async function() {
+  const file = document.getElementById("scoreLogoInput").files[0];
+  const logoImg = await loadCanvasImage(file);
+  await renderScoreGraphic(logoImg);
+};
+
+window.generaGraficaConvocati = async function() {
+  const file = document.getElementById("convLogoInput").files[0];
+  const logoImg = await loadCanvasImage(file);
+  await renderConvocatiGraphic(logoImg);
+};
 
 window.addStagione = async () => {
   if (!isAdmin) return;
@@ -2246,6 +2743,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   calendar.render();
   loadExtraEvents();
   loadJobs();
+
+  toggleExportMode();
+  const bar = document.getElementById("scrollBrandBar");
+  if (bar) bar.classList.toggle("visible", window.scrollY > 90);
+
+  window.addEventListener("scroll", () => {
+    const bar = document.getElementById("scrollBrandBar");
+    if (!bar) return;
+    bar.classList.toggle("visible", window.scrollY > 90);
+  }, { passive: true });
 });
 
 // ─── SERVICE WORKER ──────────────────────────────────────

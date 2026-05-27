@@ -49,25 +49,14 @@ body {
 
 /* ── HEADER LOGO + TITOLO ────────────────────────── */
 #logo {
-  width: 72px;
+  width: 64px;
   margin-top: 0;
   filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
 }
 
-/* titolo istituzionale stile canva: bold caps, sfondo verde con bordo oro */
+/* titolo istituzionale ora integrato nel banner, nascosto come elemento standalone */
 #appTitle {
-  display: block;
-  font-family: 'Oswald', sans-serif;
-  font-weight: 700;
-  font-size: 22px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: white;
-  background: var(--green-dark);
-  border: 2px solid var(--gold);
-  border-radius: 4px;
-  padding: 6px 20px;
-  margin: 6px auto 4px auto;
+  display: none;
 }
 
 #adminBanner {
@@ -562,8 +551,7 @@ button:hover { background: var(--green-dark); }
     font-size: 12px !important;
   }
 
-  /* Card bacheca, eventi, job, ordini: mai più larghe del viewport */
-  #novitaList > div,
+  /* Card eventi, job, ordini: mai più larghe del viewport */
   #eventiExtraList > div,
   #jobList > div {
     width: calc(100vw - 32px) !important;
@@ -573,10 +561,17 @@ button:hover { background: var(--green-dark); }
     margin-right: auto !important;
   }
 
-  /* Hero bacheca */
-  #homePage > div > div[style*="border:2px solid"] {
-    box-sizing: border-box;
-    width: calc(100vw - 32px);
+  /* Cornice bacheca su mobile */
+  #homePage > div {
+    padding: 0 6px !important;
+  }
+  
+  /* Foglietti bacheca: ridurre rotazione su mobile */
+  #novitaList > div {
+    transform: none !important;
+  }
+  #novitaList > div:hover {
+    transform: none !important;
   }
 }
   </style>
@@ -607,9 +602,79 @@ button:hover { background: var(--green-dark); }
   <div onclick="showPage('grafichePage')" id="graficheMenuBtn" style="display:none;">🔒 Grafiche Instagram</div>
 </div>
 
-<div style="display:flex; flex-direction:column; align-items:center; margin-top:14px;">
-  <img id="logo" src="Marzenego.png" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png';">
-  <div id="appTitle">Marzenego Riverside</div>
+<div style="
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin: 52px auto 0 auto;
+  max-width: 420px;
+  padding: 0 16px;
+  position: relative;
+">
+  <!-- Logo che sporge sopra il riquadro -->
+  <div style="
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+  ">
+    <img id="logo" src="Marzenego.png"
+      onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png';"
+      style="width: 72px; filter: drop-shadow(0 3px 10px rgba(0,0,0,0.6));">
+  </div>
+
+  <!-- Riquadro compatto -->
+  <div style="
+    width: 100%;
+    background-color: var(--green-dark);
+    background-image: repeating-linear-gradient(
+      135deg,
+      rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px,
+      transparent 1px, transparent 18px
+    );
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 10px;
+    gap: 0;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.45);
+  ">
+    <!-- MARZENEGO -->
+    <div style="
+      font-family: 'Oswald', sans-serif;
+      font-weight: 700;
+      font-size: clamp(13px, 3.5vw, 19px);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: white;
+      flex: 1;
+      text-align: center;
+    ">MARZENEGO</div>
+
+    <!-- Divisore verticale oro -->
+    <div style="width:1.5px;height:28px;background:rgba(244,196,48,0.6);flex-shrink:0;margin:0 8px;"></div>
+
+    <!-- Spazio logo al centro (placeholder trasparente) -->
+    <div style="width:72px;flex-shrink:0;"></div>
+
+    <!-- Divisore verticale oro -->
+    <div style="width:1.5px;height:28px;background:rgba(244,196,48,0.6);flex-shrink:0;margin:0 8px;"></div>
+
+    <!-- RIVERSIDE -->
+    <div style="
+      font-family: 'Oswald', sans-serif;
+      font-weight: 700;
+      font-size: clamp(13px, 3.5vw, 19px);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: white;
+      flex: 1;
+      text-align: center;
+    ">RIVERSIDE</div>
+  </div>
 </div>
 <div id="adminBanner">⚡ Admin loggato 🔓</div>
 
@@ -621,45 +686,45 @@ button:hover { background: var(--green-dark); }
     <span class="miniBtn" onclick="toggleDelete('novitaList')">❌</span>
   </div>
 
+  <!-- ── BACHECA FRAME ─────────────────────────────── -->
   <div style="
-    margin: 18px auto 8px auto;
-    max-width: 650px;
+    margin: 18px auto 0 auto;
+    max-width: 660px;
     padding: 0 12px;
-    text-align: left;
   ">
-    <!-- hero brand: BACHECA come in foto -->
+    <!-- Bordo dorato sottile + sfondo verde scuro -->
     <div style="
+      background: var(--green-dark);
       border: 2px solid var(--gold);
       border-radius: 14px;
-      padding: 20px 22px 18px 22px;
-      color: white;
-      margin-bottom: 22px;
+      padding: 18px 18px 20px 18px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.45);
       position: relative;
-      overflow: hidden;
-      text-align: left;
     ">
-      <div style="
-        font-family:'Oswald',sans-serif;
-        font-weight:700;
-        font-size:22px;
-        letter-spacing:3px;
-        text-transform:uppercase;
-        color:white;
-      ">
-        BACHECA
+      <!-- Header -->
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;">
+        <div style="
+          font-family:'Oswald',sans-serif;
+          font-weight:700;
+          font-size:20px;
+          letter-spacing:4px;
+          text-transform:uppercase;
+          color:var(--gold);
+        ">📌 BACHECA</div>
+        <div style="
+          font-family:'Dancing Script',cursive;
+          font-size:23px;
+          color:rgba(255,255,255,0.5);
+        ">Un fiume, una passione.</div>
       </div>
-      <div style="
-        font-family:'Dancing Script',cursive;
-        font-size:20px;
-        color:var(--gold);
-        margin-top:4px;
-      ">
-        Un fiume una passione. #KeepFordingNutries
-      </div>
+
+      <!-- Separatore oro -->
+      <div style="height:1px;background:rgba(244,196,48,0.35);margin-bottom:18px;"></div>
+
+      <!-- Foglietti -->
+      <div id="novitaList"></div>
     </div>
   </div>
-
-  <div id="novitaList"></div>
 
 </div>
 
@@ -2538,52 +2603,65 @@ async function loadNovita() {
   items.sort((a, b) => b.data.localeCompare(a.data));
 
   if (items.length === 0) {
-    list.innerHTML = `<div style="color:rgba(255,255,255,0.4);font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:1px;margin:30px auto;">NESSUNA NOVITÀ AL MOMENTO</div>`;
+    list.innerHTML = `<div style="color:rgba(244,196,48,0.4);font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;text-align:center;padding:16px 0 6px 0;">NESSUNA NOVITÀ AL MOMENTO</div>`;
     return;
   }
 
   items.forEach((d, i) => {
     const isNew = i === 0;
     const div = document.createElement("div");
+
     div.style = [
-      "background:rgba(255,255,255,0.07)",
-      "border:1px solid rgba(244,196,48,0.35)",
-      "border-left:4px solid " + (isNew ? "var(--gold)" : "rgba(244,196,48,0.4)"),
-      "border-radius:12px",
-      "padding:16px 20px",
-      "margin:10px auto",
-      "max-width:650px",
-      "width:92%",
-      "text-align:left",
+      "background:" + (isNew ? "rgba(244,196,48,0.08)" : "rgba(255,255,255,0.05)"),
+      "border:1px solid " + (isNew ? "rgba(244,196,48,0.5)" : "rgba(255,255,255,0.1)"),
+      "border-left:3px solid " + (isNew ? "var(--gold)" : "var(--green-light)"),
+      "border-radius:8px",
+      "padding:12px 14px 12px 16px",
+      "margin:0 0 10px 0",
       "position:relative",
       "cursor:" + (d.testo ? "pointer" : "default"),
-      "transition:background 0.2s"
+      "transition:background 0.15s, border-color 0.15s"
     ].join(";");
 
     if (d.testo) {
-      div.onmouseenter = () => div.style.background = "rgba(255,255,255,0.12)";
-      div.onmouseleave = () => div.style.background = "rgba(255,255,255,0.07)";
+      div.onmouseenter = () => {
+        div.style.background = isNew ? "rgba(244,196,48,0.13)" : "rgba(255,255,255,0.09)";
+      };
+      div.onmouseleave = () => {
+        div.style.background = isNew ? "rgba(244,196,48,0.08)" : "rgba(255,255,255,0.05)";
+      };
       div.onclick = () => openNovita(d.titolo, d.testo);
     }
 
+    // Puntina — solo quella del "nuovo" in oro, le altre verde discreto
+    const pinColor = isNew ? "#f4c430" : "#1e7a3a";
+    const pinSvg = `<div style="position:absolute;top:-9px;left:18px;z-index:3;">
+      <svg width="14" height="18" viewBox="0 0 14 18" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="7" cy="5.5" r="5.5" fill="${pinColor}" opacity="0.9"/>
+        <circle cx="5.5" cy="4" r="2" fill="rgba(255,255,255,0.3)"/>
+        <line x1="7" y1="10" x2="7" y2="18" stroke="${pinColor}" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+      </svg>
+    </div>`;
+
     const badgeNew = isNew
-      ? `<span style="background:var(--gold);color:var(--green-dark);font-family:'Oswald',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.5px;">🆕 NUOVO</span>`
+      ? `<span style="background:var(--gold);color:var(--green-dark);font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;padding:3px 11px;border-radius:20px;letter-spacing:0.5px;">NUOVO</span>`
       : "";
-    const badgeTag = `<span style="background:rgba(244,196,48,0.15);color:var(--gold);font-family:'Oswald',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.5px;">${d.tag}</span>`;
+    const badgeTag = `<span style="color:var(--gold);font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;padding:3px 11px;border-radius:20px;border:1.5px solid rgba(244,196,48,0.5);">${d.tag}</span>`;
 
     div.innerHTML = `
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+      ${pinSvg}
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-top:2px;flex-wrap:wrap;">
         ${badgeNew}${badgeTag}
-        <span style="font-size:11px;color:rgba(255,255,255,0.45);margin-left:auto;">📅 ${d.data}</span>
+        <span style="font-size:15px;color:rgba(255,255,255,0.3);margin-left:auto;font-family:'Barlow',sans-serif;">${d.data}</span>
       </div>
-      <div style="font-family:'Barlow',sans-serif;font-size:17px;font-weight:600;color:white;line-height:1.5em;">${d.titolo}</div>
-      ${d.testo ? `<div style="font-size:20px;color:var(--gold);font-family:'Oswald',sans-serif;letter-spacing:0.5px;margin-top:10px;opacity:0.8;">👆 Clicca per espandere</div>` : ""}
+      <div style="font-family:'Barlow',sans-serif;font-size:20px;font-weight:600;color:rgba(255,255,255,0.9);line-height:1.5em;">${d.titolo}</div>
+      ${d.testo ? `<div style="font-size:18px;color:var(--gold);font-family:'Oswald',sans-serif;letter-spacing:0.5px;margin-top:8px;opacity:0.6;">tocca per leggere 👆</div>` : ""}
     `;
 
     if (dm("novitaList")) {
       const x = document.createElement("span");
       x.innerText = "❌";
-      x.style = "position:absolute;top:10px;right:12px;cursor:pointer;font-size:18px;";
+      x.style = "position:absolute;top:8px;right:8px;cursor:pointer;font-size:14px;opacity:0.6;";
       x.onclick = async (e) => { e.stopPropagation(); await deleteDoc(doc(db, "novita", d.id)); loadNovita(); };
       div.appendChild(x);
     }

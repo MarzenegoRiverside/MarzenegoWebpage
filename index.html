@@ -12,6 +12,7 @@
   
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#145a2a">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
   <!-- Font brand: Oswald per titoli istituzionali, Dancing Script per corsivi decorativi -->
@@ -713,7 +714,7 @@ button:hover { background: var(--green-dark); }
         ">📌 BACHECA</div>
         <div style="
           font-family:'Dancing Script',cursive;
-          font-size:23px;
+          font-size:15px;
           color:rgba(255,255,255,0.5);
         ">Un fiume, una passione.</div>
       </div>
@@ -2652,10 +2653,10 @@ async function loadNovita() {
       ${pinSvg}
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-top:2px;flex-wrap:wrap;">
         ${badgeNew}${badgeTag}
-        <span style="font-size:15px;color:rgba(255,255,255,0.3);margin-left:auto;font-family:'Barlow',sans-serif;">${d.data}</span>
+        <span style="font-size:11px;color:rgba(255,255,255,0.3);margin-left:auto;font-family:'Barlow',sans-serif;">${d.data}</span>
       </div>
-      <div style="font-family:'Barlow',sans-serif;font-size:20px;font-weight:600;color:rgba(255,255,255,0.9);line-height:1.5em;">${d.titolo}</div>
-      ${d.testo ? `<div style="font-size:18px;color:var(--gold);font-family:'Oswald',sans-serif;letter-spacing:0.5px;margin-top:8px;opacity:0.6;">tocca per leggere 👆</div>` : ""}
+      <div style="font-family:'Barlow',sans-serif;font-size:17px;font-weight:600;color:rgba(255,255,255,0.9);line-height:1.5em;">${d.titolo}</div>
+      ${d.testo ? `<div style="font-size:12px;color:var(--gold);font-family:'Oswald',sans-serif;letter-spacing:0.5px;margin-top:8px;opacity:0.6;">tocca per leggere →</div>` : ""}
     `;
 
     if (dm("novitaList")) {

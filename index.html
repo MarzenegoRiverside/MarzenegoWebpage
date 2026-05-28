@@ -540,9 +540,10 @@ button:hover { background: var(--green-dark); }
     overflow: hidden;
   }
 
-  /* FullCalendar: su mobile scala in altezza per riempire il box */
+  /* FullCalendar: altezza proporzionale alla larghezza, niente scroll */
   #calendar .fc-view-harness {
-    height: calc(100dvh - 230px) !important;
+    aspect-ratio: 1 / 1.15 !important;
+    height: auto !important;
   }
 
   .fc .fc-toolbar-title {

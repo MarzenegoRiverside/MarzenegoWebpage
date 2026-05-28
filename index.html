@@ -328,15 +328,15 @@ button:hover { background: var(--green-dark); }
   max-width: 700px;
   margin: 16px auto;
   background: white;
-  padding: 10px;
+  padding: 12px 6px;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.3);
 }
 
-.fc { z-index: 1; font-size: 14px !important; }
-.fc .fc-daygrid-event { white-space: normal !important; font-size: 11px; line-height: 1.2em; }
-.fc .fc-daygrid-day-number { font-size: 12px; color: var(--green-dark) !important; }
-.fc .fc-toolbar-title { font-size: 16px !important; color: var(--green-dark) !important; }
+.fc { z-index: 1; font-size: 16px !important; }
+.fc .fc-daygrid-event { white-space: normal !important; font-size: 13px; line-height: 1.3em; }
+.fc .fc-daygrid-day-number { font-size: 14px; color: var(--green-dark) !important; }
+.fc .fc-toolbar-title { font-size: 20px !important; color: var(--green-dark) !important; }
 .fc .fc-button {
   padding: 6px 14px !important;
   font-size: 12px !important;
@@ -528,28 +528,38 @@ button:hover { background: var(--green-dark); }
 }
 
 @media (max-width: 768px) {
+  #calendarPage {
+    padding-bottom: 0 !important;
+  }
+
   #calendar {
     width: calc(100vw - 12px);
-    margin: 10px auto;
+    margin: 6px auto 0 auto;
     padding: 4px;
     border-radius: 12px;
+    overflow: hidden;
+  }
+
+  /* FullCalendar: su mobile scala in altezza per riempire il box */
+  #calendar .fc-view-harness {
+    height: calc(100dvh - 230px) !important;
   }
 
   .fc .fc-toolbar-title {
-    font-size: 14px !important;
+    font-size: 16px !important;
   }
 
   .fc .fc-button {
-    padding: 4px 10px !important;
-    font-size: 11px !important;
+    padding: 5px 12px !important;
+    font-size: 12px !important;
   }
 
   .fc .fc-daygrid-day-number {
-    font-size: 11px !important;
+    font-size: 13px !important;
   }
 
   .fc .fc-col-header-cell-cushion {
-    font-size: 12px !important;
+    font-size: 13px !important;
   }
 
   /* Card eventi, job, ordini: mai più larghe del viewport */
@@ -2887,7 +2897,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       return {
         html: `
-          <div style="font-size:11px; line-height:1.2em; background:${bgColor}; border-radius:4px; padding:2px;">
+          <div style="font-size:13px; line-height:1.35em; background:${bgColor}; border-radius:4px; padding:3px 4px;">
             <div><b>${time}</b></div>
             <div>${isMatch ? "⚽ " : ""}${tipo}</div>
             <div>${luogo || ""}</div>

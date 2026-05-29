@@ -126,20 +126,11 @@ body {
 #closeMenuBtn:hover { color: var(--gold); }
 
 #sideMenu div {
-  padding: 13px 18px;
-  cursor: pointer;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
-  font-family: 'Oswald', sans-serif;
-  font-size: 15px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.85);
-  transition: background 0.15s, color 0.15s;
+  /* reset — il nuovo side menu usa stili inline per ogni blocco */
 }
 
 #sideMenu div:hover {
-  background: var(--green-mid);
-  color: var(--gold);
+  /* reset */
 }
 
 /* ── PAGINE ──────────────────────────────────────── */
@@ -670,18 +661,114 @@ button:hover { background: var(--green-dark); }
 
 <div id="sideMenu">
   <div id="closeMenuBtn" onclick="toggleMenu()">✕</div>
-  <div onclick="showPage('homePage')">Home</div>
-  <div onclick="showPage('calendarPage')">Calendario</div>
-  <div onclick="showPage('eventiPage')">Prossimi Eventi</div>
-  <div onclick="showPage('lavoroPage')">Lavora con noi</div>
-  <div onclick="showPage('chiSiamoPage')">Chi siamo</div>
-  <div onclick="showPage('modulisticaPage')">Comunicati, Link e PDF</div>
-  <div onclick="showPage('shopPage')">MarzeNegozio</div>
-  <div onclick="showPage('richiestePage')">Carrello Ordini</div>
-  <div onclick="showPage('contabilePage')" id="contabileMenuBtn" style="display:none;">🔒 Situazione Contabile</div>
-  <div onclick="showPage('candidaturePage')" id="candidatureMenuBtn" style="display:none;">🔒 Candidature</div>
-  <div onclick="showPage('exportPage')" id="exportMenuBtn" style="display:none;">🔒 Export Appuntamenti</div>
-  <div onclick="showPage('grafichePage')" id="graficheMenuBtn" style="display:none;">🔒 Grafiche Instagram</div>
+
+  <!-- LOGO + NOME CLUB -->
+  <div style="display:flex;flex-direction:column;align-items:center;padding:28px 18px 18px 18px;border-bottom:1px solid rgba(244,196,48,0.25);">
+    <img src="Marzenego.png"
+      onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png';"
+      style="width:56px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));margin-bottom:10px;">
+    <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;letter-spacing:3px;text-transform:uppercase;color:white;">MARZENEGO</div>
+    <div style="font-family:'Dancing Script',cursive;font-size:14px;color:var(--gold);margin-top:2px;">Riverside</div>
+  </div>
+
+  <!-- SEZIONE UTENTE -->
+  <div id="sideUserSection" style="padding:16px 18px;border-bottom:1px solid rgba(244,196,48,0.25);">
+    <!-- ospite -->
+    <div id="sideGuestBlock">
+      <div style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1.5px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:8px;">Accesso</div>
+      <div onclick="toggleMenu();openLogin();" style="
+        display:flex;align-items:center;gap:10px;cursor:pointer;
+        background:rgba(244,196,48,0.1);border:1px solid rgba(244,196,48,0.3);
+        border-radius:8px;padding:10px 14px;
+        font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:1px;
+        text-transform:uppercase;color:var(--gold);
+        transition:background 0.15s;
+      " onmouseover="this.style.background='rgba(244,196,48,0.18)'" onmouseout="this.style.background='rgba(244,196,48,0.1)'">
+        <span style="font-size:20px;">🔑</span> Area Staff
+      </div>
+    </div>
+    <!-- admin loggato -->
+    <div id="sideAdminBlock" style="display:none;">
+      <div style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1.5px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:8px;">Connesso come</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <span style="font-size:28px;">🦫</span>
+        <div>
+          <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;color:var(--gold);letter-spacing:1px;">ADMIN</div>
+          <div style="font-family:'Barlow',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">Marzenego Staff</div>
+        </div>
+      </div>
+      <div onclick="doLogout();" style="
+        display:flex;align-items:center;gap:8px;cursor:pointer;
+        background:rgba(255,80,80,0.1);border:1px solid rgba(255,80,80,0.3);
+        border-radius:8px;padding:8px 14px;
+        font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;
+        text-transform:uppercase;color:#ff8080;
+        transition:background 0.15s;
+      " onmouseover="this.style.background='rgba(255,80,80,0.2)'" onmouseout="this.style.background='rgba(255,80,80,0.1)'">
+        <span>🚪</span> Logout
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTATTI & INFO -->
+  <div style="padding:16px 18px;border-bottom:1px solid rgba(244,196,48,0.25);">
+    <div style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1.5px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:12px;">Contatti & Info</div>
+
+
+
+    <!-- WhatsApp -->
+    <a href="https://chat.whatsapp.com/BMPFyLqQS4kBQSHLi0UUju" target="_blank" style="
+      display:flex;align-items:center;gap:12px;text-decoration:none;
+      padding:10px 14px;border-radius:8px;margin-bottom:8px;
+      background:rgba(37,211,102,0.1);border:1px solid rgba(37,211,102,0.25);
+      transition:background 0.15s;
+    " onmouseover="this.style.background='rgba(37,211,102,0.2)'" onmouseout="this.style.background='rgba(37,211,102,0.1)'">
+      <span style="font-size:22px;">💬</span>
+      <div>
+        <div style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;letter-spacing:1px;color:white;text-transform:uppercase;">Gruppo WhatsApp</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:11px;color:rgba(255,255,255,0.45);">Entra nella chat del club</div>
+      </div>
+    </a>
+
+    <!-- Instagram -->
+    <a href="https://www.instagram.com/marzenego_riverside/" target="_blank" style="
+      display:flex;align-items:center;gap:12px;text-decoration:none;
+      padding:10px 14px;border-radius:8px;margin-bottom:8px;
+      background:rgba(193,53,132,0.1);border:1px solid rgba(193,53,132,0.25);
+      transition:background 0.15s;
+    " onmouseover="this.style.background='rgba(193,53,132,0.2)'" onmouseout="this.style.background='rgba(193,53,132,0.1)'">
+      <span style="font-size:22px;">📸</span>
+      <div>
+        <div style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;letter-spacing:1px;color:white;text-transform:uppercase;">Instagram</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:11px;color:rgba(255,255,255,0.45);">@marzenego_riverside</div>
+      </div>
+    </a>
+
+    <!-- Email -->
+    <a href="mailto:marzenegoriverside@gmail.com" style="
+      display:flex;align-items:center;gap:12px;text-decoration:none;
+      padding:10px 14px;border-radius:8px;
+      background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+      transition:background 0.15s;
+    " onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+      <span style="font-size:22px;">✉️</span>
+      <div>
+        <div style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;letter-spacing:1px;color:white;text-transform:uppercase;">Email</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:11px;color:rgba(255,255,255,0.45);">marzenego.riverside@gmail.com</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- MOTTO -->
+  <div style="padding:18px;text-align:center;">
+    <div style="font-family:'Dancing Script',cursive;font-size:16px;color:rgba(244,196,48,0.6);line-height:1.5em;">Un fiume, una passione.<br>#KeepFordingNutries!</div>
+  </div>
+
+  <!-- ID nascosti per compatibilità admin (non visibili) -->
+  <div id="contabileMenuBtn" style="display:none;"></div>
+  <div id="candidatureMenuBtn" style="display:none;"></div>
+  <div id="exportMenuBtn" style="display:none;"></div>
+  <div id="graficheMenuBtn" style="display:none;"></div>
 </div>
 
 <div style="
@@ -793,6 +880,22 @@ button:hover { background: var(--green-dark); }
     <span class="pill-label">Carrello&nbsp;Ordini</span>
     <div class="pill-underline"></div>
   </div>
+  <div class="pill-item pill-admin" id="contabilePillBtn" style="display:none;" onclick="showPage('contabilePage')" data-page="contabilePage">
+    <span class="pill-label">🔒&nbsp;Contabilità</span>
+    <div class="pill-underline"></div>
+  </div>
+  <div class="pill-item pill-admin" id="candidaturePillBtn" style="display:none;" onclick="showPage('candidaturePage')" data-page="candidaturePage">
+    <span class="pill-label">🔒&nbsp;Candidature</span>
+    <div class="pill-underline"></div>
+  </div>
+  <div class="pill-item pill-admin" id="exportPillBtn" style="display:none;" onclick="showPage('exportPage')" data-page="exportPage">
+    <span class="pill-label">🔒&nbsp;Export</span>
+    <div class="pill-underline"></div>
+  </div>
+  <div class="pill-item pill-admin" id="grafichePillBtn" style="display:none;" onclick="showPage('grafichePage')" data-page="grafichePage">
+    <span class="pill-label">🔒&nbsp;Grafiche</span>
+    <div class="pill-underline"></div>
+  </div>
 </nav>
 
 <div id="adminBanner">⚡ Admin loggato 🔓</div>
@@ -870,7 +973,7 @@ button:hover { background: var(--green-dark); }
     <span class="miniBtn" onclick="addExtraEvent()">➕</span>
     <span class="miniBtn" onclick="toggleDelete('eventiExtraList')">❌</span>
   </div>
-  <h3>Prossimi Eventi</h3>
+  <h3>LEGGI QUI LA LISTA RIASSUNTIVA DEI PROSSIMI APPUNTAMENTI</h3>
   <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:20px;margin:-6px 0 10px 0;">cosa ci aspetta</div>
   <div id="eventiExtraList"></div>
 </div>
@@ -967,7 +1070,7 @@ button:hover { background: var(--green-dark); }
 
 <!-- CHI SIAMO -->
 <div id="chiSiamoPage" class="page">
-  <h3>Chi siamo</h3>
+  <h3>IL GRUPPO</h3>
   <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:22px;margin:-6px 0 10px 0;">la nostra storia</div>
   <p style="color:rgba(255,255,255,0.85);max-width:600px;margin:0 auto 16px auto;line-height:1.7em;font-size:16px;padding:0 16px;">Marzenego Riverside nasce nel mese di luglio 2025, dalle ceneri del progetto Aston Villa Salus. Il Marzenego, fonte d'ispirazione per il concept di squadra, è un fiume che attraversa molti dei paesi in cui siamo nati e cresciuti, ci congiunge e ci unisce come unica grande famiglia. Il nostro spirito, in campo e fuori, è quello di giocare sempre al massimo delle nostre possibilità, unendo passione a grande spirito di miglioramento. Tuttavia, una grande società, una grande squadra, non è niente senza un grande gruppo di uomini. #KeepFordingNutries!</p>
   <img src="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/IMG-20251117-WA0030(1).jpg"
@@ -976,8 +1079,8 @@ button:hover { background: var(--green-dark); }
 
 <!-- MODULISTICA -->
 <div id="modulisticaPage" class="page">
-  <h3>Moduli &amp; Comunicati</h3>
-  <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:20px;margin:-6px 0 16px 0;">l'elenco di tutti i documenti necessari pubblicati dallo staff</div>
+  <h3>L'ELENCO DI TUTTI I DOCUMENTI NECESSARI PUBBLICATI DALLO STAFF</h3>
+  <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:20px;margin:-6px 0 16px 0;">visita tutte le 3 sezioni e clicca per espandere</div>
 
 
   <div class="miniBtns" id="comunicatiBtns" style="display:none;">
@@ -1032,7 +1135,7 @@ button:hover { background: var(--green-dark); }
 
 <!-- CARRELLO ORDINI -->
 <div id="richiestePage" class="page">
-  <h3>Carrello Ordini</h3>
+  <h3>VERIFICA SE IL TUO ORDINE E' ANDATO A BUON FINE</h3>
   <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:20px;margin:-6px 0 10px 0;">riepilogo richieste</div>
   <div id="richiesteList"></div>
 </div>
@@ -1125,8 +1228,8 @@ button:hover { background: var(--green-dark); }
     <span class="miniBtn" onclick="addProduct()">➕</span>
     <span class="miniBtn" onclick="toggleDelete('shopList')">❌</span>
   </div>
-  <h3>MarzeNegozio</h3>
-  <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:22px;margin:-6px 0 6px 0;">il nostro store ufficiale</div>
+  <h3>IL NOSTRO SHOP</h3>
+  <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:22px;margin:-6px 0 6px 0;">contribuisci allo sviluppo del club</div>
   <p style="font-size:18px;color:rgba(255,255,255,0.5);margin:0 0 10px 0;">⚠️ Non richiedere oggetti senza prezzo indicato ⚠️</p>
   <div id="shopList" style="display:flex; flex-wrap:wrap; justify-content:center;"></div>
 </div>
@@ -1271,6 +1374,24 @@ window.onclick = function(event) {
 window.openLogin = () => document.getElementById("loginModal").style.display = "flex";
 window.closeModal = id => document.getElementById(id).style.display = "none";
 
+window.doLogout = function() {
+  isAdmin = false;
+  // nascondi elementi admin
+  document.getElementById("adminBanner").style.display = "none";
+  ["pdfBtns","linkBtns","comunicatiBtns","novitaBtns","adminDocsSection","adminDocsBtns",
+   "calendarBtns","eventiBtns","jobBtns","shopBtns","entrateBtns","speseBtns","stagioneBtns","quoteInlineBtns"]
+    .forEach(id => { const el = document.getElementById(id); if(el) el.style.display = "none"; });
+  document.getElementById("contabileContent").style.display = "none";
+  document.getElementById("contabileLock").style.display = "block";
+  // nascondi pillole admin
+  ["contabilePillBtn","candidaturePillBtn","exportPillBtn","grafichePillBtn"]
+    .forEach(id => { const el = document.getElementById(id); if(el) el.style.display = "none"; });
+  // side menu: torna a guest
+  document.getElementById("sideAdminBlock").style.display = "none";
+  document.getElementById("sideGuestBlock").style.display = "block";
+  toggleMenu();
+};
+
 // ─── LOGIN ───────────────────────────────────────────────
 window.login = function() {
   if (username.value === "pippo" && password.value === "pippo") {
@@ -1296,6 +1417,13 @@ window.login = function() {
     document.getElementById("candidatureMenuBtn").style.display = "block";
     document.getElementById("exportMenuBtn").style.display = "block";
     document.getElementById("graficheMenuBtn").style.display = "block";
+    document.getElementById("contabilePillBtn").style.display = "inline-flex";
+    document.getElementById("candidaturePillBtn").style.display = "inline-flex";
+    document.getElementById("exportPillBtn").style.display = "inline-flex";
+    document.getElementById("grafichePillBtn").style.display = "inline-flex";
+    // side menu: mostra blocco admin
+    document.getElementById("sideGuestBlock").style.display = "none";
+    document.getElementById("sideAdminBlock").style.display = "block";
     loadAdminDocs();
     closeModal("loginModal");
   } else {

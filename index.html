@@ -527,6 +527,76 @@ button:hover { background: var(--green-dark); }
   }
 }
 
+/* ── TAB NAV BAR — stile h3 originale ──────────────── */
+#pillNav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 12px 14px;
+  margin: 10px 0 0 0;
+  background: transparent;
+}
+#pillNav::-webkit-scrollbar { display: none; }
+
+/* ogni voce replica esattamente lo stile h3 */
+.pill-item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  padding-bottom: 6px; /* spazio fisso per la lineetta, sempre presente */
+}
+
+.pill-label {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: white;
+  background: var(--green-mid);
+  padding: 6px 18px;
+  border-radius: 4px;
+  border-left: 4px solid var(--green-dark);
+  white-space: nowrap;
+  opacity: 0.55;
+  transition: opacity 0.15s;
+}
+
+.pill-item.active .pill-label {
+  opacity: 1;
+  border-left-color: var(--gold);
+}
+
+.pill-item:hover .pill-label {
+  opacity: 0.85;
+}
+
+/* lineetta gialla sotto la voce attiva — fuori dal flusso */
+.pill-underline {
+  position: absolute;
+  bottom: 0;
+  left: 4px; /* allineata dopo il border-left */
+  width: 0;
+  height: 3px;
+  background: var(--gold);
+  border-radius: 0 0 2px 2px;
+  transition: width 0.2s;
+}
+
+.pill-item.active .pill-underline {
+  width: calc(100% - 4px);
+}
+
+/* ── END TAB NAV BAR ────────────────────────────────── */
+
 @media (max-width: 768px) {
   #calendarPage {
     padding-bottom: 0 !important;
@@ -689,6 +759,42 @@ button:hover { background: var(--green-dark); }
     ">RIVERSIDE</div>
   </div>
 </div>
+<!-- ── PILL NAV ──────────────────────────────────────── -->
+<nav id="pillNav" role="navigation" aria-label="Navigazione principale">
+  <div class="pill-item active" onclick="showPage('homePage')" data-page="homePage">
+    <span class="pill-label">Home</span>
+    <div class="pill-underline"></div>
+  </div>
+  <div class="pill-item" onclick="showPage('calendarPage')" data-page="calendarPage">
+    <span class="pill-label">Calendario</span>
+    <div class="pill-underline"></div>
+  </div>
+  <div class="pill-item" onclick="showPage('eventiPage')" data-page="eventiPage">
+    <span class="pill-label">Prossimi&nbsp;Eventi</span>
+    <div class="pill-underline"></div>
+  </div>
+  <div class="pill-item" onclick="showPage('lavoroPage')" data-page="lavoroPage">
+    <span class="pill-label">Lavora&nbsp;con&nbsp;noi</span>
+    <div class="pill-underline"></div>
+  </div>
+  <div class="pill-item" onclick="showPage('chiSiamoPage')" data-page="chiSiamoPage">
+    <span class="pill-label">Chi&nbsp;siamo</span>
+    <div class="pill-underline"></div>
+  </div>
+  <div class="pill-item" onclick="showPage('modulisticaPage')" data-page="modulisticaPage">
+    <span class="pill-label">Comunicati&nbsp;&amp;&nbsp;PDF</span>
+    <div class="pill-underline"></div>
+  </div>
+  <div class="pill-item" onclick="showPage('shopPage')" data-page="shopPage">
+    <span class="pill-label">MarzeNegozio</span>
+    <div class="pill-underline"></div>
+  </div>
+  <div class="pill-item" onclick="showPage('richiestePage')" data-page="richiestePage">
+    <span class="pill-label">Carrello&nbsp;Ordini</span>
+    <div class="pill-underline"></div>
+  </div>
+</nav>
+
 <div id="adminBanner">⚡ Admin loggato 🔓</div>
 
 <!-- HOME / NOVITÀ -->
@@ -1123,7 +1229,24 @@ window.toggleMenu = function() {
 window.showPage = function(id) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-  toggleMenu();
+  // chiude il side menu solo se è effettivamente aperto
+  const m = document.getElementById("sideMenu");
+  if (m.style.left === "0px") toggleMenu();
+
+  // ── sync pill nav ──────────────────────────────────
+  const pills = document.querySelectorAll("#pillNav .pill-item");
+  pills.forEach(pill => {
+    pill.classList.toggle("active", pill.dataset.page === id);
+  });
+  // scroll active pill to center
+  const activePill = document.querySelector(`#pillNav .pill-item[data-page="${id}"]`);
+  if (activePill) {
+    const nav = document.getElementById("pillNav");
+    const pillCenter = activePill.offsetLeft + activePill.offsetWidth / 2;
+    const navCenter = nav.offsetWidth / 2;
+    nav.scrollTo({ left: pillCenter - navCenter, behavior: "smooth" });
+  }
+  // ──────────────────────────────────────────────────
 
   if (id === "shopPage") loadProducts();
   if (id === "richiestePage") loadRichieste();
@@ -2869,6 +2992,17 @@ window.addEventListener("appinstalled", () => {
 
 // ─── INIT ────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
+  // ── center default active pill (Home) ─────────────
+  setTimeout(() => {
+    const activePill = document.querySelector("#pillNav .pill-item.active");
+    if (activePill) {
+      const nav = document.getElementById("pillNav");
+      const pillCenter = activePill.offsetLeft + activePill.offsetWidth / 2;
+      const navCenter = nav.offsetWidth / 2;
+      nav.scrollTo({ left: pillCenter - navCenter, behavior: "instant" });
+    }
+  }, 50);
+  // ──────────────────────────────────────────────────
   const eventi = await loadCalendar();
   loadProducts();
   loadPDF();

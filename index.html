@@ -588,6 +588,362 @@ button:hover { background: var(--green-dark); }
 
 /* ── END TAB NAV BAR ────────────────────────────────── */
 
+/* ══════════════════════════════════════════════════════
+   HOME PAGE REDESIGN — dark editorial / Framer-inspired
+   ══════════════════════════════════════════════════════ */
+#homePage {
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgba(255,255,255,0.03) 0px,
+      rgba(255,255,255,0.03) 1px,
+      transparent 1px,
+      transparent 20px
+    ),
+    linear-gradient(
+      180deg,
+      #0e4a22 0%,
+      #0b3d1c 8%,
+      #0a2e16 22%,
+      #0d1f12 42%,
+      #101510 65%,
+      #111111 100%
+    );
+  min-height: 100vh;
+  padding: 0 0 80px 0 !important;
+}
+.home-hero {
+  position: relative;
+  padding: 40px 24px 28px;
+  text-align: center;
+  overflow: hidden;
+}
+.home-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(14,74,34,0.15) 0%, transparent 80%);
+  pointer-events: none;
+}
+.home-hero-eyebrow {
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.75;
+  margin-bottom: 6px;
+  position: relative;
+}
+.home-hero-title {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: clamp(26px, 8vw, 50px);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: white;
+  line-height: 1;
+  margin: 0;
+  position: relative;
+}
+.home-hero-title em { font-style: normal; color: var(--gold); }
+.home-hero-sub {
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(15px, 4vw, 21px);
+  color: rgba(255,255,255,0.38);
+  margin-top: 8px;
+  position: relative;
+}
+.home-section { padding: 6px 0 20px; }
+.home-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px 10px 20px;
+}
+.home-section-label {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  white-space: nowrap;
+}
+.home-section-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(244,196,48,0.3), transparent);
+}
+.home-section-title {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: clamp(18px, 5vw, 28px);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: white;
+  padding: 0 20px 4px 20px;
+  text-align: left;
+}
+/* scroll track per sezioni manuali (non auto-scroll) */
+.home-scroll-track {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 4px 20px 10px 20px;
+}
+.home-scroll-track::-webkit-scrollbar { display: none; }
+/* auto-scroll */
+@keyframes hscrollLeft {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.home-autoscroll-outer {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 0 10px;
+  scrollbar-width: none;
+  cursor: grab;
+}
+.home-autoscroll-outer:active { cursor: grabbing; }
+.home-autoscroll-outer::-webkit-scrollbar { display: none; }
+.home-scroll-inner {
+  display: flex;
+  gap: 14px;
+  width: max-content;
+  animation: hscrollLeft var(--dur, 32s) linear infinite;
+  padding: 0 20px;
+  pointer-events: none; /* clicks pass to cards via child re-enable */
+}
+.home-scroll-inner > * { pointer-events: auto; }
+.home-autoscroll-outer:hover .home-scroll-inner,
+.home-autoscroll-outer.dragging .home-scroll-inner { animation-play-state: paused; }
+
+/* BACHECA */
+.hcard-bacheca {
+  flex-shrink: 0;
+  width: 220px;
+  background: #1a1a1a;
+  border: 1px solid rgba(244,196,48,0.18);
+  border-radius: 14px;
+  padding: 18px 16px 14px;
+  position: relative;
+  transition: transform 0.2s, border-color 0.2s;
+  text-align: left;
+}
+.hcard-bacheca:hover { transform: translateY(-3px); border-color: rgba(244,196,48,0.45); }
+.hcard-bacheca-pin { position: absolute; top: -9px; left: 16px; font-size: 18px; }
+.hcard-bacheca-text {
+  font-family: 'Barlow', sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.8);
+  margin-top: 4px;
+}
+.hcard-bacheca-date {
+  font-family: 'Oswald', sans-serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(244,196,48,0.45);
+  margin-top: 10px;
+}
+/* NEWS */
+.hcard-news {
+  flex-shrink: 0;
+  width: 270px;
+  background: #161616;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  overflow: hidden;
+  text-align: left;
+  transition: transform 0.2s, border-color 0.2s;
+  cursor: pointer;
+}
+.hcard-news:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.16); }
+.hcard-news-accent { height: 3px; background: linear-gradient(to right, var(--green-light), var(--gold)); }
+.hcard-news-body { padding: 14px 16px 12px; }
+.hcard-news-tag {
+  font-family: 'Oswald', sans-serif;
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--green-light);
+  margin-bottom: 6px;
+}
+.hcard-news-title {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: white;
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+.hcard-news-excerpt {
+  font-family: 'Barlow', sans-serif;
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.5;
+  max-height: 3em;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+.hcard-news.expanded .hcard-news-excerpt { max-height: 600px; }
+.hcard-news-readmore {
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-top: 8px;
+}
+/* RISULTATI */
+.hcard-risultato {
+  flex-shrink: 0;
+  width: 185px;
+  background: #111;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 16px 14px 12px;
+  text-align: center;
+  position: relative;
+  transition: transform 0.2s;
+}
+.hcard-risultato:hover { transform: translateY(-3px); }
+.hcard-risultato-vs {
+  font-family: 'Oswald', sans-serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 4px;
+}
+.hcard-risultato-avversario {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+.hcard-risultato-score {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+  letter-spacing: 2px;
+  color: white;
+  line-height: 1;
+}
+.hcard-risultato-score span { color: var(--gold); }
+.hcard-risultato-marcatori {
+  font-family: 'Barlow', sans-serif;
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 8px;
+  line-height: 1.6;
+}
+.hcard-risultato-esito {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 10px;
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 20px;
+}
+.esito-v { background: rgba(34,197,94,0.12); color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
+.esito-p { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+.esito-x { background: rgba(250,204,21,0.12); color: #fde047; border: 1px solid rgba(250,204,21,0.25); }
+/* ABOUT */
+.hcard-about {
+  flex-shrink: 0;
+  width: 185px;
+  background: #161616;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 20px 16px 16px;
+  text-align: left;
+  text-decoration: none;
+  display: block;
+  transition: transform 0.2s, background 0.2s, border-color 0.2s;
+}
+.hcard-about:hover { transform: translateY(-3px); background: #1e1e1e; border-color: rgba(255,255,255,0.14); }
+.hcard-about-icon { font-size: 26px; margin-bottom: 10px; display: block; }
+.hcard-about-label {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: white;
+  line-height: 1.3;
+  margin-bottom: 5px;
+}
+.hcard-about-sub {
+  font-family: 'Barlow', sans-serif;
+  font-size: 11px;
+  color: rgba(255,255,255,0.38);
+  line-height: 1.4;
+}
+.hcard-about-arrow { font-size: 16px; color: var(--gold); margin-top: 12px; display: block; }
+/* empty placeholder */
+.hcard-empty {
+  flex-shrink: 0;
+  width: 200px;
+  background: rgba(255,255,255,0.025);
+  border: 1px dashed rgba(255,255,255,0.09);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.18);
+  min-height: 90px;
+  padding: 16px;
+  text-align: center;
+}
+/* admin buttons home */
+.home-admin-bar {
+  display: none;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 0 20px 4px;
+}
+.home-admin-bar.visible { display: flex; }
+.home-admin-btn {
+  font-family: 'Oswald', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: rgba(244,196,48,0.1);
+  color: var(--gold);
+  border: 1px solid rgba(244,196,48,0.28);
+  border-radius: 8px;
+  padding: 5px 13px;
+  cursor: pointer;
+  width: auto;
+  margin: 0;
+  transition: background 0.15s;
+}
+.home-admin-btn:hover { background: rgba(244,196,48,0.2); }
+/* divider between sections */
+.home-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.05);
+  margin: 4px 20px 16px;
+}
+
 @media (max-width: 768px) {
   #calendarPage {
     padding-bottom: 0 !important;
@@ -900,51 +1256,111 @@ button:hover { background: var(--green-dark); }
 
 <div id="adminBanner">⚡ Admin loggato 🔓</div>
 
-<!-- HOME / NOVITÀ -->
+<!-- HOME PAGE — redesign editorial dark -->
 <div id="homePage" class="page active">
 
-  <div class="miniBtns" id="novitaBtns" style="display:none;">
-    <span class="miniBtn" onclick="addNovita()">➕ Novità</span>
-    <span class="miniBtn" onclick="toggleDelete('novitaList')">❌</span>
+  <!-- HERO -->
+  <div class="home-hero">
+    <div class="home-hero-title">Forza <em>Nutrie</em></div>
+    <div class="home-hero-sub">Un fiume, una passione.</div>
   </div>
 
-  <!-- ── BACHECA FRAME ─────────────────────────────── -->
-  <div style="
-    margin: 18px auto 0 auto;
-    max-width: 660px;
-    padding: 0 12px;
-  ">
-    <!-- Bordo dorato sottile + sfondo verde scuro -->
-    <div style="
-      background: var(--green-dark);
-      border: 2px solid var(--gold);
-      border-radius: 14px;
-      padding: 18px 18px 20px 18px;
-      box-shadow: 0 6px 24px rgba(0,0,0,0.45);
-      position: relative;
-    ">
-      <!-- Header -->
-      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;">
-        <div style="
-          font-family:'Oswald',sans-serif;
-          font-weight:700;
-          font-size:20px;
-          letter-spacing:4px;
-          text-transform:uppercase;
-          color:var(--gold);
-        ">📌 BACHECA</div>
-        <div style="
-          font-family:'Dancing Script',cursive;
-          font-size:18px;
-          color:rgba(255,255,255,0.5);
-        ">Un fiume, una passione.</div>
+  <!-- ══ 1 · BACHECA ══ -->
+  <div class="home-section">
+    <div class="home-section-header">
+      <span class="home-section-label">📌 bacheca</span>
+      <div class="home-section-line"></div>
+    </div>
+    <div class="home-section-title">Bacheca</div>
+    <div class="home-admin-bar" id="novitaBtns">
+      <button class="home-admin-btn" onclick="addNovita()">➕ Aggiungi</button>
+      <button class="home-admin-btn" onclick="toggleDelete('novitaList')">🗑 Elimina</button>
+    </div>
+    <div class="home-autoscroll-outer">
+      <div class="home-scroll-inner" id="novitaList" style="--dur:36s;"></div>
+    </div>
+  </div>
+
+  <div class="home-divider"></div>
+
+  <!-- ══ 2 · NEWS DAL FIUME ══ -->
+  <div class="home-section">
+    <div class="home-section-header">
+      <span class="home-section-label">📰 news</span>
+      <div class="home-section-line"></div>
+    </div>
+    <div class="home-section-title">News dal Fiume</div>
+    <div class="home-admin-bar" id="newsBtns">
+      <button class="home-admin-btn" onclick="addNews()">➕ Aggiungi</button>
+      <button class="home-admin-btn" onclick="toggleDelete('newsList')">🗑 Elimina</button>
+    </div>
+    <div class="home-autoscroll-outer">
+      <div class="home-scroll-inner" id="newsList" style="--dur:42s;"></div>
+    </div>
+  </div>
+
+  <div class="home-divider"></div>
+
+  <!-- ══ 3 · ULTIMI RISULTATI ══ -->
+  <div class="home-section">
+    <div class="home-section-header">
+      <span class="home-section-label">⚽ risultati</span>
+      <div class="home-section-line"></div>
+    </div>
+    <div class="home-section-title">Ultimi Risultati</div>
+    <div class="home-admin-bar" id="risultatiBtns">
+      <button class="home-admin-btn" onclick="addRisultato()">➕ Aggiungi</button>
+      <button class="home-admin-btn" onclick="toggleDelete('risultatiList')">🗑 Elimina</button>
+    </div>
+    <div class="home-scroll-track" id="risultatiList"></div>
+  </div>
+
+  <div class="home-divider"></div>
+
+  <!-- ══ 4 · ABOUT US ══ -->
+  <div class="home-section">
+    <div class="home-section-header">
+      <span class="home-section-label">🦫 about us</span>
+      <div class="home-section-line"></div>
+    </div>
+    <div class="home-section-title">About Us</div>
+    <div class="home-scroll-track">
+      <a class="hcard-about" href="https://www.instagram.com/marzenego_riverside/" target="_blank">
+        <span class="hcard-about-icon">📸</span>
+        <div class="hcard-about-label">Seguici su Instagram</div>
+        <div class="hcard-about-sub">Le foto e le storie del club</div>
+        <span class="hcard-about-arrow">↗</span>
+      </a>
+      <a class="hcard-about" href="https://chat.whatsapp.com/BMPFyLqQS4kBQSHLi0UUju" target="_blank">
+        <span class="hcard-about-icon">💬</span>
+        <div class="hcard-about-label">Gruppo WhatsApp</div>
+        <div class="hcard-about-sub">Entra nella chat ufficiale</div>
+        <span class="hcard-about-arrow">↗</span>
+      </a>
+      <div class="hcard-about" onclick="showPage('shopPage')" style="cursor:pointer;">
+        <span class="hcard-about-icon">🛍</span>
+        <div class="hcard-about-label">MarzeNegozio</div>
+        <div class="hcard-about-sub">Abbigliamento e gadget</div>
+        <span class="hcard-about-arrow">→</span>
       </div>
-
-      <!-- Separatore oro -->
-      <div style="height:1px;background:rgba(177, 181, 180,0.35);margin-bottom:18px;"></div>
-
-      <!-- Foglietti -->
-      <div id="novitaList"></div>
+      <div class="hcard-about" onclick="showPage('eventiPage')" style="cursor:pointer;">
+        <span class="hcard-about-icon">📅</span>
+        <div class="hcard-about-label">Prossimi Eventi</div>
+        <div class="hcard-about-sub">Gare, feste e appuntamenti</div>
+        <span class="hcard-about-arrow">→</span>
+      </div>
+      <a class="hcard-about" href="https://www.legacalcioamatori.it" target="_blank">
+        <span class="hcard-about-icon">🏆</span>
+        <div class="hcard-about-label">Sito del Campionato</div>
+        <div class="hcard-about-sub">Classifiche ufficiali</div>
+        <span class="hcard-about-arrow">↗</span>
+      </a>
+      <div class="hcard-about" onclick="showPage('chiSiamoPage')" style="cursor:pointer;">
+        <span class="hcard-about-icon">🦫</span>
+        <div class="hcard-about-label">Chi siamo</div>
+        <div class="hcard-about-sub">La storia delle Nutrie</div>
+        <span class="hcard-about-arrow">→</span>
+      </div>
     </div>
   </div>
 
@@ -1378,7 +1794,7 @@ window.doLogout = function() {
   isAdmin = false;
   // nascondi elementi admin
   document.getElementById("adminBanner").style.display = "none";
-  ["pdfBtns","linkBtns","comunicatiBtns","novitaBtns","adminDocsSection","adminDocsBtns",
+  ["pdfBtns","linkBtns","comunicatiBtns","novitaBtns","newsBtns","risultatiBtns","adminDocsSection","adminDocsBtns",
    "calendarBtns","eventiBtns","jobBtns","shopBtns","entrateBtns","speseBtns","stagioneBtns","quoteInlineBtns"]
     .forEach(id => { const el = document.getElementById(id); if(el) el.style.display = "none"; });
   document.getElementById("contabileContent").style.display = "none";
@@ -1400,7 +1816,9 @@ window.login = function() {
     document.getElementById("pdfBtns").style.display = "block";
     document.getElementById("linkBtns").style.display = "block";
     document.getElementById("comunicatiBtns").style.display = "block";
-    document.getElementById("novitaBtns").style.display = "block";
+    document.getElementById("novitaBtns").style.display = "flex";
+    document.getElementById("newsBtns").style.display = "flex";
+    document.getElementById("risultatiBtns").style.display = "flex";
     document.getElementById("adminDocsSection").style.display = "block";
     document.getElementById("adminDocsBtns").style.display = "block";
     document.getElementById("calendarBtns").style.display = "block";
@@ -2848,6 +3266,8 @@ window.addNovita = async () => {
   const data = new Date().toISOString().split("T")[0];
   await addDoc(collection(db, "novita"), { titolo, testo: testo || "", tag: tag || "📌 Novità", data });
   loadNovita();
+  loadNews();
+  loadRisultati();
 };
 
 window.openNovita = function(titolo, testo) {
@@ -2867,70 +3287,162 @@ async function loadNovita() {
   items.sort((a, b) => b.data.localeCompare(a.data));
 
   if (items.length === 0) {
-    list.innerHTML = `<div style="color:rgba(244,196,48,0.4);font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;text-align:center;padding:16px 0 6px 0;">NESSUNA NOVITÀ AL MOMENTO</div>`;
+    list.innerHTML = `<div class="hcard-empty">Nessuna novità al momento</div>`;
     return;
   }
 
-  items.forEach((d, i) => {
+  const makeCard = (d, i, clone) => {
     const isNew = i === 0;
-    const div = document.createElement("div");
-
-    div.style = [
-      "background:" + (isNew ? "rgba(244,196,48,0.08)" : "rgba(255,255,255,0.05)"),
-      "border:1px solid " + (isNew ? "rgba(244,196,48,0.5)" : "rgba(255,255,255,0.1)"),
-      "border-left:3px solid " + (isNew ? "var(--gold)" : "var(--green-light)"),
-      "border-radius:8px",
-      "padding:12px 14px 12px 16px",
-      "margin:0 0 10px 0",
-      "position:relative",
-      "cursor:" + (d.testo ? "pointer" : "default"),
-      "transition:background 0.15s, border-color 0.15s"
-    ].join(";");
-
-    if (d.testo) {
-      div.onmouseenter = () => {
-        div.style.background = isNew ? "rgba(244,196,48,0.13)" : "rgba(255,255,255,0.09)";
+    const card = document.createElement("div");
+    card.className = "hcard-bacheca";
+    if (d.testo && !clone) {
+      card.style.cursor = "pointer";
+      card.onclick = () => {
+        card.classList.toggle("expanded");
+        const hint = card.querySelector(".hcard-bacheca-hint");
+        const body = card.querySelector(".hcard-bacheca-expand");
+        if (hint) hint.textContent = card.classList.contains("expanded") ? "Chiudi ↑" : "Leggi tutto →";
+        if (body) body.style.maxHeight = card.classList.contains("expanded") ? "300px" : "0";
       };
-      div.onmouseleave = () => {
-        div.style.background = isNew ? "rgba(244,196,48,0.08)" : "rgba(255,255,255,0.05)";
-      };
-      div.onclick = () => openNovita(d.titolo, d.testo);
     }
-
-    // Puntina — solo quella del "nuovo" in oro, le altre verde discreto
-    const pinColor = isNew ? "#f4c430" : "#1e7a3a";
-    const pinSvg = `<div style="position:absolute;top:-9px;left:18px;z-index:3;">
-      <svg width="14" height="18" viewBox="0 0 14 18" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="7" cy="5.5" r="5.5" fill="${pinColor}" opacity="0.9"/>
-        <circle cx="5.5" cy="4" r="2" fill="rgba(255,255,255,0.3)"/>
-        <line x1="7" y1="11" x2="7" y2="18" stroke="#b1b5b4" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
-      </svg>
-    </div>`;
-
-    const badgeNew = isNew
-      ? `<span style="background:var(--gold);color:var(--green-dark);font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;padding:3px 11px;border-radius:20px;letter-spacing:0.5px;">NUOVO</span>`
-      : "";
-    const badgeTag = `<span style="color:var(--gold);font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;padding:3px 11px;border-radius:20px;border:1.5px solid rgba(244,196,48,0.5);">${d.tag}</span>`;
-
-    div.innerHTML = `
-      ${pinSvg}
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-top:2px;flex-wrap:wrap;">
-        ${badgeNew}${badgeTag}
-        <span style="font-size:14px;color:rgba(255,255,255,0.3);margin-left:auto;font-family:'Barlow',sans-serif;">${d.data}</span>
+    card.innerHTML = `
+      <div class="hcard-bacheca-pin">${isNew ? "📌" : "📎"}</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
+        ${isNew ? `<span style="background:var(--gold);color:#0b3d1b;font-family:'Oswald',sans-serif;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;">NUOVO</span>` : ""}
+        <span style="font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(244,196,48,0.7);padding:2px 8px;border:1px solid rgba(244,196,48,0.3);border-radius:20px;">${d.tag}</span>
       </div>
-      <div style="font-family:'Barlow',sans-serif;font-size:17px;font-weight:600;color:rgba(255,255,255,0.9);line-height:1.5em;">${d.titolo}</div>
-      ${d.testo ? `<div style="font-size:14px;color:var(--gold);font-family:'Oswald',sans-serif;letter-spacing:0.5px;margin-top:8px;opacity:0.6;">tocca per leggere 👆</div>` : ""}
+      <div class="hcard-bacheca-text">${d.titolo}</div>
+      ${d.testo && !clone ? `
+        <div class="hcard-bacheca-expand" style="max-height:0;overflow:hidden;transition:max-height 0.35s ease;">
+          <div style="font-family:'Barlow',sans-serif;font-size:12px;color:rgba(255,255,255,0.55);line-height:1.5;margin-top:8px;white-space:pre-wrap;">${d.testo}</div>
+        </div>
+        <div class="hcard-bacheca-hint" style="font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:1.5px;color:rgba(244,196,48,0.5);margin-top:8px;text-transform:uppercase;">Leggi tutto →</div>
+      ` : ""}
+      <div class="hcard-bacheca-date">${d.data}</div>
     `;
-
-    if (dm("novitaList")) {
+    if (dm("novitaList") && !clone) {
       const x = document.createElement("span");
       x.innerText = "❌";
-      x.style = "position:absolute;top:8px;right:8px;cursor:pointer;font-size:14px;opacity:0.6;";
+      x.style = "position:absolute;top:8px;right:8px;cursor:pointer;font-size:13px;opacity:0.6;";
       x.onclick = async (e) => { e.stopPropagation(); await deleteDoc(doc(db, "novita", d.id)); loadNovita(); };
-      div.appendChild(x);
+      card.appendChild(x);
     }
+    return card;
+  };
 
-    list.appendChild(div);
+  // fill once, then clone for seamless loop
+  items.forEach((d, i) => list.appendChild(makeCard(d, i, false)));
+  items.forEach((d, i) => list.appendChild(makeCard(d, i, true)));
+}
+
+// ─── NEWS DAL FIUME ───────────────────────────────────────
+window.addNews = async () => {
+  if (!isAdmin) return alert("Solo admin");
+  const titolo = prompt("Titolo articolo:");
+  if (!titolo) return;
+  const testo = prompt("Testo completo dell'articolo (puoi lasciarlo vuoto):");
+  const data = new Date().toISOString().split("T")[0];
+  await addDoc(collection(db, "news"), { titolo, testo: testo || "", data });
+  loadNews();
+};
+
+async function loadNews() {
+  const list = document.getElementById("newsList");
+  if (!list) return;
+  list.innerHTML = "";
+  const snap = await getDocs(collection(db, "news"));
+  const items = [];
+  snap.forEach(docSnap => items.push({ id: docSnap.id, ...docSnap.data() }));
+  items.sort((a, b) => b.data.localeCompare(a.data));
+
+  if (items.length === 0) {
+    list.innerHTML = `<div class="hcard-empty">Nessuna news al momento</div>`;
+    return;
+  }
+
+  const makeCard = (d, clone) => {
+    const card = document.createElement("div");
+    card.className = "hcard-news";
+    if (!clone) card.onclick = () => {
+      card.classList.toggle("expanded");
+      card.querySelector(".hcard-news-readmore").textContent =
+        card.classList.contains("expanded") ? "Chiudi ↑" : "Leggi tutto →";
+    };
+    card.innerHTML = `
+      <div class="hcard-news-accent"></div>
+      <div class="hcard-news-body">
+        <div class="hcard-news-tag">🗞 Dal Fiume · ${d.data}</div>
+        <div class="hcard-news-title">${d.titolo}</div>
+        ${d.testo ? `<div class="hcard-news-excerpt">${d.testo}</div><div class="hcard-news-readmore">Leggi tutto →</div>` : ""}
+      </div>
+    `;
+    if (dm("newsList") && !clone) {
+      const x = document.createElement("span");
+      x.innerText = "❌";
+      x.style = "position:absolute;top:8px;right:8px;cursor:pointer;font-size:13px;opacity:0.6;";
+      x.onclick = async (e) => { e.stopPropagation(); await deleteDoc(doc(db, "news", d.id)); loadNews(); };
+      card.style.position = "relative";
+      card.appendChild(x);
+    }
+    return card;
+  };
+
+  items.forEach(d => list.appendChild(makeCard(d, false)));
+  items.forEach(d => list.appendChild(makeCard(d, true)));
+}
+
+// ─── ULTIMI RISULTATI ─────────────────────────────────────
+window.addRisultato = async () => {
+  if (!isAdmin) return alert("Solo admin");
+  const avversario = prompt("Squadra avversaria (es. Atletico Cocai):");
+  if (!avversario) return;
+  const nostriRaw = prompt("Nostri gol:");
+  const loroRaw = prompt("Gol avversari:");
+  const nostri = parseInt(nostriRaw) || 0;
+  const loro = parseInt(loroRaw) || 0;
+  const marcatori = prompt("Marcatori (es. Rossi, Bianchi x2) — lascia vuoto per saltare:") || "";
+  const data = new Date().toISOString().split("T")[0];
+  const esito = nostri > loro ? "V" : nostri < loro ? "P" : "X";
+  await addDoc(collection(db, "risultati"), { avversario, nostri, loro, marcatori, data, esito });
+  loadRisultati();
+};
+
+async function loadRisultati() {
+  const list = document.getElementById("risultatiList");
+  if (!list) return;
+  list.innerHTML = "";
+  const snap = await getDocs(collection(db, "risultati"));
+  const items = [];
+  snap.forEach(docSnap => items.push({ id: docSnap.id, ...docSnap.data() }));
+  items.sort((a, b) => b.data.localeCompare(a.data));
+
+  if (items.length === 0) {
+    list.innerHTML = `<div class="hcard-empty">Nessun risultato inserito</div>`;
+    return;
+  }
+
+  items.forEach(d => {
+    const card = document.createElement("div");
+    card.className = "hcard-risultato";
+    const esitoClass = d.esito === "V" ? "esito-v" : d.esito === "P" ? "esito-p" : "esito-x";
+    const esitoLabel = d.esito === "V" ? "Vinta" : d.esito === "P" ? "Persa" : "Pareggio";
+    card.innerHTML = `
+      <div class="hcard-risultato-esito ${esitoClass}">${esitoLabel}</div>
+      <div class="hcard-risultato-vs">vs.</div>
+      <div class="hcard-risultato-avversario">${d.avversario}</div>
+      <div class="hcard-risultato-score"><span>${d.nostri}</span> – ${d.loro}</div>
+      ${d.marcatori ? `<div class="hcard-risultato-marcatori">⚽ ${d.marcatori}</div>` : ""}
+      <div style="font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.25);margin-top:6px;text-transform:uppercase;">${d.data}</div>
+    `;
+    if (dm("risultatiList")) {
+      const x = document.createElement("span");
+      x.innerText = "❌";
+      x.style = "position:absolute;top:8px;left:8px;cursor:pointer;font-size:13px;opacity:0.6;";
+      x.onclick = async (e) => { e.stopPropagation(); await deleteDoc(doc(db, "risultati", d.id)); loadRisultati(); };
+      card.style.position = "relative";
+      card.appendChild(x);
+    }
+    list.appendChild(card);
   });
 }
 
@@ -3070,6 +3582,8 @@ window.toggleDelete = target => {
 
   if (target === "comunicatiList") loadComunicati();
   if (target === "novitaList") loadNovita();
+  if (target === "newsList") loadNews();
+  if (target === "risultatiList") loadRisultati();
   if (target === "adminDocsList") loadAdminDocs();
   if (target === "eventiExtraList") loadExtraEvents();
   if (target === "jobList") loadJobs();
@@ -3200,6 +3714,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     const bar = document.getElementById("scrollBrandBar");
     if (!bar) return;
     bar.classList.toggle("visible", window.scrollY > 90);
+  }, { passive: true });
+});
+
+
+// ── drag-to-scroll per .home-autoscroll-outer ────────────
+document.querySelectorAll('.home-autoscroll-outer').forEach(el => {
+  let isDown = false, startX, scrollLeft;
+  el.addEventListener('mousedown', e => {
+    isDown = true; el.classList.add('dragging');
+    startX = e.pageX - el.offsetLeft; scrollLeft = el.scrollLeft;
+  });
+  document.addEventListener('mouseup', () => { isDown = false; el.classList.remove('dragging'); });
+  el.addEventListener('mousemove', e => {
+    if (!isDown) return; e.preventDefault();
+    el.scrollLeft = scrollLeft - (e.pageX - el.offsetLeft - startX);
+  });
+  el.addEventListener('touchstart', e => {
+    startX = e.touches[0].pageX - el.offsetLeft; scrollLeft = el.scrollLeft;
+  }, { passive: true });
+  el.addEventListener('touchmove', e => {
+    el.scrollLeft = scrollLeft - (e.touches[0].pageX - el.offsetLeft - startX);
   }, { passive: true });
 });
 

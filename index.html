@@ -73,13 +73,18 @@ body {
 /* ── MENU LATERALE ───────────────────────────────── */
 #menuBtn {
   position: fixed;
-  top: 12px;
+  top: 68px;
   left: 15px;
   font-size: 26px;
   cursor: pointer;
   z-index: 10001;
   color: white;
   text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+  transition: top 0.22s ease;
+}
+/* when scroll bar is visible, snap back up */
+body.scroll-bar-visible #menuBtn {
+  top: 12px;
 }
 
 #sideMenu {
@@ -1320,10 +1325,10 @@ button:hover { background: var(--green-dark); }
   <!-- ══ 4 · ABOUT US ══ -->
   <div class="home-section">
     <div class="home-section-header">
-      <span class="home-section-label">🦫 about us</span>
+      <span class="home-section-label">🔗 link to</span>
       <div class="home-section-line"></div>
     </div>
-    <div class="home-section-title">About Us</div>
+    <div class="home-section-title">Link To</div>
     <div class="home-scroll-track">
       <a class="hcard-about" href="https://www.instagram.com/marzenego_riverside/" target="_blank">
         <span class="hcard-about-icon">📸</span>
@@ -3257,6 +3262,34 @@ window.eliminaTesserato = async function(id) {
 }
 
 // ─── NOVITÀ HOMEPAGE ─────────────────────────────────────
+// ── NOTIFICHE PUSH ───────────────────────────────────────
+async function richiedyPermessoNotifiche() {
+  if (!("Notification" in window)) return false;
+  if (Notification.permission === "granted") return true;
+  if (Notification.permission === "denied") return false;
+  const result = await Notification.requestPermission();
+  return result === "granted";
+}
+
+function inviaNotificaLocale(titolo, corpo) {
+  if (Notification.permission !== "granted") return;
+  // Prova via service worker (funziona anche in background)
+  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: "SHOW_NOTIFICATION",
+      title: titolo,
+      body: corpo
+    });
+  } else {
+    // Fallback diretto
+    new Notification(titolo, {
+      body: corpo,
+      icon: "Marzenego.png",
+      badge: "Marzenego.png"
+    });
+  }
+}
+
 window.addNovita = async () => {
   if (!isAdmin) return alert("Solo admin");
   const titolo = prompt("Titolo novità (es. Nuova maglia disponibile!):");
@@ -3266,8 +3299,17 @@ window.addNovita = async () => {
   const data = new Date().toISOString().split("T")[0];
   await addDoc(collection(db, "novita"), { titolo, testo: testo || "", tag: tag || "📌 Novità", data });
   loadNovita();
-  loadNews();
-  loadRisultati();
+
+  // Chiedi se mandare notifica push
+  const manda = confirm(`📣 Vuoi mandare una notifica push agli utenti?\n\n"Marzenego Riverside — Ehi, entra nell'app per vedere le novità!"`);
+  if (manda) {
+    const ok = await richiedyPermessoNotifiche();
+    if (ok) {
+      inviaNotificaLocale("Marzenego Riverside 🦫", "Ehi, entra nell'app per vedere le novità!");
+    } else {
+      alert("Le notifiche non sono abilitate su questo dispositivo. Abilitale dalle impostazioni del browser.");
+    }
+  }
 };
 
 window.openNovita = function(titolo, testo) {
@@ -3349,14 +3391,14 @@ window.addNews = async () => {
 async function loadNews() {
   const list = document.getElementById("newsList");
   if (!list) return;
-  list.innerHTML = "";
+  list.innerHTML = `<div class="hcard-empty" style="opacity:0.5;">Caricamento...</div>`;
   const snap = await getDocs(collection(db, "news"));
   const items = [];
   snap.forEach(docSnap => items.push({ id: docSnap.id, ...docSnap.data() }));
   items.sort((a, b) => b.data.localeCompare(a.data));
 
   if (items.length === 0) {
-    list.innerHTML = `<div class="hcard-empty">Nessuna news al momento</div>`;
+    list.innerHTML = `<div class="hcard-empty">Nessuna news ancora — aggiungile come admin 📰</div>`;
     return;
   }
 
@@ -3388,7 +3430,6 @@ async function loadNews() {
   };
 
   items.forEach(d => list.appendChild(makeCard(d, false)));
-  items.forEach(d => list.appendChild(makeCard(d, true)));
 }
 
 // ─── ULTIMI RISULTATI ─────────────────────────────────────
@@ -3410,14 +3451,14 @@ window.addRisultato = async () => {
 async function loadRisultati() {
   const list = document.getElementById("risultatiList");
   if (!list) return;
-  list.innerHTML = "";
+  list.innerHTML = `<div class="hcard-empty" style="opacity:0.5;">Caricamento...</div>`;
   const snap = await getDocs(collection(db, "risultati"));
   const items = [];
   snap.forEach(docSnap => items.push({ id: docSnap.id, ...docSnap.data() }));
   items.sort((a, b) => b.data.localeCompare(a.data));
 
   if (items.length === 0) {
-    list.innerHTML = `<div class="hcard-empty">Nessun risultato inserito</div>`;
+    list.innerHTML = `<div class="hcard-empty">Nessun risultato ancora — aggiungili come admin ⚽</div>`;
     return;
   }
 
@@ -3658,6 +3699,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadOrganigramma();
   checkInstallBanner();
 
+  // Richiedi permesso notifiche (solo se non già risposto)
+  if ("Notification" in window && Notification.permission === "default") {
+    setTimeout(() => Notification.requestPermission(), 3000);
+  }
+
   calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
     initialView: 'dayGridMonth',
     firstDay: 1,
@@ -3713,7 +3759,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.addEventListener("scroll", () => {
     const bar = document.getElementById("scrollBrandBar");
     if (!bar) return;
-    bar.classList.toggle("visible", window.scrollY > 90);
+    const visible = window.scrollY > 90;
+    bar.classList.toggle("visible", visible);
+    document.body.classList.toggle("scroll-bar-visible", visible);
   }, { passive: true });
 });
 

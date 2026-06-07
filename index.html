@@ -441,73 +441,24 @@ button:hover { background: var(--green-dark); }
 }
 
 /* ── BANNER STICKY COMPATTO ─────────────────────── */
-#scrollBrandBar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 12px;
-  min-height: 43px;
-  padding: 10px 14px 10px 64px;
-  background: rgba(11, 61, 27, 0.96);
-  border-bottom: 1px solid rgba(244, 196, 48, 0.35);
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.24);
-  backdrop-filter: blur(8px);
-  transform: translateY(-110%);
-  opacity: 0;
-  transition: transform 0.22s ease, opacity 0.22s ease;
-  pointer-events: none;
-}
 
-#scrollBrandBar.visible {
-  transform: translateY(0);
-  opacity: 1;
-}
 
-#scrollBrandBar img {
-  width: 30px;
-  height: 30px;
-  object-fit: contain;
-  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.35));
-}
 
-#scrollBrandBar span {
-  font-family: 'Oswald', sans-serif;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  font-size: 16px;
-  color: white;
-}
 
-#scrollBrandBar strong {
-  color: var(--gold);
-}
 
-#scrollBrandBar .brandTitle {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+
+
+
+
+
+
 
 @media (max-width: 768px) {
-  #scrollBrandBar {
-    min-height: 62px;
-    padding: 10px 12px 10px 70px;
-  }
+  
 
-  #scrollBrandBar img {
-    width: 34px;
-    height: 34px;
-  }
+  
 
-  #scrollBrandBar span {
-    font-size: 17px;
-    letter-spacing: 2.1px;
-  }
+  
 }
 
 /* ── TAB NAV BAR — stile h3 originale ──────────────── */
@@ -634,33 +585,10 @@ button:hover { background: var(--green-dark); }
   transition: background 0.15s;
 }
 #appHeaderUser:hover { background: rgba(255,255,255,0.1); }
-#appHeaderDot, #scrollBarDot {
-  position: absolute;
-  bottom: 4px; right: 4px;
-  width: 9px; height: 9px;
-  background: #4ade80;
-  border-radius: 50%;
-  border: 2px solid rgba(11,61,27,0.97);
-}
+#appHeaderDot, 
 /* scrollBrandBar: aggiungi icona a destra */
-#scrollBrandBar {
-  padding-right: 56px; /* spazio per l'icona */
-}
-#scrollBarUser {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  position: absolute;
-  cursor: pointer;
-  color: rgba(255,255,255,0.8);
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-}
+
+
 /* page content padding: non più margin 52px, ora header è fixed 56px */
 body > div.page, #homePage, #calendarPage {
   padding-top: 0;
@@ -707,14 +635,13 @@ body > div.page, #homePage, #calendarPage {
   height: 7px;
   border-radius: 50%;
   background: rgba(255,255,255,0.2);
-  transition: background 0.2s, width 0.2s;
+  transition: background 0.2s;
   cursor: pointer;
-  flex: 0 0 7px;   /* non cresce, non si stringe, base 7px */
+  flex: 0 0 7px;
   box-sizing: border-box;
 }
 .dots-nav .dot.active {
   background: var(--gold);
-  /* stessa dimensione dei grigi, solo colore diverso */
 }
 
 /* ── END TAB NAV BAR ────────────────────────────────── */
@@ -1140,15 +1067,6 @@ body > div.page, #homePage, #calendarPage {
 <body>
 
 
-<div id="scrollBrandBar">
-  <img src="Marzenego.png" alt="Marzenego" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png';">
-  <span class="brandTitle">Marzenego <strong>Riverside</strong></span>
-  <div id="scrollBarUser" onclick="toggleMenu()" title="Account">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
-      <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
-    </svg>
-    <span id="scrollBarDot" style="display:none;"></span>
-  </div>
 </div>
 
 <div id="sideMenu">
@@ -3906,13 +3824,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const bar = document.getElementById("scrollBrandBar");
   if (bar) bar.classList.toggle("visible", window.scrollY > 90);
 
-  window.addEventListener("scroll", () => {
-    const bar = document.getElementById("scrollBrandBar");
-    if (!bar) return;
-    const visible = window.scrollY > 90;
-    bar.classList.toggle("visible", visible);
-    document.body.classList.toggle("scroll-bar-visible", visible);
-  }, { passive: true });
+
 });
 
 

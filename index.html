@@ -521,7 +521,11 @@ button:hover { background: var(--green-dark); }
   scrollbar-width: none;
   padding: 12px 14px;
   margin: 0;
-  background: transparent;
+  background: var(--green-dark);  /* sfondo opaco per non trapassare */
+  border-bottom: 1px solid rgba(244,196,48,0.2);
+  position: sticky;
+  top: var(--header-h, 56px);    /* si attacca appena sotto l'header */
+  z-index: 9999;
 }
 #pillNav::-webkit-scrollbar { display: none; }
 
@@ -697,11 +701,16 @@ body > div.page, #homePage, #calendarPage {
 }
 .dots-nav .dot {
   width: 7px; height: 7px;
+  min-width: 7px; min-height: 7px;
+  max-width: 7px; max-height: 7px;
   border-radius: 50%;
   background: rgba(255,255,255,0.2);
   transition: background 0.2s, transform 0.2s;
   cursor: pointer;
   flex-shrink: 0;
+  flex-grow: 0;
+  flex-basis: 7px;
+  box-sizing: content-box;
 }
 .dots-nav .dot.active {
   background: var(--gold);
@@ -1401,7 +1410,8 @@ body > div.page, #homePage, #calendarPage {
       <div class="home-section-line"></div>
     </div>
     <div class="home-section-title">Link To</div>
-    <div class="home-scroll-track">
+    <div class="dots-slider-wrapper">
+      <div class="dots-slider" id="linkToList" data-dots="linkToDots">
       <a class="hcard-about" href="https://www.instagram.com/marzenego_riverside/" target="_blank">
         <span class="hcard-about-icon">📸</span>
         <div class="hcard-about-label">Seguici su Instagram</div>
@@ -1438,6 +1448,8 @@ body > div.page, #homePage, #calendarPage {
         <div class="hcard-about-sub">La storia delle Nutrie</div>
         <span class="hcard-about-arrow">→</span>
       </div>
+      </div><!-- fine dots-slider -->
+      <div class="dots-nav" id="linkToDots"></div>
     </div>
   </div>
 
@@ -3502,9 +3514,7 @@ async function loadNovita() {
     return card;
   };
 
-  // fill once, then clone for seamless loop
   items.forEach((d, i) => list.appendChild(makeCard(d, i, false)));
-  items.forEach((d, i) => list.appendChild(makeCard(d, i, true)));
 }
 
 // ─── NEWS DAL FIUME ───────────────────────────────────────
@@ -3834,6 +3844,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initDotsSlider('novitaList', 'novitaDots');
     initDotsSlider('newsList', 'newsDots');
     initDotsSlider('risultatiList', 'risultatiDots');
+    initDotsSlider('linkToList', 'linkToDots');
   }, 600);
   await loadStagioni();
   loadEntrate();

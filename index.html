@@ -41,7 +41,7 @@ body {
   font-family: 'Barlow', Arial, sans-serif;
   font-size: 16px;
   margin: 0;
-  padding-top: var(--header-h, 56px); /* misurato via JS all'avvio */
+  padding-top: 56px; /* valore iniziale, JS lo aggiorna subito */
   text-align: center;
   background-color: var(--bg);
   background-image: var(--bg-pattern);
@@ -524,7 +524,7 @@ button:hover { background: var(--green-dark); }
   background: var(--green-dark);  /* sfondo opaco per non trapassare */
   border-bottom: 1px solid rgba(244,196,48,0.2);
   position: sticky;
-  top: var(--header-h, 56px);    /* si attacca appena sotto l'header */
+  top: 56px; /* valore iniziale, JS lo aggiorna subito */
   z-index: 9999;
 }
 #pillNav::-webkit-scrollbar { display: none; }
@@ -694,27 +694,29 @@ body > div.page, #homePage, #calendarPage {
 .dots-nav {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 7px;
   margin-top: 10px;
   padding: 0 20px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;   /* mai andare a capo */
+  overflow: hidden;
+  line-height: 1;
 }
 .dots-nav .dot {
-  width: 7px; height: 7px;
-  min-width: 7px; min-height: 7px;
-  max-width: 7px; max-height: 7px;
+  display: block;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: rgba(255,255,255,0.2);
-  transition: background 0.2s, transform 0.2s;
+  transition: background 0.2s, width 0.2s;
   cursor: pointer;
-  flex-shrink: 0;
-  flex-grow: 0;
-  flex-basis: 7px;
-  box-sizing: content-box;
+  flex: 0 0 7px;   /* non cresce, non si stringe, base 7px */
+  box-sizing: border-box;
 }
 .dots-nav .dot.active {
   background: var(--gold);
-  transform: scale(1.3);
+  width: 18px;           /* pill invece di cerchio — più chiaro e no scale */
+  border-radius: 4px;
 }
 
 /* ── END TAB NAV BAR ────────────────────────────────── */
@@ -3423,15 +3425,18 @@ window.addNovita = async () => {
   const data = new Date().toISOString().split("T")[0];
   await addDoc(collection(db, "novita"), { titolo, testo: testo || "", tag: tag || "📌 Novità", data });
 
-  // Misura altezza reale header e imposta padding body
+  // Misura altezza reale header e imposta body + pillNav direttamente
   function syncHeaderHeight() {
-    const h = document.getElementById('appHeader');
-    if (h) {
-      const height = h.getBoundingClientRect().height;
-      document.documentElement.style.setProperty('--header-h', height + 'px');
-    }
+    const header = document.getElementById('appHeader');
+    if (!header) return;
+    const h = header.getBoundingClientRect().height || header.offsetHeight;
+    document.body.style.paddingTop = h + 'px';
+    const nav = document.getElementById('pillNav');
+    if (nav) nav.style.top = h + 'px';
   }
+  // Esegui subito e poi dopo che il browser ha fatto il layout
   syncHeaderHeight();
+  requestAnimationFrame(() => { syncHeaderHeight(); });
   window.addEventListener('resize', syncHeaderHeight);
 
   loadNovita();
@@ -3515,6 +3520,7 @@ async function loadNovita() {
   };
 
   items.forEach((d, i) => list.appendChild(makeCard(d, i, false)));
+  initDotsSlider('novitaList', 'novitaDots');
 }
 
 // ─── NEWS DAL FIUME ───────────────────────────────────────
@@ -3570,9 +3576,8 @@ async function loadNews() {
   };
 
   items.forEach(d => list.appendChild(makeCard(d, false)));
-  // Riporta a inizio track dopo il caricamento
-  const outer = list.closest('.home-autoscroll-outer');
-  if (outer) { outer.scrollLeft = 0; }
+  list.scrollLeft = 0;
+  initDotsSlider('newsList', 'newsDots');
 }
 
 // ─── ULTIMI RISULTATI ─────────────────────────────────────
@@ -3628,8 +3633,8 @@ async function loadRisultati() {
     }
     list.appendChild(card);
   });
-  // Riporta a inizio track dopo il caricamento
   list.scrollLeft = 0;
+  initDotsSlider('risultatiList', 'risultatiDots');
 }
 
 // ─── DOCUMENTI STAFF (ADMIN ONLY) ────────────────────────
@@ -3839,13 +3844,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadNovita();
   loadNews();
   loadRisultati();
-  // Init dots slider per ogni sezione home
-  setTimeout(() => {
-    initDotsSlider('novitaList', 'novitaDots');
-    initDotsSlider('newsList', 'newsDots');
-    initDotsSlider('risultatiList', 'risultatiDots');
-    initDotsSlider('linkToList', 'linkToDots');
-  }, 600);
+  // linkTo ha card statiche — init subito
+  requestAnimationFrame(() => initDotsSlider('linkToList', 'linkToDots'));
   await loadStagioni();
   loadEntrate();
   loadSpese();

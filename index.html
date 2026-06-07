@@ -41,6 +41,7 @@ body {
   font-family: 'Barlow', Arial, sans-serif;
   font-size: 16px;
   margin: 0;
+  padding-top: var(--header-h, 56px); /* misurato via JS all'avvio */
   text-align: center;
   background-color: var(--bg);
   background-image: var(--bg-pattern);
@@ -71,21 +72,7 @@ body {
 }
 
 /* ── MENU LATERALE ───────────────────────────────── */
-#menuBtn {
-  position: fixed;
-  top: 68px;
-  left: 15px;
-  font-size: 26px;
-  cursor: pointer;
-  z-index: 10001;
-  color: white;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
-  transition: top 0.22s ease;
-}
-/* when scroll bar is visible, snap back up */
-body.scroll-bar-visible #menuBtn {
-  top: 12px;
-}
+/* #menuBtn rimosso — ora integrato in #appHeaderUser */
 
 #sideMenu {
   z-index: 10002;
@@ -533,7 +520,7 @@ button:hover { background: var(--green-dark); }
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   padding: 12px 14px;
-  margin: 10px 0 0 0;
+  margin: 0;
   background: transparent;
 }
 #pillNav::-webkit-scrollbar { display: none; }
@@ -589,6 +576,136 @@ button:hover { background: var(--green-dark); }
 
 .pill-item.active .pill-underline {
   width: calc(100% - 4px);
+}
+
+
+/* ══ APP HEADER (stile WhatsApp) ══════════════════════════ */
+#appHeader {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 10px 14px;
+  min-height: 56px;
+  background: rgba(11,61,27,0.97);
+  border-bottom: 1px solid rgba(244,196,48,0.25);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  backdrop-filter: blur(8px);
+}
+#appHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#appHeaderLeft img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.4));
+}
+#appHeaderName {
+  font-family: 'Oswald', sans-serif;
+  font-size: 17px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: white;
+}
+#appHeaderName strong { color: var(--gold); }
+#appHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+#appHeaderUser {
+  position: relative;
+  cursor: pointer;
+  color: rgba(255,255,255,0.8);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.15s;
+}
+#appHeaderUser:hover { background: rgba(255,255,255,0.1); }
+#appHeaderDot, #scrollBarDot {
+  position: absolute;
+  bottom: 4px; right: 4px;
+  width: 9px; height: 9px;
+  background: #4ade80;
+  border-radius: 50%;
+  border: 2px solid rgba(11,61,27,0.97);
+}
+/* scrollBrandBar: aggiungi icona a destra */
+#scrollBrandBar {
+  padding-right: 56px; /* spazio per l'icona */
+}
+#scrollBarUser {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  position: absolute;
+  cursor: pointer;
+  color: rgba(255,255,255,0.8);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+/* page content padding: non più margin 52px, ora header è fixed 56px */
+body > div.page, #homePage, #calendarPage {
+  padding-top: 0;
+}
+/* spinge il contenuto sotto l'header fisso */
+/* pillNav margin handled by body padding-top */
+
+/* ══ DOTS SLIDER ══════════════════════════════════════════ */
+.dots-slider-wrapper {
+  padding: 4px 0 14px;
+  overflow: hidden;
+}
+.dots-slider {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 16px 20px 4px 20px;
+  scroll-snap-type: x mandatory;
+  cursor: grab;
+}
+.dots-slider:active { cursor: grabbing; }
+.dots-slider::-webkit-scrollbar { display: none; }
+.dots-slider > * {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+.dots-nav {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 10px;
+  padding: 0 20px;
+  flex-wrap: wrap;
+}
+.dots-nav .dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  transition: background 0.2s, transform 0.2s;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.dots-nav .dot.active {
+  background: var(--gold);
+  transform: scale(1.3);
 }
 
 /* ── END TAB NAV BAR ────────────────────────────────── */
@@ -1013,11 +1130,16 @@ button:hover { background: var(--green-dark); }
 
 <body>
 
-<div id="menuBtn" onclick="toggleMenu()">☰</div>
 
 <div id="scrollBrandBar">
   <img src="Marzenego.png" alt="Marzenego" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png';">
   <span class="brandTitle">Marzenego <strong>Riverside</strong></span>
+  <div id="scrollBarUser" onclick="toggleMenu()" title="Account">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+      <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+    </svg>
+    <span id="scrollBarDot" style="display:none;"></span>
+  </div>
 </div>
 
 <div id="sideMenu">
@@ -1132,79 +1254,24 @@ button:hover { background: var(--green-dark); }
   <div id="graficheMenuBtn" style="display:none;"></div>
 </div>
 
-<div style="
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  margin: 52px auto 0 auto;
-  max-width: 420px;
-  padding: 0 16px;
-  position: relative;
-">
-  <!-- Logo che sporge sopra il riquadro -->
-  <div style="
-    position: absolute;
-    top: -25px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2;
-  ">
+<!-- ── APP HEADER stile WhatsApp ── -->
+<div id="appHeader">
+  <div id="appHeaderLeft">
     <img id="logo" src="Marzenego.png"
-      onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png';"
-      style="width: 72px; filter: drop-shadow(0 3px 10px rgba(0,0,0,0.6));">
+      onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png';">
+    <div id="appHeaderTitle">
+      <span id="appHeaderName">Marzenego <strong>Riverside</strong></span>
+    </div>
   </div>
-
-  <!-- Riquadro compatto -->
-  <div style="
-    width: 80%;
-    background-color: var(--green-dark);
-    background-image: repeating-linear-gradient(
-      135deg,
-      rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px,
-      transparent 1px, transparent 18px
-    );
-    border: 2px solid var(--gold);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 14px 10px;
-    gap: 0;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.45);
-  ">
-    <!-- MARZENEGO -->
-    <div style="
-      font-family: 'Oswald', sans-serif;
-      font-weight: 700;
-      font-size: clamp(11px, 3.5vw, 17px);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: white;
-      flex: 1;
-      text-align: center;
-    ">MARZENEGO</div>
-
-    <!-- Divisore verticale oro -->
-    <!-- <div style="width:1.5px;height:28px;background:rgba(244,196,48,0.6);flex-shrink:0;margin:0 8px;"></div> -->
-
-    <!-- Spazio logo al centro (placeholder trasparente) -->
-    <div style="width:72px;flex-shrink:0;"></div>
-
-
-    <!-- Divisore verticale oro -->
-    <!-- <div style="width:1.5px;height:28px;background:rgba(244,196,48,0.6);flex-shrink:0;margin:0 8px;"></div> -->
-
-    <!-- RIVERSIDE -->
-    <div style="
-      font-family: 'Oswald', sans-serif;
-      font-weight: 700;
-      font-size: clamp(11px, 3.5vw, 17px);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: white;
-      flex: 1;
-      text-align: center;
-    ">RIVERSIDE</div>
+  <div id="appHeaderRight">
+    <!-- icona utente: apre side menu / login -->
+    <div id="appHeaderUser" onclick="toggleMenu()" title="Account">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+      </svg>
+      <!-- pallino verde = admin loggato -->
+      <span id="appHeaderDot" style="display:none;"></span>
+    </div>
   </div>
 </div>
 <!-- ── PILL NAV ──────────────────────────────────────── -->
@@ -1281,8 +1348,9 @@ button:hover { background: var(--green-dark); }
       <button class="home-admin-btn" onclick="addNovita()">➕ Aggiungi</button>
       <button class="home-admin-btn" onclick="toggleDelete('novitaList')">🗑 Elimina</button>
     </div>
-    <div class="home-autoscroll-outer">
-      <div class="home-scroll-inner" id="novitaList" style="--dur:36s;"></div>
+    <div class="dots-slider-wrapper">
+      <div class="dots-slider" id="novitaList" data-dots="novitaDots"></div>
+      <div class="dots-nav" id="novitaDots"></div>
     </div>
   </div>
 
@@ -1299,8 +1367,9 @@ button:hover { background: var(--green-dark); }
       <button class="home-admin-btn" onclick="addNews()">➕ Aggiungi</button>
       <button class="home-admin-btn" onclick="toggleDelete('newsList')">🗑 Elimina</button>
     </div>
-    <div class="home-autoscroll-outer">
-      <div class="home-scroll-inner" id="newsList" style="--dur:42s;"></div>
+    <div class="dots-slider-wrapper">
+      <div class="dots-slider" id="newsList" data-dots="newsDots"></div>
+      <div class="dots-nav" id="newsDots"></div>
     </div>
   </div>
 
@@ -1317,7 +1386,10 @@ button:hover { background: var(--green-dark); }
       <button class="home-admin-btn" onclick="addRisultato()">➕ Aggiungi</button>
       <button class="home-admin-btn" onclick="toggleDelete('risultatiList')">🗑 Elimina</button>
     </div>
-    <div class="home-scroll-track" id="risultatiList"></div>
+    <div class="dots-slider-wrapper">
+      <div class="dots-slider" id="risultatiList" data-dots="risultatiDots"></div>
+      <div class="dots-nav" id="risultatiDots"></div>
+    </div>
   </div>
 
   <div class="home-divider"></div>
@@ -1708,51 +1780,50 @@ button:hover { background: var(--green-dark); }
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc, getDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-// FCM e Functions: importati lazy dentro iscriviNotifiche() e sendPushFn()
+import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCvqU28XLWRsfJUso0MuS72O2Qxks-MFP0",
   authDomain: "marzenego-2e266.firebaseapp.com",
-  projectId: "marzenego-2e266"
+  projectId: "marzenego-2e266",
+  storageBucket: "marzenego-2e266.appspot.com"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
-// ── FCM: lazy init (non blocca il caricamento se firebase-messaging-sw.js manca) ──
-const FCM_VAPID_KEY = "YzWYHcFMpiuYf3Sj2-KYmiHW5QfZV0OqkxtoKZlLxZs";
+// messaging opzionale — non blocca l'app se FCM non è ancora configurato
+let messaging = null;
+try { messaging = getMessaging(app); } catch(e) { console.warn("FCM non disponibile:", e.message); }
+const functions = getFunctions(app, "europe-west1");
+const sendPushFn = httpsCallable(functions, "sendPushNotification");
+
+// ── FCM: salva token utente su Firestore ─────────────────
+// VAPID key: da Firebase Console → Project Settings → Cloud Messaging → Web Push
+const FCM_VAPID_KEY = "YzWYHcFMpiuYf3Sj2-KYmiHW5QfZV0OqkxtoKZlLxZs"; // ← vedi istruzioni
 
 async function iscriviNotifiche() {
   try {
     if (!("Notification" in window)) return null;
     const perm = await Notification.requestPermission();
     if (perm !== "granted") return null;
-    // Import lazy: non blocca se il sw non esiste
-    const { getMessaging, getToken } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js");
-    const messaging = getMessaging(app);
-    const swReg = await navigator.serviceWorker.register("/MarzenegoWebpage/firebase-messaging-sw.js")
-      .catch(() => navigator.serviceWorker.ready);
-    const token = await getToken(messaging, { vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: swReg });
+    await navigator.serviceWorker.register("/MarzenegoWebpage/firebase-messaging-sw.js");
+    if (!messaging) return null;
+    const token = await getToken(messaging, {
+      vapidKey: FCM_VAPID_KEY,
+      serviceWorkerRegistration: await navigator.serviceWorker.ready
+    });
     if (!token) return null;
+    // Salva token su Firestore (evita duplicati con upsert manuale)
     const snap = await getDocs(query(collection(db, "fcm_tokens"), where("token", "==", token)));
     if (snap.empty) {
       await addDoc(collection(db, "fcm_tokens"), { token, createdAt: new Date().toISOString() });
     }
     return token;
   } catch (e) {
-    console.warn("FCM non disponibile:", e);
+    console.warn("FCM token error:", e);
     return null;
-  }
-}
-
-async function sendPushFn(data) {
-  try {
-    const { getFunctions, httpsCallable } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js");
-    const functions = getFunctions(app, "europe-west1");
-    const fn = httpsCallable(functions, "sendPushNotification");
-    return fn(data);
-  } catch(e) {
-    throw e;
   }
 }
 
@@ -1849,6 +1920,7 @@ window.doLogout = function() {
   // side menu: torna a guest
   document.getElementById("sideAdminBlock").style.display = "none";
   document.getElementById("sideGuestBlock").style.display = "block";
+  syncHeaderUserDot();
   toggleMenu();
 };
 
@@ -1886,6 +1958,7 @@ window.login = function() {
     // side menu: mostra blocco admin
     document.getElementById("sideGuestBlock").style.display = "none";
     document.getElementById("sideAdminBlock").style.display = "block";
+    syncHeaderUserDot();
     loadAdminDocs();
     closeModal("loginModal");
   } else {
@@ -3337,6 +3410,18 @@ window.addNovita = async () => {
   const tag = prompt("Tag categoria (es. 🛒 Shop, 📅 Evento, 📢 Comunicato, ⚽ Squadra):");
   const data = new Date().toISOString().split("T")[0];
   await addDoc(collection(db, "novita"), { titolo, testo: testo || "", tag: tag || "📌 Novità", data });
+
+  // Misura altezza reale header e imposta padding body
+  function syncHeaderHeight() {
+    const h = document.getElementById('appHeader');
+    if (h) {
+      const height = h.getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--header-h', height + 'px');
+    }
+  }
+  syncHeaderHeight();
+  window.addEventListener('resize', syncHeaderHeight);
+
   loadNovita();
 
   // Chiedi se mandare notifica push (anche a utenti con app chiusa)
@@ -3744,6 +3829,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadNovita();
   loadNews();
   loadRisultati();
+  // Init dots slider per ogni sezione home
+  setTimeout(() => {
+    initDotsSlider('novitaList', 'novitaDots');
+    initDotsSlider('newsList', 'newsDots');
+    initDotsSlider('risultatiList', 'risultatiDots');
+  }, 600);
   await loadStagioni();
   loadEntrate();
   loadSpese();
@@ -3814,6 +3905,67 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.body.classList.toggle("scroll-bar-visible", visible);
   }, { passive: true });
 });
+
+
+
+// ── DOTS SLIDER: init e sync ─────────────────────────────
+function initDotsSlider(sliderId, dotsId) {
+  const slider = document.getElementById(sliderId);
+  const dotsEl = document.getElementById(dotsId);
+  if (!slider || !dotsEl) return;
+
+  function buildDots() {
+    const cards = slider.querySelectorAll(':scope > *:not(.hcard-empty)');
+    dotsEl.innerHTML = '';
+    if (cards.length <= 1) return; // niente dots se c'è 1 sola card
+    cards.forEach((_, i) => {
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (i === 0 ? ' active' : '');
+      dot.onclick = () => {
+        cards[i].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      };
+      dotsEl.appendChild(dot);
+    });
+  }
+
+  function updateDots() {
+    const cards = slider.querySelectorAll(':scope > *:not(.hcard-empty)');
+    const dots = dotsEl.querySelectorAll('.dot');
+    if (!cards.length || !dots.length) return;
+    // trova la card più visibile
+    let closestIdx = 0;
+    let closestDist = Infinity;
+    cards.forEach((card, i) => {
+      const dist = Math.abs(card.getBoundingClientRect().left - slider.getBoundingClientRect().left);
+      if (dist < closestDist) { closestDist = dist; closestIdx = i; }
+    });
+    dots.forEach((d, i) => d.classList.toggle('active', i === closestIdx));
+  }
+
+  slider.addEventListener('scroll', updateDots, { passive: true });
+  // drag support
+  let isDown = false, startX, scrollLeft;
+  slider.addEventListener('mousedown', e => {
+    isDown = true; startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft;
+  });
+  document.addEventListener('mouseup', () => { isDown = false; });
+  slider.addEventListener('mousemove', e => {
+    if (!isDown) return; e.preventDefault();
+    slider.scrollLeft = scrollLeft - (e.pageX - slider.offsetLeft - startX);
+  });
+
+  // Osserva aggiunte di card e ricostruisci dots
+  new MutationObserver(() => { buildDots(); updateDots(); }).observe(slider, { childList: true });
+  buildDots();
+}
+
+// Aggiorna pallino admin nell'header
+function syncHeaderUserDot() {
+  ['appHeaderDot', 'scrollBarDot'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isAdmin ? 'block' : 'none';
+  });
+}
 
 
 // ── drag-to-scroll per .home-autoscroll-outer ────────────

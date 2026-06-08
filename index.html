@@ -472,10 +472,9 @@ button:hover { background: var(--green-dark); }
   scrollbar-width: none;
   padding: 12px 14px;
   margin: 0;
-  margin-top: 8px;
-  background: var(--green-dark);  /* sfondo opaco per non trapassare */
+  background: var(--green-dark);
   position: sticky;
-  top: 56px; /* valore iniziale, JS lo aggiorna subito */
+  top: 56px;
   z-index: 9999;
 }
 #pillNav::-webkit-scrollbar { display: none; }
@@ -631,14 +630,17 @@ body > div.page, #homePage, #calendarPage {
 }
 .dots-nav .dot {
   display: block;
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
+  aspect-ratio: 1 / 1;   /* forza cerchio perfetto su ogni browser */
   border-radius: 50%;
   background: rgba(255,255,255,0.2);
   transition: background 0.2s;
   cursor: pointer;
-  flex: 0 0 7px;
-  box-sizing: border-box;
+  flex: 0 0 8px;
+  box-sizing: content-box;
+  padding: 0;
+  margin: 0;
 }
 .dots-nav .dot.active {
   background: var(--gold);
@@ -3350,9 +3352,9 @@ window.addNovita = async () => {
     const nav = document.getElementById('pillNav');
     if (nav) nav.style.top = h + 'px';
   }
-  // Esegui subito e poi dopo che il browser ha fatto il layout
   syncHeaderHeight();
-  requestAnimationFrame(() => { syncHeaderHeight(); });
+  // Ricalcola dopo font/img load e dopo resize
+  window.addEventListener('load', syncHeaderHeight);
   window.addEventListener('resize', syncHeaderHeight);
 
   loadNovita();
@@ -3853,13 +3855,17 @@ function initDotsSlider(sliderId, dotsId) {
     const cards = slider.querySelectorAll(':scope > *:not(.hcard-empty)');
     const dots = dotsEl.querySelectorAll('.dot');
     if (!cards.length || !dots.length) return;
-    // trova la card più visibile
+    // Usa offsetLeft relativo allo slider — non dipende dalla viewport
+    const scrollLeft = slider.scrollLeft;
     let closestIdx = 0;
     let closestDist = Infinity;
     cards.forEach((card, i) => {
-      const dist = Math.abs(card.getBoundingClientRect().left - slider.getBoundingClientRect().left);
+      const dist = Math.abs(card.offsetLeft - scrollLeft);
       if (dist < closestDist) { closestDist = dist; closestIdx = i; }
     });
+    // Se siamo alla fine dello scroll, forza l'ultima card
+    const atEnd = slider.scrollLeft + slider.clientWidth >= slider.scrollWidth - 4;
+    if (atEnd) closestIdx = cards.length - 1;
     dots.forEach((d, i) => d.classList.toggle('active', i === closestIdx));
   }
 

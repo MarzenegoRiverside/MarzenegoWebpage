@@ -725,14 +725,22 @@ body > div.page, #homePage, #calendarPage {
 }
 .dots-nav .dot {
   display: block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
+  width: 8px !important;
+  height: 8px !important;
+  min-width: 8px;
+  min-height: 8px;
+  max-width: 8px;
+  max-height: 8px;
+  border-radius: 50% !important;
   background: rgba(255,255,255,0.2);
   transition: background 0.2s;
   cursor: pointer;
-  flex: 0 0 7px;
-  box-sizing: border-box;
+  flex: 0 0 8px;
+  box-sizing: content-box;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  margin: 0;
+  line-height: 0;
 }
 .dots-nav .dot.active {
   background: var(--gold);
@@ -1490,7 +1498,7 @@ body > div.page, #homePage, #calendarPage {
     <span class="miniBtn" onclick="toggleCalendarDelete()">❌</span>
   </div>
   <h3>TOCCA PER ESPANDERE GLI EVENTI</h3>
-  <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:20px;margin:-6px 0 10px 0;">Tutti i nostri impegni</div>
+  <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:20px;margin:-6px 0 10px 0;">impegni del team</div>
   <div id="calendar"></div>
 </div>
 
@@ -2020,7 +2028,8 @@ async function loadCalendar() {
       title: d.luogo ? (d.tipo + " - " + d.luogo) : d.tipo,
       start: d.data + "T" + d.ora,
       backgroundColor: color,
-      borderColor: color
+      borderColor: color,
+      extendedProps: { tipo: d.tipo, luogo: d.luogo || "", note: d.note || "", costo: d.costo || 0, stagione: d.stagione || "" }
     });
   });
 
@@ -2058,7 +2067,8 @@ window.addEvent = async function() {
     title: luogo ? (tipo + " - " + luogo) : tipo,
     start: data + "T" + ora,
     backgroundColor: color,
-    borderColor: color
+    borderColor: color,
+    extendedProps: { tipo, luogo: luogo || "", note: "", costo, stagione }
   });
 
   closeModal("adminModal");
@@ -3893,19 +3903,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
 
     eventContent: function(arg) {
-      const tipo = arg.event.title.split(" - ")[0] || "";
-      const luogo = arg.event.title.split(" - ")[1] || "";
+      const ext = arg.event.extendedProps || {};
+      const tipo = ext.tipo || arg.event.title.split(" - ")[0] || "";
+      const luogo = ext.luogo || arg.event.title.split(" - ").slice(1).join(" - ") || "";
       const time = arg.timeText || "";
       const isMatch = tipo.toLowerCase().includes("partita");
+      const isAlle = tipo.toLowerCase().includes("allenamento");
       const isAltro = tipo.toLowerCase().includes("altro");
+      const emoji = isMatch ? "⚽" : isAlle ? "🔺" : "🍻";
       const bgColor = isAltro ? "#f4d03f" : "";
+      const textColor = isAltro ? "#333" : "";
 
       return {
         html: `
-          <div style="font-size:13px; line-height:1.35em; background:${bgColor}; border-radius:4px; padding:3px 4px;">
-            <div><b>${time}</b></div>
-            <div>${isMatch ? "⚽ " : ""}${tipo}</div>
-            <div>${luogo || ""}</div>
+          <div style="font-size:11px; line-height:1.4em; background:${bgColor}; border-radius:4px; padding:2px 4px; ${textColor ? 'color:'+textColor : ''}; overflow:hidden;">
+            <div style="font-weight:700;">${time}</div>
+            <div>${emoji}${luogo ? " " + luogo : ""}</div>
           </div>
         `
       };
@@ -3942,7 +3955,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const editSection = document.getElementById("calEventModalEdit");
       editSection.style.display = isAdmin ? "block" : "none";
       if (isAdmin) {
-        document.getElementById("calEditTitolo").value = ev.title || "";
+        document.getElementById("calEditTitolo").value = ext.luogo || "";
         document.getElementById("calEditLuogo").value = luogo;
         document.getElementById("calEditNote").value = note;
         document.getElementById("calEditTipo").value = tipo || "Altro";
@@ -4052,20 +4065,28 @@ window.saveCalEvent = async function() {
   const btn = document.getElementById("calEventModalSave");
   const eventId = btn.dataset.eventId;
   if (!eventId) return;
-  const titolo = document.getElementById("calEditTitolo").value.trim();
+  const luogo = document.getElementById("calEditLuogo").value.trim();
   const dataVal = document.getElementById("calEditData").value;
   const tipo = document.getElementById("calEditTipo").value;
-  const luogo = document.getElementById("calEditLuogo").value.trim();
   const note = document.getElementById("calEditNote").value.trim();
-  if (!titolo || !dataVal) return alert("Titolo e data obbligatori");
+  if (!dataVal) return alert("Data obbligatoria");
   const start = new Date(dataVal);
-  await updateDoc(doc(db, "eventi", eventId), {
-    titolo, tipo, luogo, note,
-    data: start.toISOString().split("T")[0],
-    ora: start.toTimeString().slice(0,5)
-  });
+  const data = start.toISOString().split("T")[0];
+  const ora = start.toTimeString().slice(0,5);
+  await updateDoc(doc(db, "eventi", eventId), { tipo, luogo, note, data, ora });
+  // Aggiorna anche l'evento nel calendario in memoria
+  const calEv = calendar.getEventById(eventId);
+  if (calEv) {
+    calEv.setProp("title", luogo ? (tipo + " - " + luogo) : tipo);
+    calEv.setStart(data + "T" + ora);
+    calEv.setExtendedProp("tipo", tipo);
+    calEv.setExtendedProp("luogo", luogo);
+    calEv.setExtendedProp("note", note);
+    const color = tipo === "Altro" ? "#f4d03f" : "";
+    calEv.setProp("backgroundColor", color);
+    calEv.setProp("borderColor", color);
+  }
   closeCalModal();
-  loadExtraEvents();
   alert("✅ Evento aggiornato!");
 };
 
@@ -4148,7 +4169,7 @@ if ("serviceWorker" in navigator) {
     <!-- Sezione modifica admin -->
     <div id="calEventModalEdit">
       <div style="font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;color:var(--green-dark);margin-bottom:10px;text-transform:uppercase;">✏️ Modifica evento</div>
-      <input id="calEditTitolo" placeholder="Titolo / avversario">
+      <!-- campo luogo usato per pre-fill -->
       <input id="calEditData" type="datetime-local">
       <select id="calEditTipo">
         <option value="Partita">⚽ Partita</option>

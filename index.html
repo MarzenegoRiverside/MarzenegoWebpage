@@ -316,10 +316,104 @@ button:hover { background: var(--green-dark); }
   box-shadow: 0 4px 16px rgba(0,0,0,0.3);
 }
 
-.fc { z-index: 1; font-size: 16px !important; }
-.fc .fc-daygrid-event { white-space: normal !important; font-size: 13px; line-height: 1.3em; }
-.fc .fc-daygrid-day-number { font-size: 14px; color: var(--green-dark) !important; }
-.fc .fc-toolbar-title { font-size: 20px !important; color: var(--green-dark) !important; }
+.fc { z-index: 1; font-size: 14px !important; }
+.fc .fc-daygrid-event {
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 11px !important;
+  line-height: 1.4em;
+  border-radius: 4px !important;
+  padding: 1px 4px !important;
+  margin-bottom: 1px !important;
+  cursor: pointer;
+}
+.fc .fc-daygrid-day-number { font-size: 13px; color: var(--green-dark) !important; font-weight: 700; }
+.fc .fc-toolbar-title { font-size: 17px !important; color: var(--green-dark) !important; font-weight: 700; }
+.fc .fc-daygrid-day-frame { min-height: 60px; }
+.fc .fc-daygrid-day-events { margin-top: 2px; }
+/* popup evento */
+#calEventModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  background: rgba(0,0,0,0.55);
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#calEventModal.open { display: flex; }
+#calEventModalBox {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px 20px 20px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+  position: relative;
+  color: #111;
+  font-family: 'Barlow', sans-serif;
+}
+#calEventModalClose {
+  position: absolute;
+  top: 12px; right: 14px;
+  font-size: 22px;
+  cursor: pointer;
+  color: #666;
+  line-height: 1;
+}
+#calEventModalTitle {
+  font-family: 'Oswald', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 14px;
+  padding-right: 24px;
+  letter-spacing: 0.5px;
+}
+.cal-modal-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.cal-modal-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.cal-modal-label { color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+#calEventModalEdit {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #eee;
+  display: none;
+}
+#calEventModalEdit input,
+#calEventModalEdit select,
+#calEventModalEdit textarea {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  box-sizing: border-box;
+  color: #111;
+}
+#calEventModalSave {
+  background: var(--green-dark);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  width: 100%;
+}
 .fc .fc-button {
   padding: 6px 14px !important;
   font-size: 12px !important;
@@ -472,9 +566,10 @@ button:hover { background: var(--green-dark); }
   scrollbar-width: none;
   padding: 12px 14px;
   margin: 0;
-  background: var(--green-dark);
+  margin-top: 8px;
+  background: var(--green-dark);  /* sfondo opaco per non trapassare */
   position: sticky;
-  top: 56px;
+  top: 56px; /* valore iniziale, JS lo aggiorna subito */
   z-index: 9999;
 }
 #pillNav::-webkit-scrollbar { display: none; }
@@ -541,9 +636,11 @@ button:hover { background: var(--green-dark); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  background: #0b3d1b;   /* colore pieno, no blur che sfora su Android */
-  box-shadow: 0 1px 0 rgba(244,196,48,0.15);
+  padding: 10px 14px 10px 14px;
+  min-height: 56px;
+  background: rgba(11,61,27,0.97);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  backdrop-filter: blur(8px);
 }
 #appHeaderLeft {
   display: flex;
@@ -628,22 +725,43 @@ body > div.page, #homePage, #calendarPage {
 }
 .dots-nav .dot {
   display: block;
-  width: 8px;
-  height: 8px;
-  aspect-ratio: 1 / 1;   /* forza cerchio perfetto su ogni browser */
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: rgba(255,255,255,0.2);
   transition: background 0.2s;
   cursor: pointer;
-  flex: 0 0 8px;
-  box-sizing: content-box;
-  padding: 0;
-  margin: 0;
+  flex: 0 0 7px;
+  box-sizing: border-box;
 }
 .dots-nav .dot.active {
   background: var(--gold);
 }
 
+
+/* ── BADGE NOTIFICHE SUI TAB ─────────────────────────── */
+.pill-item { position: relative; }
+.pill-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  background: #e53935;
+  color: white;
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--green-dark);
+  pointer-events: none;
+  z-index: 2;
+}
 /* ── END TAB NAV BAR ────────────────────────────────── */
 
 /* ══════════════════════════════════════════════════════
@@ -658,15 +776,7 @@ body > div.page, #homePage, #calendarPage {
       transparent 1px,
       transparent 20px
     ),
-    linear-gradient(
-      180deg,
-      #0e4a22 0%,
-      #0b3d1c 8%,
-      #0a2e16 22%,
-      #0d1f12 42%,
-      #101510 65%,
-      #111111 100%
-    );
+    var(--bg);
   min-height: 100vh;
   padding: 0 0 80px 0 !important;
 }
@@ -1379,8 +1489,8 @@ body > div.page, #homePage, #calendarPage {
     <span class="miniBtn" onclick="openAdmin()">➕</span>
     <span class="miniBtn" onclick="toggleCalendarDelete()">❌</span>
   </div>
-  <h3>Calendario Squadra</h3>
-  <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:20px;margin:-6px 0 10px 0;">impegni del team</div>
+  <h3>TOCCA PER ESPANDERE GLI EVENTI</h3>
+  <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:20px;margin:-6px 0 10px 0;">Tutti i nostri impegni</div>
   <div id="calendar"></div>
 </div>
 
@@ -1942,6 +2052,7 @@ window.addEvent = async function() {
 
   let color = tipo === "Altro" ? "#f4d03f" : "";
 
+  incrementBadge('calendarPage');
   calendar.addEvent({
     id: docRef.id,
     title: luogo ? (tipo + " - " + luogo) : tipo,
@@ -2011,6 +2122,7 @@ window.addExtraEvent = async () => {
   if (!isAdmin) return alert("Solo admin");
   const testo = prompt("Descrizione evento:");
   if (!testo) return;
+  incrementBadge('eventiPage');
   await addDoc(collection(db, "eventiExtra"), { testo });
   loadExtraEvents();
 }
@@ -2405,7 +2517,7 @@ async function renderScoreGraphic() {
   const result = document.getElementById("scoreResultInput").value.trim() || "-";
   ctx.fillStyle = "#fff";
   fitFont(ctx, result, 170, 160, "Oswald, Arial, sans-serif", "700");
-  ctx.fillText(result, w / 2, 660);
+  ctx.fillText(result, w / 2, 575);
 
   const scorers = splitLines(document.getElementById("scoreScorersInput").value);
   ctx.fillStyle = "rgba(255,255,255,0.9)";
@@ -2478,7 +2590,7 @@ async function renderConvocatiGraphic() {
   ctx.font = "500 28px Barlow, Arial, sans-serif";
   ctx.fillText("Un fiume una passione", 90, 355);
 
-  drawLogoImage(ctx, logoImg, 90, 360, 390, 390, 0.14);
+  drawLogoImage(ctx, logoImg, 60, 430, 520, 520, 0.18);
   drawLogoImage(ctx, opponentImg, 760, 370, 170, 170, 1);
   drawVs(ctx, 600, 455, 82);
 
@@ -2491,9 +2603,8 @@ async function renderConvocatiGraphic() {
     ctx.fillText(" ", 90, startY);
   } else {
     players.slice(0, 14).forEach((line, idx) => {
-      const text = `${idx + 1}. ${line}`;
-      fitFont(ctx, text, 470, 30, "Barlow, Arial, sans-serif", "500");
-      ctx.fillText(text, 90, startY + idx * 40);
+      fitFont(ctx, line, 470, 30, "Barlow, Arial, sans-serif", "500");
+      ctx.fillText(line, 90, startY + idx * 40);
     });
   }
 
@@ -2778,6 +2889,7 @@ window.addJob = async () => {
   if (!isAdmin) return alert("Solo admin");
   const testo = prompt("Descrizione posizione:");
   if (!testo) return;
+  incrementBadge('lavoroPage');
   await addDoc(collection(db, "posizioni"), { testo });
   loadJobs();
 }
@@ -2941,7 +3053,8 @@ window.addProduct = async () => {
   if (!img) return;
 
   try {
-    await addDoc(collection(db, "prodotti"), { nome, prezzo, img });
+    incrementBadge('shopPage');
+  await addDoc(collection(db, "prodotti"), { nome, prezzo, img });
     loadProducts();
   } catch(e) {
     alert("Errore salvataggio");
@@ -3350,9 +3463,9 @@ window.addNovita = async () => {
     const nav = document.getElementById('pillNav');
     if (nav) nav.style.top = h + 'px';
   }
-  // Doppio rAF: prima frame calcola layout, seconda lo legge correttamente
-  requestAnimationFrame(() => requestAnimationFrame(syncHeaderHeight));
-  window.addEventListener('load', syncHeaderHeight);
+  // Esegui subito e poi dopo che il browser ha fatto il layout
+  syncHeaderHeight();
+  requestAnimationFrame(() => { syncHeaderHeight(); });
   window.addEventListener('resize', syncHeaderHeight);
 
   loadNovita();
@@ -3619,6 +3732,7 @@ window.addComunicato = async () => {
 
   const data = new Date().toISOString().split("T")[0];
 
+  incrementBadge('modulisticaPage');
   await addDoc(collection(db, "comunicati"), { titolo, testo, data });
   loadComunicati();
 };
@@ -3798,13 +3912,48 @@ document.addEventListener('DOMContentLoaded', async () => {
     },
 
     eventClick: async function(info) {
-      if (!isAdmin) return alert("Solo admin");
-      if (calendarDeleteMode) {
+      if (calendarDeleteMode && isAdmin) {
         if (confirm("Eliminare evento?")) {
           await deleteDoc(doc(db, "eventi", info.event.id));
           info.event.remove();
         }
+        return;
       }
+      // Apri popup dettaglio per tutti
+      const ev = info.event;
+      const ext = ev.extendedProps || {};
+      document.getElementById("calEventModalTitle").textContent = ev.title || "";
+      const start = ev.start;
+      document.getElementById("calModalDate").textContent = start
+        ? start.toLocaleDateString("it-IT", {weekday:"long", day:"numeric", month:"long", year:"numeric"})
+        : "—";
+      document.getElementById("calModalTime").textContent = start
+        ? start.toLocaleTimeString("it-IT", {hour:"2-digit", minute:"2-digit"})
+        : "—";
+      const luogo = ext.luogo || ext.location || "";
+      const note = ext.note || ext.description || "";
+      const tipo = ext.tipo || ext.category || ext.type || "";
+      document.getElementById("calModalLuogo").textContent = luogo || "—";
+      document.getElementById("calModalLuogoRow").style.display = luogo ? "" : "none";
+      document.getElementById("calModalNote").textContent = note || "—";
+      document.getElementById("calModalNoteRow").style.display = note ? "" : "none";
+      document.getElementById("calModalTipo").textContent = tipo || "—";
+      // Sezione modifica solo admin
+      const editSection = document.getElementById("calEventModalEdit");
+      editSection.style.display = isAdmin ? "block" : "none";
+      if (isAdmin) {
+        document.getElementById("calEditTitolo").value = ev.title || "";
+        document.getElementById("calEditLuogo").value = luogo;
+        document.getElementById("calEditNote").value = note;
+        document.getElementById("calEditTipo").value = tipo || "Altro";
+        if (start) {
+          const pad = n => String(n).padStart(2,"0");
+          document.getElementById("calEditData").value =
+            `${start.getFullYear()}-${pad(start.getMonth()+1)}-${pad(start.getDate())}T${pad(start.getHours())}:${pad(start.getMinutes())}`;
+        }
+        document.getElementById("calEventModalSave").dataset.eventId = ev.id;
+      }
+      document.getElementById("calEventModal").classList.add("open");
     },
 
     dayCellDidMount: function(info) {
@@ -3853,17 +4002,13 @@ function initDotsSlider(sliderId, dotsId) {
     const cards = slider.querySelectorAll(':scope > *:not(.hcard-empty)');
     const dots = dotsEl.querySelectorAll('.dot');
     if (!cards.length || !dots.length) return;
-    // Usa offsetLeft relativo allo slider — non dipende dalla viewport
-    const scrollLeft = slider.scrollLeft;
+    // trova la card più visibile
     let closestIdx = 0;
     let closestDist = Infinity;
     cards.forEach((card, i) => {
-      const dist = Math.abs(card.offsetLeft - scrollLeft);
+      const dist = Math.abs(card.getBoundingClientRect().left - slider.getBoundingClientRect().left);
       if (dist < closestDist) { closestDist = dist; closestIdx = i; }
     });
-    // Se siamo alla fine dello scroll, forza l'ultima card
-    const atEnd = slider.scrollLeft + slider.clientWidth >= slider.scrollWidth - 4;
-    if (atEnd) closestIdx = cards.length - 1;
     dots.forEach((d, i) => d.classList.toggle('active', i === closestIdx));
   }
 
@@ -3893,6 +4038,75 @@ function syncHeaderUserDot() {
 }
 
 
+
+// ── POPUP CALENDARIO ────────────────────────────────────
+window.closeCalModal = function() {
+  document.getElementById("calEventModal").classList.remove("open");
+};
+// Chiudi cliccando fuori dal box
+document.getElementById("calEventModal").addEventListener("click", function(e) {
+  if (e.target === this) closeCalModal();
+});
+
+window.saveCalEvent = async function() {
+  const btn = document.getElementById("calEventModalSave");
+  const eventId = btn.dataset.eventId;
+  if (!eventId) return;
+  const titolo = document.getElementById("calEditTitolo").value.trim();
+  const dataVal = document.getElementById("calEditData").value;
+  const tipo = document.getElementById("calEditTipo").value;
+  const luogo = document.getElementById("calEditLuogo").value.trim();
+  const note = document.getElementById("calEditNote").value.trim();
+  if (!titolo || !dataVal) return alert("Titolo e data obbligatori");
+  const start = new Date(dataVal);
+  await updateDoc(doc(db, "eventi", eventId), {
+    titolo, tipo, luogo, note,
+    data: start.toISOString().split("T")[0],
+    ora: start.toTimeString().slice(0,5)
+  });
+  closeCalModal();
+  loadExtraEvents();
+  alert("✅ Evento aggiornato!");
+};
+
+
+// ── SISTEMA BADGE NOTIFICHE SUI TAB ─────────────────────
+const tabBadges = {}; // { pageId: count }
+
+function incrementBadge(pageId) {
+  tabBadges[pageId] = (tabBadges[pageId] || 0) + 1;
+  renderBadge(pageId);
+}
+
+function clearBadge(pageId) {
+  tabBadges[pageId] = 0;
+  renderBadge(pageId);
+}
+
+function renderBadge(pageId) {
+  const pill = document.querySelector(`#pillNav .pill-item[data-page="${pageId}"]`);
+  if (!pill) return;
+  let badge = pill.querySelector(".pill-badge");
+  const count = tabBadges[pageId] || 0;
+  if (count === 0) {
+    if (badge) badge.remove();
+    return;
+  }
+  if (!badge) {
+    badge = document.createElement("span");
+    badge.className = "pill-badge";
+    pill.appendChild(badge);
+  }
+  badge.textContent = count > 9 ? "9+" : count;
+}
+
+// Integra nel showPage: pulisci badge quando si apre il tab
+const _origShowPage = window.showPage;
+window.showPage = function(id) {
+  _origShowPage(id);
+  clearBadge(id);
+};
+
 // ── drag-to-scroll per .home-autoscroll-outer ────────────
 document.querySelectorAll('.home-autoscroll-outer').forEach(el => {
   let isDown = false, startX, scrollLeft;
@@ -3920,5 +4134,33 @@ if ("serviceWorker" in navigator) {
 }
 
 </script>
+
+<!-- ── POPUP DETTAGLIO EVENTO CALENDARIO ────────────── -->
+<div id="calEventModal">
+  <div id="calEventModalBox">
+    <div id="calEventModalClose" onclick="closeCalModal()">✕</div>
+    <div id="calEventModalTitle"></div>
+    <div class="cal-modal-row"><span class="cal-modal-icon">📅</span><div><div class="cal-modal-label">Data</div><span id="calModalDate"></span></div></div>
+    <div class="cal-modal-row"><span class="cal-modal-icon">🕐</span><div><div class="cal-modal-label">Orario</div><span id="calModalTime"></span></div></div>
+    <div class="cal-modal-row" id="calModalLuogoRow"><span class="cal-modal-icon">📍</span><div><div class="cal-modal-label">Luogo</div><span id="calModalLuogo"></span></div></div>
+    <div class="cal-modal-row" id="calModalNoteRow"><span class="cal-modal-icon">📝</span><div><div class="cal-modal-label">Note</div><span id="calModalNote"></span></div></div>
+    <div class="cal-modal-row"><span class="cal-modal-icon">🏷</span><div><div class="cal-modal-label">Tipo</div><span id="calModalTipo"></span></div></div>
+    <!-- Sezione modifica admin -->
+    <div id="calEventModalEdit">
+      <div style="font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;color:var(--green-dark);margin-bottom:10px;text-transform:uppercase;">✏️ Modifica evento</div>
+      <input id="calEditTitolo" placeholder="Titolo / avversario">
+      <input id="calEditData" type="datetime-local">
+      <select id="calEditTipo">
+        <option value="Partita">⚽ Partita</option>
+        <option value="Allenamento">🏃 Allenamento</option>
+        <option value="Altro">📌 Altro</option>
+      </select>
+      <input id="calEditLuogo" placeholder="Luogo">
+      <textarea id="calEditNote" rows="2" placeholder="Note aggiuntive"></textarea>
+      <button id="calEventModalSave" onclick="saveCalEvent()">💾 Salva modifiche</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

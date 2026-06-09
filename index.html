@@ -1497,7 +1497,7 @@ body > div.page, #homePage, #calendarPage {
     <span class="miniBtn" onclick="openAdmin()">➕</span>
     <span class="miniBtn" onclick="toggleCalendarDelete()">❌</span>
   </div>
-  <h3>TOCCA PER ESPANDERE GLI EVENTI</h3>
+  <h3>Calendario Squadra</h3>
   <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:20px;margin:-6px 0 10px 0;">impegni del team</div>
   <div id="calendar"></div>
 </div>
@@ -3910,52 +3910,52 @@ document.addEventListener('DOMContentLoaded', async () => {
       const isMatch = tipo.toLowerCase().includes("partita");
       const isAlle = tipo.toLowerCase().includes("allenamento");
       const isAltro = tipo.toLowerCase().includes("altro");
-      const emoji = isMatch ? "⚽" : isAlle ? "🔺" : "🍻";
+      const emoji = isMatch ? "⚽" : isAlle ? "🏃" : "🍻";
       const bgColor = isAltro ? "#f4d03f" : "";
       const textColor = isAltro ? "#333" : "";
 
       return {
         html: `
           <div style="font-size:11px; line-height:1.4em; background:${bgColor}; border-radius:4px; padding:2px 4px; ${textColor ? 'color:'+textColor : ''}; overflow:hidden;">
-            <div style="font-weight:700;">${time}</div>
-            <div>${emoji}${luogo ? " " + luogo : ""}</div>
+            <div style="font-weight:700;">${time} ${emoji}</div>
+            <div style="opacity:0.85;">${luogo || ""}</div>
           </div>
         `
       };
     },
 
     eventClick: async function(info) {
-      if (calendarDeleteMode && isAdmin) {
-        if (confirm("Eliminare evento?")) {
-          await deleteDoc(doc(db, "eventi", info.event.id));
-          info.event.remove();
-        }
-        return;
-      }
-      // Apri popup dettaglio per tutti
       const ev = info.event;
       const ext = ev.extendedProps || {};
-      document.getElementById("calEventModalTitle").textContent = ev.title || "";
       const start = ev.start;
+      const tipo = ext.tipo || ev.title.split(" - ")[0] || "";
+      const luogo = ext.luogo || ev.title.split(" - ").slice(1).join(" - ") || "";
+      const note = ext.note || "";
+
+      // Emoji nel titolo del popup
+      const emoji = tipo.toLowerCase().includes("partita") ? "⚽"
+                  : tipo.toLowerCase().includes("allenamento") ? "🏃"
+                  : "🍻";
+
+      document.getElementById("calEventModalTitle").innerHTML =
+        `<span style="margin-right:8px;">${emoji}</span>${tipo}${luogo ? " · " + luogo : ""}`;
+
       document.getElementById("calModalDate").textContent = start
         ? start.toLocaleDateString("it-IT", {weekday:"long", day:"numeric", month:"long", year:"numeric"})
         : "—";
       document.getElementById("calModalTime").textContent = start
         ? start.toLocaleTimeString("it-IT", {hour:"2-digit", minute:"2-digit"})
         : "—";
-      const luogo = ext.luogo || ext.location || "";
-      const note = ext.note || ext.description || "";
-      const tipo = ext.tipo || ext.category || ext.type || "";
       document.getElementById("calModalLuogo").textContent = luogo || "—";
       document.getElementById("calModalLuogoRow").style.display = luogo ? "" : "none";
       document.getElementById("calModalNote").textContent = note || "—";
       document.getElementById("calModalNoteRow").style.display = note ? "" : "none";
       document.getElementById("calModalTipo").textContent = tipo || "—";
-      // Sezione modifica solo admin
+
+      // Admin: mostra sezione modifica + elimina
       const editSection = document.getElementById("calEventModalEdit");
       editSection.style.display = isAdmin ? "block" : "none";
       if (isAdmin) {
-        document.getElementById("calEditTitolo").value = ext.luogo || "";
         document.getElementById("calEditLuogo").value = luogo;
         document.getElementById("calEditNote").value = note;
         document.getElementById("calEditTipo").value = tipo || "Altro";
@@ -3965,6 +3965,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             `${start.getFullYear()}-${pad(start.getMonth()+1)}-${pad(start.getDate())}T${pad(start.getHours())}:${pad(start.getMinutes())}`;
         }
         document.getElementById("calEventModalSave").dataset.eventId = ev.id;
+        document.getElementById("calEventModalDelete").dataset.eventId = ev.id;
       }
       document.getElementById("calEventModal").classList.add("open");
     },
@@ -4090,6 +4091,16 @@ window.saveCalEvent = async function() {
   alert("✅ Evento aggiornato!");
 };
 
+window.deleteCalEvent = async function() {
+  const eventId = document.getElementById("calEventModalDelete").dataset.eventId;
+  if (!eventId) return;
+  if (!confirm("Eliminare questo evento?")) return;
+  await deleteDoc(doc(db, "eventi", eventId));
+  const calEv = calendar.getEventById(eventId);
+  if (calEv) calEv.remove();
+  closeCalModal();
+};
+
 
 // ── SISTEMA BADGE NOTIFICHE SUI TAB ─────────────────────
 const tabBadges = {}; // { pageId: count }
@@ -4161,24 +4172,41 @@ if ("serviceWorker" in navigator) {
   <div id="calEventModalBox">
     <div id="calEventModalClose" onclick="closeCalModal()">✕</div>
     <div id="calEventModalTitle"></div>
-    <div class="cal-modal-row"><span class="cal-modal-icon">📅</span><div><div class="cal-modal-label">Data</div><span id="calModalDate"></span></div></div>
-    <div class="cal-modal-row"><span class="cal-modal-icon">🕐</span><div><div class="cal-modal-label">Orario</div><span id="calModalTime"></span></div></div>
-    <div class="cal-modal-row" id="calModalLuogoRow"><span class="cal-modal-icon">📍</span><div><div class="cal-modal-label">Luogo</div><span id="calModalLuogo"></span></div></div>
-    <div class="cal-modal-row" id="calModalNoteRow"><span class="cal-modal-icon">📝</span><div><div class="cal-modal-label">Note</div><span id="calModalNote"></span></div></div>
-    <div class="cal-modal-row"><span class="cal-modal-icon">🏷</span><div><div class="cal-modal-label">Tipo</div><span id="calModalTipo"></span></div></div>
+    <div class="cal-modal-row">
+      <span class="cal-modal-icon">📅</span>
+      <div><div class="cal-modal-label">Data</div><span id="calModalDate"></span></div>
+    </div>
+    <div class="cal-modal-row">
+      <span class="cal-modal-icon">🕐</span>
+      <div><div class="cal-modal-label">Orario</div><span id="calModalTime"></span></div>
+    </div>
+    <div class="cal-modal-row" id="calModalLuogoRow">
+      <span class="cal-modal-icon">📍</span>
+      <div><div class="cal-modal-label">Luogo</div><span id="calModalLuogo"></span></div>
+    </div>
+    <div class="cal-modal-row" id="calModalNoteRow">
+      <span class="cal-modal-icon">📝</span>
+      <div><div class="cal-modal-label">Note</div><span id="calModalNote"></span></div>
+    </div>
+    <div class="cal-modal-row">
+      <span class="cal-modal-icon">🏷</span>
+      <div><div class="cal-modal-label">Tipo</div><span id="calModalTipo"></span></div>
+    </div>
     <!-- Sezione modifica admin -->
     <div id="calEventModalEdit">
       <div style="font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;color:var(--green-dark);margin-bottom:10px;text-transform:uppercase;">✏️ Modifica evento</div>
-      <!-- campo luogo usato per pre-fill -->
       <input id="calEditData" type="datetime-local">
       <select id="calEditTipo">
         <option value="Partita">⚽ Partita</option>
         <option value="Allenamento">🏃 Allenamento</option>
-        <option value="Altro">📌 Altro</option>
+        <option value="Altro">🍻 Altro</option>
       </select>
-      <input id="calEditLuogo" placeholder="Luogo">
-      <textarea id="calEditNote" rows="2" placeholder="Note aggiuntive"></textarea>
-      <button id="calEventModalSave" onclick="saveCalEvent()">💾 Salva modifiche</button>
+      <input id="calEditLuogo" placeholder="Luogo (es. Campo Gazzera)">
+      <textarea id="calEditNote" rows="2" placeholder="Note aggiuntive (opzionale)"></textarea>
+      <div style="display:flex;gap:8px;margin-top:4px;">
+        <button id="calEventModalSave" onclick="saveCalEvent()" style="flex:1;background:var(--green-dark);color:white;border:none;border-radius:8px;padding:10px;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">💾 Salva</button>
+        <button id="calEventModalDelete" onclick="deleteCalEvent()" style="flex:0 0 auto;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;padding:10px 14px;font-size:16px;cursor:pointer;">🗑</button>
+      </div>
     </div>
   </div>
 </div>

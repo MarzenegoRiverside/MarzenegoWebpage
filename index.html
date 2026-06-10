@@ -2049,7 +2049,7 @@ async function loadCalendar() {
       start: d.data + "T" + d.ora,
       backgroundColor: color,
       borderColor: color,
-      extendedProps: { tipo: d.tipo, luogo: d.luogo || "", note: d.note || "", costo: d.costo || 0, stagione: d.stagione || "" }
+      extendedProps: { tipo: d.tipo || "", luogo: d.luogo || "", note: d.note || "", costo: d.costo || 0, stagione: d.stagione || "" }
     });
   });
 
@@ -4091,30 +4091,43 @@ document.getElementById("calEventModal").addEventListener("click", function(e) {
 window.saveCalEvent = async function() {
   const btn = document.getElementById("calEventModalSave");
   const eventId = btn.dataset.eventId;
-  if (!eventId) return;
+  if (!eventId) { alert("Errore: ID evento mancante"); return; }
   const luogo = document.getElementById("calEditLuogo").value.trim();
   const dataVal = document.getElementById("calEditData").value;
   const tipo = document.getElementById("calEditTipo").value;
   const note = document.getElementById("calEditNote").value.trim();
-  if (!dataVal) return alert("Data obbligatoria");
+  if (!dataVal) { alert("Seleziona una data"); return; }
   const start = new Date(dataVal);
   const data = start.toISOString().split("T")[0];
   const ora = start.toTimeString().slice(0,5);
-  await updateDoc(doc(db, "eventi", eventId), { tipo, luogo, note, data, ora });
-  // Aggiorna anche l'evento nel calendario in memoria
-  const calEv = calendar.getEventById(eventId);
-  if (calEv) {
-    calEv.setProp("title", luogo ? (tipo + " - " + luogo) : tipo);
-    calEv.setStart(data + "T" + ora);
-    calEv.setExtendedProp("tipo", tipo);
-    calEv.setExtendedProp("luogo", luogo);
-    calEv.setExtendedProp("note", note);
-    const color = tipo === "Altro" ? "#f4d03f" : "";
-    calEv.setProp("backgroundColor", color);
-    calEv.setProp("borderColor", color);
+  try {
+    await updateDoc(doc(db, "eventi", eventId), { tipo, luogo, note, data, ora });
+  } catch(e) {
+    alert("Errore salvataggio: " + e.message);
+    return;
+  }
+  // Aggiorna evento in memoria (se disponibile), altrimenti ricarica tutto
+  try {
+    const calEv = calendar.getEventById(eventId);
+    if (calEv) {
+      calEv.setProp("title", luogo ? (tipo + " - " + luogo) : tipo);
+      calEv.setStart(data + "T" + ora);
+      calEv.setExtendedProp("tipo", tipo);
+      calEv.setExtendedProp("luogo", luogo);
+      calEv.setExtendedProp("note", note);
+      const isAltro = tipo === "Altro";
+      calEv.setProp("backgroundColor", isAltro ? "#f4d03f" : "");
+      calEv.setProp("borderColor", isAltro ? "#f4d03f" : "");
+    } else {
+      // Ricarica il calendario dal DB
+      calendar.getEvents().forEach(e => e.remove());
+      loadCalendar();
+    }
+  } catch(e) {
+    calendar.getEvents().forEach(e => e.remove());
+    loadCalendar();
   }
   closeCalModal();
-  alert("✅ Evento aggiornato!");
 };
 
 window.deleteCalEvent = async function() {
@@ -4256,9 +4269,9 @@ if ("serviceWorker" in navigator) {
       </select>
       <input id="calEditLuogo" placeholder="Luogo (es. Campo Gazzera)">
       <textarea id="calEditNote" rows="2" placeholder="Note aggiuntive (opzionale)"></textarea>
-      <div style="display:flex;gap:8px;margin-top:4px;">
-        <button id="calEventModalSave" onclick="saveCalEvent()" style="flex:1;background:var(--green-dark);color:white;border:none;border-radius:8px;padding:10px;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">💾 Salva</button>
-        <button id="calEventModalDelete" onclick="deleteCalEvent()" style="flex:0 0 auto;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;padding:10px 14px;font-size:16px;cursor:pointer;">🗑</button>
+      <div style="display:flex;gap:8px;margin-top:8px;align-items:stretch;">
+        <button id="calEventModalSave" onclick="saveCalEvent()" style="flex:1;background:var(--green-dark);color:white;border:none;border-radius:8px;padding:12px 10px;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;min-width:0;">💾 Salva modifiche</button>
+        <button id="calEventModalDelete" onclick="deleteCalEvent()" style="flex:0 0 48px;width:48px;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;padding:12px 0;font-size:20px;cursor:pointer;text-align:center;">🗑</button>
       </div>
     </div>
   </div>

@@ -41,7 +41,7 @@ body {
   font-family: 'Barlow', Arial, sans-serif;
   font-size: 16px;
   margin: 0;
-  padding-top: 56px; /* valore iniziale, JS lo aggiorna subito */
+  padding-top: 64px; /* valore iniziale, JS lo misura e sovrascrive */
   text-align: center;
   background-color: var(--bg);
   background-image: var(--bg-pattern);
@@ -319,14 +319,16 @@ button:hover { background: var(--green-dark); }
 .fc { z-index: 1; font-size: 14px !important; }
 .fc .fc-daygrid-event {
   white-space: nowrap !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible !important;
   font-size: 11px !important;
   line-height: 1.4em;
   border-radius: 4px !important;
-  padding: 1px 4px !important;
+  padding: 1px 3px !important;
   margin-bottom: 1px !important;
   cursor: pointer;
+}
+.fc .fc-daygrid-event .fc-event-main {
+  overflow: hidden;
 }
 .fc .fc-daygrid-day-number { font-size: 13px; color: var(--green-dark) !important; font-weight: 700; }
 .fc .fc-toolbar-title { font-size: 17px !important; color: var(--green-dark) !important; font-weight: 700; }
@@ -373,15 +375,33 @@ button:hover { background: var(--green-dark); }
   letter-spacing: 0.5px;
 }
 .cal-modal-row {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-  margin-bottom: 8px;
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 0 8px;
+  align-items: start;
+  margin-bottom: 12px;
   font-size: 14px;
   line-height: 1.4;
 }
-.cal-modal-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-.cal-modal-label { color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+.cal-modal-icon {
+  font-size: 18px;
+  line-height: 1;
+  padding-top: 2px;
+  text-align: center;
+}
+.cal-modal-label {
+  color: #999;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 2px;
+  font-weight: 600;
+}
+.cal-modal-value {
+  font-size: 15px;
+  color: #111;
+  font-weight: 500;
+}
 #calEventModalEdit {
   margin-top: 16px;
   padding-top: 14px;
@@ -569,7 +589,7 @@ button:hover { background: var(--green-dark); }
   margin-top: 8px;
   background: var(--green-dark);  /* sfondo opaco per non trapassare */
   position: sticky;
-  top: 56px; /* valore iniziale, JS lo aggiorna subito */
+  top: 64px; /* aggiornato da JS */ /* valore iniziale, JS lo aggiorna subito */
   z-index: 9999;
 }
 #pillNav::-webkit-scrollbar { display: none; }
@@ -3886,6 +3906,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadRisultati();
   // linkTo ha card statiche — init subito
   requestAnimationFrame(() => initDotsSlider('linkToList', 'linkToDots'));
+  loadAllBadges();
   await loadStagioni();
   loadEntrate();
   loadSpese();
@@ -3951,6 +3972,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById("calModalNote").textContent = note || "—";
       document.getElementById("calModalNoteRow").style.display = note ? "" : "none";
       document.getElementById("calModalTipo").textContent = tipo || "—";
+      // Emoji nel campo Tipo
+      const tipoEmoji = tipo.toLowerCase().includes("partita") ? "⚽"
+                      : tipo.toLowerCase().includes("allenamento") ? "🏃"
+                      : tipo ? "🍻" : "🏷";
+      document.getElementById("calModalTipoIcon").textContent = tipoEmoji;
 
       // Admin: mostra sezione modifica + elimina
       const editSection = document.getElementById("calEventModalEdit");
@@ -4102,41 +4128,68 @@ window.deleteCalEvent = async function() {
 };
 
 
-// ── SISTEMA BADGE NOTIFICHE SUI TAB ─────────────────────
-const tabBadges = {}; // { pageId: count }
+// ── SISTEMA BADGE NOTIFICHE ──────────────────────────────
+// Logica: Firestore salva il timestamp dell'ultimo aggiornamento per tab.
+// localStorage salva per ogni utente quando ha visto quel tab l'ultima volta.
+// Badge = visibile se lastUpdate (Firestore) > lastSeen (localStorage).
 
-function incrementBadge(pageId) {
-  tabBadges[pageId] = (tabBadges[pageId] || 0) + 1;
-  renderBadge(pageId);
+async function incrementBadge(pageId) {
+  try {
+    const ts = Date.now();
+    await setDoc(doc(db, "badges", pageId), { lastUpdate: ts });
+    // mostra subito il badge a chi ha appena aggiunto (non ha ancora visto)
+    renderBadgeForPage(pageId);
+  } catch(e) { console.warn("Badge write error", e); }
 }
 
-function clearBadge(pageId) {
-  tabBadges[pageId] = 0;
-  renderBadge(pageId);
+function markTabSeen(pageId) {
+  // Segna sul dispositivo dell'utente che ha visto questo tab ora
+  localStorage.setItem("badge_seen_" + pageId, String(Date.now()));
+  hideBadge(pageId);
 }
 
-function renderBadge(pageId) {
+function hideBadge(pageId) {
+  const pill = document.querySelector(`#pillNav .pill-item[data-page="${pageId}"]`);
+  if (!pill) return;
+  const badge = pill.querySelector(".pill-badge");
+  if (badge) badge.remove();
+}
+
+function showBadge(pageId) {
   const pill = document.querySelector(`#pillNav .pill-item[data-page="${pageId}"]`);
   if (!pill) return;
   let badge = pill.querySelector(".pill-badge");
-  const count = tabBadges[pageId] || 0;
-  if (count === 0) {
-    if (badge) badge.remove();
-    return;
-  }
   if (!badge) {
     badge = document.createElement("span");
     badge.className = "pill-badge";
     pill.appendChild(badge);
   }
-  badge.textContent = count > 9 ? "9+" : count;
+  badge.textContent = "•";
 }
 
-// Integra nel showPage: pulisci badge quando si apre il tab
+function renderBadgeForPage(pageId) {
+  getDoc(doc(db, "badges", pageId)).then(snap => {
+    if (!snap.exists()) return;
+    const lastUpdate = snap.data().lastUpdate || 0;
+    const lastSeen = parseInt(localStorage.getItem("badge_seen_" + pageId) || "0");
+    if (lastUpdate > lastSeen) {
+      showBadge(pageId);
+    } else {
+      hideBadge(pageId);
+    }
+  }).catch(() => {});
+}
+
+function loadAllBadges() {
+  const pages = ["calendarPage","eventiPage","lavoroPage","shopPage","modulisticaPage"];
+  pages.forEach(p => renderBadgeForPage(p));
+}
+
+// Intercetta showPage: quando l'utente apre un tab, segna come visto
 const _origShowPage = window.showPage;
 window.showPage = function(id) {
   _origShowPage(id);
-  clearBadge(id);
+  markTabSeen(id);
 };
 
 // ── drag-to-scroll per .home-autoscroll-outer ────────────
@@ -4174,23 +4227,23 @@ if ("serviceWorker" in navigator) {
     <div id="calEventModalTitle"></div>
     <div class="cal-modal-row">
       <span class="cal-modal-icon">📅</span>
-      <div><div class="cal-modal-label">Data</div><span id="calModalDate"></span></div>
+      <div><div class="cal-modal-label">Data</div><div class="cal-modal-value" id="calModalDate"></div></div>
     </div>
     <div class="cal-modal-row">
       <span class="cal-modal-icon">🕐</span>
-      <div><div class="cal-modal-label">Orario</div><span id="calModalTime"></span></div>
+      <div><div class="cal-modal-label">Orario</div><div class="cal-modal-value" id="calModalTime"></div></div>
     </div>
     <div class="cal-modal-row" id="calModalLuogoRow">
       <span class="cal-modal-icon">📍</span>
-      <div><div class="cal-modal-label">Luogo</div><span id="calModalLuogo"></span></div>
+      <div><div class="cal-modal-label">Luogo</div><div class="cal-modal-value" id="calModalLuogo"></div></div>
     </div>
     <div class="cal-modal-row" id="calModalNoteRow">
       <span class="cal-modal-icon">📝</span>
-      <div><div class="cal-modal-label">Note</div><span id="calModalNote"></span></div>
+      <div><div class="cal-modal-label">Note</div><div class="cal-modal-value" id="calModalNote"></div></div>
     </div>
     <div class="cal-modal-row">
-      <span class="cal-modal-icon">🏷</span>
-      <div><div class="cal-modal-label">Tipo</div><span id="calModalTipo"></span></div>
+      <span class="cal-modal-icon" id="calModalTipoIcon">🏷</span>
+      <div><div class="cal-modal-label">Tipo</div><div class="cal-modal-value" id="calModalTipo"></div></div>
     </div>
     <!-- Sezione modifica admin -->
     <div id="calEventModalEdit">

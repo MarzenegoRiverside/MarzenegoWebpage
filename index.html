@@ -790,6 +790,31 @@ body > div.page, #homePage, #calendarPage {
   pointer-events: none;
   z-index: 2;
 }
+
+/* ── MODAL CALENDARIO — TAB ─────────────────────────────── */
+.cal-tab {
+  flex: 1;
+  padding: 9px 4px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-family: 'Oswald', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #aaa;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.cal-tab.active {
+  color: var(--green-dark);
+  border-bottom-color: var(--green-dark);
+}
+.cal-tab-content {
+  padding-top: 14px;
+}
+
 /* ── END TAB NAV BAR ────────────────────────────────── */
 
 /* ══════════════════════════════════════════════════════
@@ -4029,9 +4054,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                       : tipo ? "🍻" : "🏷";
       document.getElementById("calModalTipoIcon").textContent = tipoEmoji;
 
-      // Admin: mostra sezione modifica + elimina
-      const editSection = document.getElementById("calEventModalEdit");
-      editSection.style.display = isAdmin ? "block" : "none";
+      // Mostra tab Modifica solo ad admin
+      const tabModifica = document.getElementById("calTab-modifica");
+      if (tabModifica) tabModifica.style.display = isAdmin ? "flex" : "none";
       if (isAdmin) {
         document.getElementById("calEditLuogo").value = luogo;
         document.getElementById("calEditNote").value = note;
@@ -4044,6 +4069,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById("calEventModalSave").dataset.eventId = ev.id;
         document.getElementById("calEventModalDelete").dataset.eventId = ev.id;
       }
+      // Apri sempre su Riepilogo
+      switchCalTab("riepilogo");
       document.getElementById("calEventModal").classList.add("open");
       caricaSezionePresenze(ev.id);
     },
@@ -4132,8 +4159,20 @@ function syncHeaderUserDot() {
 
 
 // ── POPUP CALENDARIO ────────────────────────────────────
+
+// ── Switch tab nel modal calendario ─────────────────────
+window.switchCalTab = function(tab) {
+  ["riepilogo","presenze","modifica"].forEach(t => {
+    const btn = document.getElementById("calTab-" + t);
+    const content = document.getElementById("calTabContent-" + t);
+    if (btn) btn.classList.toggle("active", t === tab);
+    if (content) content.style.display = t === tab ? "block" : "none";
+  });
+};
+
 window.closeCalModal = function() {
   document.getElementById("calEventModal").classList.remove("open");
+  switchCalTab("riepilogo");
 };
 // Chiudi cliccando fuori dal box
 document.getElementById("calEventModal").addEventListener("click", function(e) {
@@ -4386,21 +4425,20 @@ function aggiornaBottoniPresenza(stato) {
 
 async function caricaSezionePresenze(eventId) {
   currentEventId = eventId;
-  // Mostra sezione presenze se giocatore loggato
-  const sezioneP = document.getElementById("calEventPresenze");
-  const sezioneR = document.getElementById("calEventRiepilogo");
-  if (!sezioneP || !sezioneR) return;
-  if (currentPlayer) {
-    sezioneP.style.display = "block";
-    // Controlla voto esistente
-    const snap = await getDoc(doc(db, "presenze", eventId + "_" + currentPlayer.username));
-    aggiornaBottoniPresenza(snap.exists() ? snap.data().stato : null);
-  } else {
-    sezioneP.style.display = "none";
+  const sezioneVota = document.getElementById("calEventPresenze");
+
+  // Mostra bottoni voto solo se giocatore loggato
+  if (sezioneVota) {
+    sezioneVota.style.display = currentPlayer ? "block" : "none";
+    if (currentPlayer) {
+      const snap = await getDoc(doc(db, "presenze", eventId + "_" + currentPlayer.username));
+      aggiornaBottoniPresenza(snap.exists() ? snap.data().stato : null);
+    }
   }
-  if (isAdmin) {
-    sezioneR.style.display = "block";
-    // Carica riepilogo
+
+  // Lista presenze visibile a tutti (nel tab Presenze)
+  const riepilogoEl = document.getElementById("calEventRiepilogoText");
+  if (riepilogoEl) {
     const snap = await getDocs(query(collection(db, "presenze"), where("eventoId", "==", eventId)));
     const presenti = [], assenti = [];
     snap.forEach(d => {
@@ -4408,11 +4446,23 @@ async function caricaSezionePresenze(eventId) {
       if (p.stato === "presente") presenti.push(p.nome || p.username);
       else assenti.push(p.nome || p.username);
     });
-    document.getElementById("calEventRiepilogoText").innerHTML =
-      `<span style="color:#22c55e;font-weight:700;">✅ ${presenti.length}</span> ${presenti.join(", ") || "—"}<br>` +
-      `<span style="color:#ef4444;font-weight:700;">❌ ${assenti.length}</span> ${assenti.join(", ") || "—"}`;
-  } else {
-    sezioneR.style.display = "none";
+    const pHtml = presenti.length
+      ? presenti.map(n => `<div style="color:#22c55e;">✅ ${n}</div>`).join("")
+      : `<div style="color:#ccc;font-style:italic;">Nessuno ancora</div>`;
+    const aHtml = assenti.length
+      ? assenti.map(n => `<div style="color:#ef4444;">❌ ${n}</div>`).join("")
+      : `<div style="color:#ccc;font-style:italic;">Nessuno ancora</div>`;
+    riepilogoEl.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;color:#22c55e;font-weight:700;margin-bottom:4px;">✅ PRESENTI (${presenti.length})</div>
+          ${pHtml}
+        </div>
+        <div>
+          <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;color:#ef4444;font-weight:700;margin-bottom:4px;">❌ ASSENTI (${assenti.length})</div>
+          ${aHtml}
+        </div>
+      </div>`;
   }
 }
 
@@ -4449,55 +4499,74 @@ if ("serviceWorker" in navigator) {
   <div id="calEventModalBox">
     <div id="calEventModalClose" onclick="closeCalModal()">✕</div>
     <div id="calEventModalTitle"></div>
-    <div class="cal-modal-row">
-      <span class="cal-modal-icon">📅</span>
-      <div><div class="cal-modal-label">Data</div><div class="cal-modal-value" id="calModalDate"></div></div>
+
+    <!-- TAB BAR -->
+    <div id="calModalTabBar" style="display:flex;gap:0;margin:12px 0 0;border-bottom:2px solid #eee;">
+      <button class="cal-tab active" id="calTab-riepilogo" onclick="switchCalTab('riepilogo')">Riepilogo</button>
+      <button class="cal-tab" id="calTab-presenze" onclick="switchCalTab('presenze')">Presenze</button>
+      <button class="cal-tab" id="calTab-modifica" onclick="switchCalTab('modifica')" style="display:none;">Modifica</button>
     </div>
-    <div class="cal-modal-row">
-      <span class="cal-modal-icon">🕐</span>
-      <div><div class="cal-modal-label">Orario</div><div class="cal-modal-value" id="calModalTime"></div></div>
-    </div>
-    <div class="cal-modal-row" id="calModalLuogoRow">
-      <span class="cal-modal-icon">📍</span>
-      <div><div class="cal-modal-label">Luogo</div><div class="cal-modal-value" id="calModalLuogo"></div></div>
-    </div>
-    <div class="cal-modal-row" id="calModalNoteRow">
-      <span class="cal-modal-icon">📝</span>
-      <div><div class="cal-modal-label">Note</div><div class="cal-modal-value" id="calModalNote"></div></div>
-    </div>
-    <div class="cal-modal-row">
-      <span class="cal-modal-icon" id="calModalTipoIcon">🏷</span>
-      <div><div class="cal-modal-label">Tipo</div><div class="cal-modal-value" id="calModalTipo"></div></div>
-    </div>
-    <!-- Sezione presenze giocatori -->
-    <div id="calEventPresenze" style="margin-top:14px;padding-top:14px;border-top:1px solid #eee;display:none;">
-      <div style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;color:#888;text-transform:uppercase;margin-bottom:10px;">La tua presenza</div>
-      <div style="display:flex;gap:10px;">
-        <button id="btnPresente" onclick="votaPresenza('presente')" style="flex:1;padding:12px;border-radius:10px;border:2px solid #22c55e;background:transparent;color:#22c55e;font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all 0.15s;">✅ PRESENTE</button>
-        <button id="btnAssente" onclick="votaPresenza('assente')" style="flex:1;padding:12px;border-radius:10px;border:2px solid #ef4444;background:transparent;color:#ef4444;font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all 0.15s;">❌ ASSENTE</button>
+
+    <!-- TAB: RIEPILOGO -->
+    <div id="calTabContent-riepilogo" class="cal-tab-content">
+      <div class="cal-modal-row">
+        <span class="cal-modal-icon">📅</span>
+        <div><div class="cal-modal-label">Data</div><div class="cal-modal-value" id="calModalDate"></div></div>
+      </div>
+      <div class="cal-modal-row">
+        <span class="cal-modal-icon">🕐</span>
+        <div><div class="cal-modal-label">Orario</div><div class="cal-modal-value" id="calModalTime"></div></div>
+      </div>
+      <div class="cal-modal-row" id="calModalLuogoRow">
+        <span class="cal-modal-icon">📍</span>
+        <div><div class="cal-modal-label">Luogo</div><div class="cal-modal-value" id="calModalLuogo"></div></div>
+      </div>
+      <div class="cal-modal-row" id="calModalNoteRow">
+        <span class="cal-modal-icon">📝</span>
+        <div><div class="cal-modal-label">Note</div><div class="cal-modal-value" id="calModalNote"></div></div>
+      </div>
+      <div class="cal-modal-row">
+        <span class="cal-modal-icon" id="calModalTipoIcon">🏷</span>
+        <div><div class="cal-modal-label">Tipo</div><div class="cal-modal-value" id="calModalTipo"></div></div>
       </div>
     </div>
-    <!-- Riepilogo presenze (admin) -->
-    <div id="calEventRiepilogo" style="margin-top:10px;display:none;">
-      <div style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;color:#888;text-transform:uppercase;margin-bottom:6px;">Presenze</div>
-      <div id="calEventRiepilogoText" style="font-family:'Barlow',sans-serif;font-size:13px;color:#333;line-height:1.6;"></div>
+
+    <!-- TAB: PRESENZE -->
+    <div id="calTabContent-presenze" class="cal-tab-content" style="display:none;">
+      <!-- Vota (solo se giocatore loggato) -->
+      <div id="calEventPresenze" style="display:none;margin-bottom:16px;">
+        <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;color:#aaa;text-transform:uppercase;margin-bottom:8px;">La tua risposta</div>
+        <div style="display:flex;gap:10px;">
+          <button id="btnPresente" onclick="votaPresenza('presente')" style="flex:1;padding:12px;border-radius:10px;border:2px solid #22c55e;background:transparent;color:#22c55e;font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all 0.15s;">✅ PRESENTE</button>
+          <button id="btnAssente" onclick="votaPresenza('assente')" style="flex:1;padding:12px;border-radius:10px;border:2px solid #ef4444;background:transparent;color:#ef4444;font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all 0.15s;">❌ ASSENTE</button>
+        </div>
+      </div>
+      <!-- Lista presenze (visibile a tutti) -->
+      <div>
+        <div style="display:flex;gap:12px;margin-bottom:10px;">
+          <div style="font-family:'Oswald',sans-serif;font-size:12px;color:#22c55e;font-weight:700;">✅ Presenti</div>
+          <div style="font-family:'Oswald',sans-serif;font-size:12px;color:#ef4444;font-weight:700;">❌ Assenti</div>
+        </div>
+        <div id="calEventRiepilogoText" style="font-family:'Barlow',sans-serif;font-size:13px;color:#333;line-height:1.8;"></div>
+      </div>
     </div>
-    <!-- Sezione modifica admin -->
-    <div id="calEventModalEdit">
-      <div style="font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;color:var(--green-dark);margin-bottom:10px;text-transform:uppercase;">✏️ Modifica evento</div>
-      <input id="calEditData" type="datetime-local">
-      <select id="calEditTipo">
+
+    <!-- TAB: MODIFICA (solo admin) -->
+    <div id="calTabContent-modifica" class="cal-tab-content" style="display:none;">
+      <input id="calEditData" type="datetime-local" style="width:100%;margin-bottom:8px;padding:8px 10px;border:1px solid #ccc;border-radius:8px;font-family:'Barlow',sans-serif;font-size:14px;box-sizing:border-box;color:#111;">
+      <select id="calEditTipo" style="width:100%;margin-bottom:8px;padding:8px 10px;border:1px solid #ccc;border-radius:8px;font-family:'Barlow',sans-serif;font-size:14px;box-sizing:border-box;color:#111;">
         <option value="Partita">⚽ Partita</option>
         <option value="Allenamento">🏃 Allenamento</option>
         <option value="Altro">🍻 Altro</option>
       </select>
-      <input id="calEditLuogo" placeholder="Luogo (es. Campo Gazzera)">
-      <textarea id="calEditNote" rows="2" placeholder="Note aggiuntive (opzionale)"></textarea>
-      <div style="display:flex;gap:8px;margin-top:8px;align-items:stretch;">
-        <button id="calEventModalSave" onclick="saveCalEvent()" style="flex:1;background:var(--green-dark);color:white;border:none;border-radius:8px;padding:12px 10px;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;min-width:0;">💾 Salva modifiche</button>
+      <input id="calEditLuogo" placeholder="Luogo (es. Campo Gazzera)" style="width:100%;margin-bottom:8px;padding:8px 10px;border:1px solid #ccc;border-radius:8px;font-family:'Barlow',sans-serif;font-size:14px;box-sizing:border-box;color:#111;">
+      <textarea id="calEditNote" rows="2" placeholder="Note aggiuntive (opzionale)" style="width:100%;margin-bottom:8px;padding:8px 10px;border:1px solid #ccc;border-radius:8px;font-family:'Barlow',sans-serif;font-size:14px;box-sizing:border-box;color:#111;resize:vertical;"></textarea>
+      <div style="display:flex;gap:8px;margin-top:4px;align-items:stretch;">
+        <button id="calEventModalSave" onclick="saveCalEvent()" style="flex:1;background:var(--green-dark);color:white;border:none;border-radius:8px;padding:12px 10px;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;min-width:0;">💾 Salva</button>
         <button id="calEventModalDelete" onclick="deleteCalEvent()" style="flex:0 0 48px;width:48px;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;padding:12px 0;font-size:20px;cursor:pointer;text-align:center;">🗑</button>
       </div>
     </div>
+
   </div>
 </div>
 

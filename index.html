@@ -1227,12 +1227,40 @@ body > div.page, #homePage, #calendarPage {
       <div onclick="toggleMenu();openLogin();" style="
         display:flex;align-items:center;gap:10px;cursor:pointer;
         background:rgba(244,196,48,0.1);border:1px solid rgba(244,196,48,0.3);
-        border-radius:8px;padding:10px 14px;
+        border-radius:8px;padding:10px 14px;margin-bottom:8px;
         font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:1px;
-        text-transform:uppercase;color:var(--gold);
-        transition:background 0.15s;
+        text-transform:uppercase;color:var(--gold);transition:background 0.15s;
       " onmouseover="this.style.background='rgba(244,196,48,0.18)'" onmouseout="this.style.background='rgba(244,196,48,0.1)'">
         <span style="font-size:20px;">🔑</span> Area Staff
+      </div>
+      <div onclick="toggleMenu();openPlayerLogin();" style="
+        display:flex;align-items:center;gap:10px;cursor:pointer;
+        background:rgba(99,179,237,0.1);border:1px solid rgba(99,179,237,0.3);
+        border-radius:8px;padding:10px 14px;
+        font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:1px;
+        text-transform:uppercase;color:#90cdf4;transition:background 0.15s;
+      " onmouseover="this.style.background='rgba(99,179,237,0.18)'" onmouseout="this.style.background='rgba(99,179,237,0.1)'">
+        <span style="font-size:20px;">⚽</span> Area Giocatori
+      </div>
+    </div>
+    <!-- giocatore loggato -->
+    <div id="sidePlayerBlock" style="display:none;">
+      <div style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1.5px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:8px;">Connesso come</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <span style="font-size:28px;">⚽</span>
+        <div>
+          <div id="sidePlayerName" style="font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;color:#90cdf4;letter-spacing:1px;">—</div>
+          <div style="font-family:'Barlow',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">Giocatore</div>
+        </div>
+      </div>
+      <div onclick="doPlayerLogout();" style="
+        display:flex;align-items:center;gap:8px;cursor:pointer;
+        background:rgba(255,80,80,0.1);border:1px solid rgba(255,80,80,0.3);
+        border-radius:8px;padding:8px 14px;
+        font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;
+        text-transform:uppercase;color:#ff8080;transition:background 0.15s;
+      ">
+        <span>🚪</span> Logout
       </div>
     </div>
     <!-- admin loggato -->
@@ -1387,6 +1415,10 @@ body > div.page, #homePage, #calendarPage {
   </div>
   <div class="pill-item pill-admin" id="grafichePillBtn" style="display:none;" onclick="showPage('grafichePage')" data-page="grafichePage">
     <span class="pill-label">🔒&nbsp;Grafiche</span>
+    <div class="pill-underline"></div>
+  </div>
+  <div class="pill-item pill-admin" id="utentiPillBtn" style="display:none;" onclick="showPage('utentiPage')" data-page="utentiPage">
+    <span class="pill-label">🔒&nbsp;Utenti</span>
     <div class="pill-underline"></div>
   </div>
 </nav>
@@ -1795,6 +1827,17 @@ body > div.page, #homePage, #calendarPage {
   <div id="shopList" style="display:flex; flex-wrap:wrap; justify-content:center;"></div>
 </div>
 
+
+<!-- ── PAGINA UTENTI (admin only) ──────────────────── -->
+<div id="utentiPage" class="page">
+  <h3 style="margin:20px 16px 6px;">👥 Gestione Giocatori</h3>
+  <div class="miniBtns" id="utentiBtns" style="display:none;">
+    <span class="miniBtn" onclick="addUtente()">➕ Aggiungi</span>
+    <span class="miniBtn" onclick="toggleDelete('utentiList')">🗑</span>
+  </div>
+  <div id="utentiList" style="padding:0 16px 20px;"></div>
+</div>
+
 <div id="footer" onclick="openLogin()">v1.2, 19/05/2026, Develop by Marzenego Staff</div>
 
 <!-- INSTALL BANNER -->
@@ -1897,6 +1940,7 @@ async function iscriviNotifiche() {
 
 let calendar;
 let isAdmin = false;
+let currentPlayer = null; // { username, nome } quando loggato come giocatore
 let calendarDeleteMode = false;
 let quoteSortKey = null;   // 'nome' | 'importo' | 'pagata'
 let quoteSortDir = 1;       // 1 = asc, -1 = desc
@@ -1914,6 +1958,7 @@ const deleteModes = {
   quoteInlineList: false,
   adminDocsList: false,
   novitaList: false,
+  utentiList: false,
   newsList: false,
   risultatiList: false,
 };
@@ -1983,8 +2028,10 @@ window.doLogout = function() {
   document.getElementById("contabileContent").style.display = "none";
   document.getElementById("contabileLock").style.display = "block";
   // nascondi pillole admin
-  ["contabilePillBtn","candidaturePillBtn","exportPillBtn","grafichePillBtn"]
+  ["contabilePillBtn","candidaturePillBtn","exportPillBtn","grafichePillBtn","utentiPillBtn"]
     .forEach(id => { const el = document.getElementById(id); if(el) el.style.display = "none"; });
+  const utentiBtns = document.getElementById("utentiBtns");
+  if (utentiBtns) utentiBtns.style.display = "none";
   // side menu: torna a guest
   document.getElementById("sideAdminBlock").style.display = "none";
   document.getElementById("sideGuestBlock").style.display = "block";
@@ -2023,6 +2070,8 @@ window.login = function() {
     document.getElementById("candidaturePillBtn").style.display = "inline-flex";
     document.getElementById("exportPillBtn").style.display = "inline-flex";
     document.getElementById("grafichePillBtn").style.display = "inline-flex";
+    document.getElementById("utentiPillBtn").style.display = "inline-flex";
+    document.getElementById("utentiBtns").style.display = "flex";
     // side menu: mostra blocco admin
     document.getElementById("sideGuestBlock").style.display = "none";
     document.getElementById("sideAdminBlock").style.display = "block";
@@ -3835,6 +3884,7 @@ window.toggleDelete = target => {
   if (target === "novitaList") loadNovita();
   if (target === "newsList") loadNews();
   if (target === "risultatiList") loadRisultati();
+  if (target === "utentiList") loadUtenti();
   if (target === "adminDocsList") loadAdminDocs();
   if (target === "eventiExtraList") loadExtraEvents();
   if (target === "jobList") loadJobs();
@@ -3907,6 +3957,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // linkTo ha card statiche — init subito
   requestAnimationFrame(() => initDotsSlider('linkToList', 'linkToDots'));
   loadAllBadges();
+  if (isAdmin) loadUtenti();
   await loadStagioni();
   loadEntrate();
   loadSpese();
@@ -3994,6 +4045,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById("calEventModalDelete").dataset.eventId = ev.id;
       }
       document.getElementById("calEventModal").classList.add("open");
+      caricaSezionePresenze(ev.id);
     },
 
     dayCellDidMount: function(info) {
@@ -4205,6 +4257,165 @@ window.showPage = function(id) {
   markTabSeen(id);
 };
 
+
+// ══════════════════════════════════════════════════════════
+// SISTEMA GIOCATORI & PRESENZE
+// ══════════════════════════════════════════════════════════
+
+// ── Login giocatore ──────────────────────────────────────
+window.openPlayerLogin = function() {
+  document.getElementById("playerLoginModal").style.display = "flex";
+};
+
+window.loginPlayer = async function() {
+  const username = document.getElementById("playerUsername").value.trim();
+  const password = document.getElementById("playerPassword").value.trim();
+  if (!username || !password) return alert("Inserisci username e password");
+  try {
+    const snap = await getDocs(query(
+      collection(db, "utenti"),
+      where("username", "==", username),
+      where("password", "==", password)
+    ));
+    if (snap.empty) { alert("Credenziali errate"); return; }
+    const data = snap.docs[0].data();
+    currentPlayer = { username: data.username, nome: data.nome };
+    document.getElementById("sidePlayerName").textContent = data.nome || data.username;
+    document.getElementById("sideGuestBlock").style.display = "none";
+    document.getElementById("sidePlayerBlock").style.display = "block";
+    document.getElementById("playerLoginModal").style.display = "none";
+    document.getElementById("playerUsername").value = "";
+    document.getElementById("playerPassword").value = "";
+    alert("Benvenuto, " + (data.nome || data.username) + "! 👋");
+  } catch(e) { alert("Errore: " + e.message); }
+};
+
+window.doPlayerLogout = function() {
+  currentPlayer = null;
+  document.getElementById("sidePlayerBlock").style.display = "none";
+  document.getElementById("sideGuestBlock").style.display = "block";
+  toggleMenu();
+};
+
+// ── Gestione utenti (admin) ──────────────────────────────
+window.addUtente = async function() {
+  if (!isAdmin) return;
+  const nome = prompt("Nome completo giocatore (es. Riccardo Meggiato):");
+  if (!nome) return;
+  const username = prompt("Username (es. R9):");
+  if (!username) return;
+  const password = prompt("Password:");
+  if (!password) return;
+  // Controlla username univoco
+  const snap = await getDocs(query(collection(db, "utenti"), where("username", "==", username)));
+  if (!snap.empty) { alert("Username già esistente!"); return; }
+  await addDoc(collection(db, "utenti"), { nome, username, password, ruolo: "giocatore" });
+  loadUtenti();
+  alert("✅ Giocatore aggiunto!");
+};
+
+window.loadUtenti = async function() {
+  const list = document.getElementById("utentiList");
+  if (!list) return;
+  list.innerHTML = "";
+  const snap = await getDocs(collection(db, "utenti"));
+  if (snap.empty) {
+    list.innerHTML = '<div style="color:rgba(255,255,255,0.4);font-family:Oswald,sans-serif;font-size:13px;letter-spacing:1px;text-align:center;padding:20px;">Nessun giocatore registrato</div>';
+    return;
+  }
+  snap.forEach(docSnap => {
+    const d = docSnap.data();
+    const row = document.createElement("div");
+    row.style.cssText = "background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;";
+    row.innerHTML = `
+      <div>
+        <div style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;color:white;">${d.nome || "—"}</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">@${d.username} · psw: ${d.password}</div>
+      </div>
+      ${dm("utentiList") ? `<span onclick="eliminaUtente('${docSnap.id}')" style="cursor:pointer;font-size:18px;opacity:0.6;">❌</span>` : ""}
+    `;
+    list.appendChild(row);
+  });
+};
+
+window.eliminaUtente = async function(id) {
+  if (!confirm("Eliminare questo giocatore?")) return;
+  await deleteDoc(doc(db, "utenti", id));
+  loadUtenti();
+};
+
+// ── Presenze ─────────────────────────────────────────────
+let currentEventId = null; // eventId aperto nel modal
+
+window.votaPresenza = async function(stato) {
+  if (!currentPlayer) return;
+  if (!currentEventId) return;
+  await setDoc(doc(db, "presenze", currentEventId + "_" + currentPlayer.username), {
+    eventoId: currentEventId,
+    username: currentPlayer.username,
+    nome: currentPlayer.nome,
+    stato,
+    timestamp: Date.now()
+  });
+  // Aggiorna UI bottoni
+  aggiornaBottoniPresenza(stato);
+};
+
+function aggiornaBottoniPresenza(stato) {
+  const btnP = document.getElementById("btnPresente");
+  const btnA = document.getElementById("btnAssente");
+  if (!btnP || !btnA) return;
+  // Reset
+  btnP.style.background = "transparent";
+  btnP.style.color = "#22c55e";
+  btnP.style.fontWeight = "700";
+  btnA.style.background = "transparent";
+  btnA.style.color = "#ef4444";
+  btnA.style.fontWeight = "700";
+  // Attivo
+  if (stato === "presente") {
+    btnP.style.background = "#22c55e";
+    btnP.style.color = "white";
+    btnP.style.fontWeight = "900";
+  } else if (stato === "assente") {
+    btnA.style.background = "#ef4444";
+    btnA.style.color = "white";
+    btnA.style.fontWeight = "900";
+  }
+}
+
+async function caricaSezionePresenze(eventId) {
+  currentEventId = eventId;
+  // Mostra sezione presenze se giocatore loggato
+  const sezioneP = document.getElementById("calEventPresenze");
+  const sezioneR = document.getElementById("calEventRiepilogo");
+  if (!sezioneP || !sezioneR) return;
+  if (currentPlayer) {
+    sezioneP.style.display = "block";
+    // Controlla voto esistente
+    const snap = await getDoc(doc(db, "presenze", eventId + "_" + currentPlayer.username));
+    aggiornaBottoniPresenza(snap.exists() ? snap.data().stato : null);
+  } else {
+    sezioneP.style.display = "none";
+  }
+  if (isAdmin) {
+    sezioneR.style.display = "block";
+    // Carica riepilogo
+    const snap = await getDocs(query(collection(db, "presenze"), where("eventoId", "==", eventId)));
+    const presenti = [], assenti = [];
+    snap.forEach(d => {
+      const p = d.data();
+      if (p.stato === "presente") presenti.push(p.nome || p.username);
+      else assenti.push(p.nome || p.username);
+    });
+    document.getElementById("calEventRiepilogoText").innerHTML =
+      `<span style="color:#22c55e;font-weight:700;">✅ ${presenti.length}</span> ${presenti.join(", ") || "—"}<br>` +
+      `<span style="color:#ef4444;font-weight:700;">❌ ${assenti.length}</span> ${assenti.join(", ") || "—"}`;
+  } else {
+    sezioneR.style.display = "none";
+  }
+}
+
 // ── drag-to-scroll per .home-autoscroll-outer ────────────
 document.querySelectorAll('.home-autoscroll-outer').forEach(el => {
   let isDown = false, startX, scrollLeft;
@@ -4258,6 +4469,19 @@ if ("serviceWorker" in navigator) {
       <span class="cal-modal-icon" id="calModalTipoIcon">🏷</span>
       <div><div class="cal-modal-label">Tipo</div><div class="cal-modal-value" id="calModalTipo"></div></div>
     </div>
+    <!-- Sezione presenze giocatori -->
+    <div id="calEventPresenze" style="margin-top:14px;padding-top:14px;border-top:1px solid #eee;display:none;">
+      <div style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;color:#888;text-transform:uppercase;margin-bottom:10px;">La tua presenza</div>
+      <div style="display:flex;gap:10px;">
+        <button id="btnPresente" onclick="votaPresenza('presente')" style="flex:1;padding:12px;border-radius:10px;border:2px solid #22c55e;background:transparent;color:#22c55e;font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all 0.15s;">✅ PRESENTE</button>
+        <button id="btnAssente" onclick="votaPresenza('assente')" style="flex:1;padding:12px;border-radius:10px;border:2px solid #ef4444;background:transparent;color:#ef4444;font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all 0.15s;">❌ ASSENTE</button>
+      </div>
+    </div>
+    <!-- Riepilogo presenze (admin) -->
+    <div id="calEventRiepilogo" style="margin-top:10px;display:none;">
+      <div style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;color:#888;text-transform:uppercase;margin-bottom:6px;">Presenze</div>
+      <div id="calEventRiepilogoText" style="font-family:'Barlow',sans-serif;font-size:13px;color:#333;line-height:1.6;"></div>
+    </div>
     <!-- Sezione modifica admin -->
     <div id="calEventModalEdit">
       <div style="font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;color:var(--green-dark);margin-bottom:10px;text-transform:uppercase;">✏️ Modifica evento</div>
@@ -4277,5 +4501,16 @@ if ("serviceWorker" in navigator) {
   </div>
 </div>
 
+
+<!-- ── MODAL LOGIN GIOCATORE ────────────────────────── -->
+<div id="playerLoginModal" style="display:none;position:fixed;inset:0;z-index:20001;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:16px;padding:28px 24px;width:100%;max-width:340px;box-shadow:0 8px 40px rgba(0,0,0,0.4);">
+    <div style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:var(--green-dark);margin-bottom:20px;letter-spacing:1px;text-align:center;">⚽ AREA GIOCATORI</div>
+    <input id="playerUsername" placeholder="Username" autocomplete="off" style="width:100%;padding:10px 14px;border:1.5px solid #ddd;border-radius:8px;font-family:'Barlow',sans-serif;font-size:15px;margin-bottom:10px;box-sizing:border-box;color:#111;">
+    <input id="playerPassword" type="password" placeholder="Password" style="width:100%;padding:10px 14px;border:1.5px solid #ddd;border-radius:8px;font-family:'Barlow',sans-serif;font-size:15px;margin-bottom:16px;box-sizing:border-box;color:#111;">
+    <button onclick="loginPlayer()" style="width:100%;padding:12px;background:var(--green-dark);color:white;border:none;border-radius:8px;font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-bottom:10px;">Entra</button>
+    <button onclick="closeModal('playerLoginModal')" style="width:100%;padding:10px;background:transparent;color:#999;border:1px solid #ddd;border-radius:8px;font-family:'Oswald',sans-serif;font-size:13px;cursor:pointer;">Annulla</button>
+  </div>
+</div>
 </body>
 </html>

@@ -41,7 +41,7 @@ body {
   font-family: 'Barlow', Arial, sans-serif;
   font-size: 16px;
   margin: 0;
-  padding-top: 64px; /* valore iniziale, JS lo misura e sovrascrive */
+  padding-top: 122px; /* fallback sicuro: header+tab, JS lo misura e sovrascrive */
   text-align: center;
   background-color: var(--bg);
   background-image: var(--bg-pattern);
@@ -586,7 +586,7 @@ button:hover { background: var(--green-dark); }
   scrollbar-width: none;
   padding: 12px 14px;
   margin: 0;
-  margin-top: 8px;
+  margin-top: 0px;
   /* niente background: eredita il gradiente di #topBar */
 }
 #pillNav::-webkit-scrollbar { display: none; }
@@ -670,8 +670,8 @@ button:hover { background: var(--green-dark); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  min-height: 56px;
+  padding: 8px 14px 4px;
+  min-height: 52px;
 }
 #appHeaderLeft {
   display: flex;
@@ -679,8 +679,8 @@ button:hover { background: var(--green-dark); }
   gap: 10px;
 }
 #appHeaderLeft img {
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
   filter: drop-shadow(0 1px 4px rgba(0,0,0,0.4));
 }
@@ -1597,7 +1597,7 @@ body > div.page, #homePage, #calendarPage {
     <span class="miniBtn" onclick="toggleCalendarDelete()">❌</span>
   </div>
   <h3>Calendario Squadra</h3>
-  <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:20px;margin:-6px 0 10px 0;">impegni del team</div>
+  <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:20px;margin:2px 0 10px 0;">impegni del team</div>
   <div id="calendar"></div>
 </div>
 
@@ -3592,7 +3592,12 @@ window.addNovita = async () => {
   // Esegui subito e poi dopo che il browser ha fatto il layout
   syncHeaderHeight();
   requestAnimationFrame(() => { syncHeaderHeight(); });
+  window.addEventListener('load', syncHeaderHeight);
   window.addEventListener('resize', syncHeaderHeight);
+  // Ricalcola anche dopo che i font sono pronti (cambia altezza testo)
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(syncHeaderHeight);
+  }
 
   loadNovita();
 

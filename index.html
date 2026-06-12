@@ -587,12 +587,7 @@ button:hover { background: var(--green-dark); }
   padding: 12px 14px;
   margin: 0;
   margin-top: 8px;
-  /* Stesso colore solido dell'header: continuità visiva, niente
-     trasparenza che faccia "riapparire" il contenuto sotto. */
-  background: rgb(24, 119, 45);
-  position: sticky;
-  top: 64px; /* aggiornato da JS */
-  z-index: 9999;
+  /* niente background: eredita il gradiente di #topBar */
 }
 #pillNav::-webkit-scrollbar { display: none; }
 
@@ -651,22 +646,32 @@ button:hover { background: var(--green-dark); }
 
 
 /* ══ APP HEADER (stile WhatsApp) ══════════════════════════ */
-#appHeader {
+/* ── BARRA SUPERIORE UNICA (header + tab) ─────────────────
+   Un solo elemento fixed con gradiente continuo: parte dal verde
+   acceso scelto dall'utente e sfuma verso il verde scuro del body,
+   coprendo SIA il logo SIA la barra dei tab, senza stacchi.
+   Cambia qui i due colori per provare varianti:
+     - colore in alto (acceso):  24, 119, 45
+     - colore in basso (scuro):  --green-dark (11, 61, 27)
+───────────────────────────────────────────────────────────── */
+#topBar {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 10000;
+  background: linear-gradient(
+    to bottom,
+    rgb(24, 119, 45) 0%,
+    rgb(24, 119, 45) 55%,
+    var(--green-dark) 100%
+  );
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+}
+#appHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 14px;
   min-height: 56px;
-  /* ── COLORE HEADER ────────────────────────────────────────
-     Sfondo SOLIDO (no gradiente): evita che il contenuto sotto
-     riappaia mentre scrolla. Cambia qui il colore per provare varianti.
-     Colore attuale scelto dall'utente: 24, 119, 45
-  ───────────────────────────────────────────────────────── */
-  background: rgb(24, 119, 45);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
 }
 #appHeaderLeft {
   display: flex;
@@ -1386,6 +1391,8 @@ body > div.page, #homePage, #calendarPage {
   <div id="graficheMenuBtn" style="display:none;"></div>
 </div>
 
+<!-- ── BARRA SUPERIORE (header + tab) con gradiente unico ── -->
+<div id="topBar">
 <!-- ── APP HEADER stile WhatsApp ── -->
 <div id="appHeader">
   <div id="appHeaderLeft">
@@ -1461,6 +1468,7 @@ body > div.page, #homePage, #calendarPage {
     <div class="pill-underline"></div>
   </div>
 </nav>
+</div><!-- /#topBar -->
 
 <div id="adminBanner">⚡ Admin loggato 🔓</div>
 
@@ -1588,8 +1596,8 @@ body > div.page, #homePage, #calendarPage {
     <span class="miniBtn" onclick="openAdmin()">➕</span>
     <span class="miniBtn" onclick="toggleCalendarDelete()">❌</span>
   </div>
-  <h3>ESPANDI GLI EVENTI</h3>
-  <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:20px;margin:-6px 0 10px 0;">tocca sugli eventi per mettere la presenza</div>
+  <h3>Calendario Squadra</h3>
+  <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:20px;margin:-6px 0 10px 0;">impegni del team</div>
   <div id="calendar"></div>
 </div>
 
@@ -3576,12 +3584,10 @@ window.addNovita = async () => {
 
   // Misura altezza reale header e imposta body + pillNav direttamente
   function syncHeaderHeight() {
-    const header = document.getElementById('appHeader');
-    if (!header) return;
-    const h = header.getBoundingClientRect().height || header.offsetHeight;
+    const topBar = document.getElementById('topBar');
+    if (!topBar) return;
+    const h = topBar.getBoundingClientRect().height || topBar.offsetHeight;
     document.body.style.paddingTop = h + 'px';
-    const nav = document.getElementById('pillNav');
-    if (nav) nav.style.top = h + 'px';
   }
   // Esegui subito e poi dopo che il browser ha fatto il layout
   syncHeaderHeight();
@@ -4341,8 +4347,7 @@ window.loginPlayer = async function() {
     document.getElementById("playerLoginModal").style.display = "none";
     document.getElementById("playerUsername").value = "";
     document.getElementById("playerPassword").value = "";
-    alert("Benvenuto, " + (data.nome || data.username) + "! 👋 
-Grazie all'accesso effettuato, potrai votare Presente/Assente sugli eventi che trovi nel calendario!!");
+    alert("Benvenuto, " + (data.nome || data.username) + "! 👋");
   } catch(e) { alert("Errore: " + e.message); }
 };
 
@@ -4561,7 +4566,8 @@ if ("serviceWorker" in navigator) {
       <!-- Lista presenze (visibile a tutti) -->
       <div>
         <div style="display:flex;gap:12px;margin-bottom:10px;">
-          <div style="font-family:'Oswald',sans-serif;font-size:12px;color:#f4c430;font-weight:700;">Riassunto delle presenze 👇</div>
+          <div style="font-family:'Oswald',sans-serif;font-size:12px;color:#22c55e;font-weight:700;">✅ Presenti</div>
+          <div style="font-family:'Oswald',sans-serif;font-size:12px;color:#ef4444;font-weight:700;">❌ Assenti</div>
         </div>
         <div id="calEventRiepilogoText" style="font-family:'Barlow',sans-serif;font-size:13px;color:#333;line-height:1.8;"></div>
       </div>

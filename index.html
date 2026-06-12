@@ -587,9 +587,9 @@ button:hover { background: var(--green-dark); }
   padding: 12px 14px;
   margin: 0;
   margin-top: 8px;
-  /* sfondo identico al body: verde + righe oblique, niente verde scuro */
-  background-color: var(--bg);
-  background-image: var(--bg-pattern);
+  /* Stesso colore solido dell'header: continuità visiva, niente
+     trasparenza che faccia "riapparire" il contenuto sotto. */
+  background: rgb(24, 119, 45);
   position: sticky;
   top: 64px; /* aggiornato da JS */
   z-index: 9999;
@@ -614,24 +614,23 @@ button:hover { background: var(--green-dark); }
   font-size: 16px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: white;
+  color: rgba(255,255,255,0.55);
   background: var(--green-mid);
   padding: 6px 18px;
   border-radius: 4px;
   border-left: 4px solid var(--green-dark);
   white-space: nowrap;
-  opacity: 0.55;
-  transition: opacity 0.15s, background 0.15s;
+  transition: color 0.15s, background 0.15s;
 }
 
 .pill-item.active .pill-label {
-  opacity: 1;
+  color: white;
   background: var(--green-mid);
   border-left-color: var(--gold);
 }
 
 .pill-item:hover .pill-label {
-  opacity: 0.85;
+  color: rgba(255,255,255,0.85);
 }
 
 /* lineetta gialla sotto la voce attiva — fuori dal flusso */
@@ -659,23 +658,15 @@ button:hover { background: var(--green-dark); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px 28px 14px; /* padding-bottom extra per la sfumatura */
+  padding: 10px 14px;
   min-height: 56px;
-  /* ── COLORE GRADIENTE HEADER ──────────────────────────────
-     Cambia qui il colore RGB per provare varianti (verde scuro,
-     verde chiaro, oro...). Il gradiente parte opaco e sfuma a trasparente.
-     Esempi:
-       Verde scuro (attuale): 11,61,27
-       Verde chiaro:          20,90,42
-       Oro:                   244,196,48
+  /* ── COLORE HEADER ────────────────────────────────────────
+     Sfondo SOLIDO (no gradiente): evita che il contenuto sotto
+     riappaia mentre scrolla. Cambia qui il colore per provare varianti.
+     Colore attuale scelto dall'utente: 24, 119, 45
   ───────────────────────────────────────────────────────── */
-  background: linear-gradient(
-    to bottom,
-    rgba(11,61,27,1) 0%,
-    rgba(11,61,27,0.85) 55%,
-    rgba(11,61,27,0) 100%
-  );
-  box-shadow: none;
+  background: rgb(24, 119, 45);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
 }
 #appHeaderLeft {
   display: flex;
@@ -1597,8 +1588,8 @@ body > div.page, #homePage, #calendarPage {
     <span class="miniBtn" onclick="openAdmin()">➕</span>
     <span class="miniBtn" onclick="toggleCalendarDelete()">❌</span>
   </div>
-  <h3>Calendario Squadra</h3>
-  <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:20px;margin:-6px 0 10px 0;">impegni del team</div>
+  <h3>ESPANDI GLI EVENTI</h3>
+  <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:20px;margin:-6px 0 10px 0;">tocca sugli eventi per mettere la presenza</div>
   <div id="calendar"></div>
 </div>
 
@@ -3588,12 +3579,9 @@ window.addNovita = async () => {
     const header = document.getElementById('appHeader');
     if (!header) return;
     const h = header.getBoundingClientRect().height || header.offsetHeight;
-    // Sottrai la fascia sfumata trasparente in basso (vedi padding-bottom extra in CSS)
-    const fadeHeight = 18;
-    const solidHeight = Math.max(h - fadeHeight, 0);
-    document.body.style.paddingTop = solidHeight + 'px';
+    document.body.style.paddingTop = h + 'px';
     const nav = document.getElementById('pillNav');
-    if (nav) nav.style.top = solidHeight + 'px';
+    if (nav) nav.style.top = h + 'px';
   }
   // Esegui subito e poi dopo che il browser ha fatto il layout
   syncHeaderHeight();
@@ -4296,7 +4284,7 @@ function showBadge(pageId) {
     badge.className = "pill-badge";
     pill.appendChild(badge);
   }
-  badge.textContent = "•";
+  badge.textContent = "\u2022"; // punto elenco "•"
 }
 
 function renderBadgeForPage(pageId) {
@@ -4353,7 +4341,8 @@ window.loginPlayer = async function() {
     document.getElementById("playerLoginModal").style.display = "none";
     document.getElementById("playerUsername").value = "";
     document.getElementById("playerPassword").value = "";
-    alert("Benvenuto, " + (data.nome || data.username) + "! 👋");
+    alert("Benvenuto, " + (data.nome || data.username) + "! 👋 
+Grazie all'accesso effettuato, potrai votare Presente/Assente sugli eventi che trovi nel calendario!!");
   } catch(e) { alert("Errore: " + e.message); }
 };
 
@@ -4572,8 +4561,7 @@ if ("serviceWorker" in navigator) {
       <!-- Lista presenze (visibile a tutti) -->
       <div>
         <div style="display:flex;gap:12px;margin-bottom:10px;">
-          <div style="font-family:'Oswald',sans-serif;font-size:12px;color:#22c55e;font-weight:700;">✅ Presenti</div>
-          <div style="font-family:'Oswald',sans-serif;font-size:12px;color:#ef4444;font-weight:700;">❌ Assenti</div>
+          <div style="font-family:'Oswald',sans-serif;font-size:12px;color:#f4c430;font-weight:700;">Riassunto delle presenze 👇</div>
         </div>
         <div id="calEventRiepilogoText" style="font-family:'Barlow',sans-serif;font-size:13px;color:#333;line-height:1.8;"></div>
       </div>

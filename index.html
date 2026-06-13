@@ -41,7 +41,7 @@ body {
   font-family: 'Barlow', Arial, sans-serif;
   font-size: 16px;
   margin: 0;
-  padding-top: 122px; /* fallback sicuro: header+tab, JS lo misura e sovrascrive */
+  padding-top: 52px; /* fallback: solo header solido, JS lo misura e sovrascrive */
   text-align: center;
   background-color: var(--bg);
   background-image: var(--bg-pattern);
@@ -584,10 +584,16 @@ button:hover { background: var(--green-dark); }
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding: 12px 14px;
+  padding: 12px 14px 30px; /* extra padding-bottom per la dissolvenza */
   margin: 0;
-  margin-top: 0px;
-  /* niente background: eredita il gradiente di #topBar */
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgb(24, 119, 45) 0%,
+    rgba(24, 119, 45, 0.7) 55%,
+    rgba(24, 119, 45, 0) 100%
+  );
 }
 #pillNav::-webkit-scrollbar { display: none; }
 
@@ -654,24 +660,29 @@ button:hover { background: var(--green-dark); }
      - colore in alto (acceso):  24, 119, 45
      - colore in basso (scuro):  --green-dark (11, 61, 27)
 ───────────────────────────────────────────────────────────── */
+/* ── BARRA SUPERIORE ──────────────────────────────────────
+   #appHeader: blocco SOLIDO con la scritta Marzenego Riverside.
+   #pillNav (sotto): gradiente che parte dal verde acceso e
+   sfuma a trasparente, lasciando intravedere il contenuto sotto.
+   Cambia qui i colori per provare varianti:
+     - colore header solido:        var(--green-dark)
+     - colore iniziale gradiente:   rgb(24, 119, 45)
+───────────────────────────────────────────────────────────── */
 #topBar {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 10000;
-  background: linear-gradient(
-    to bottom,
-    rgb(24, 119, 45) 0%,
-    rgb(24, 119, 45) 55%,
-    var(--green-dark) 100%
-  );
-  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
 }
 #appHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 14px 4px;
+  padding: 8px 14px;
   min-height: 52px;
+  background: var(--green-dark);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  position: relative;
+  z-index: 2;
 }
 #appHeaderLeft {
   display: flex;
@@ -710,9 +721,43 @@ button:hover { background: var(--green-dark); }
   transition: background 0.15s;
 }
 #appHeaderUser:hover { background: rgba(255,255,255,0.1); }
-#appHeaderDot, 
-/* scrollBrandBar: aggiungi icona a destra */
+#appHeaderUser { position: relative; }
+/* Lucchetto admin vicino all'icona utente */
 
+/* ── BADGE INIZIALI GIOCATORE (header) ─────────────────── */
+#appHeaderPlayerBadge {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--green-dark);
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.25);
+}
+
+#appHeaderDot, #scrollBarDot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  font-size: 13px;
+  line-height: 1;
+  background: var(--gold);
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
 
 /* page content padding: non più margin 52px, ora header è fixed 56px */
 body > div.page, #homePage, #calendarPage {
@@ -846,7 +891,7 @@ body > div.page, #homePage, #calendarPage {
 }
 .home-hero {
   position: relative;
-  padding: 40px 24px 28px;
+  padding: 56px 24px 28px;
   text-align: center;
   overflow: hidden;
 }
@@ -1403,13 +1448,15 @@ body > div.page, #homePage, #calendarPage {
     </div>
   </div>
   <div id="appHeaderRight">
+    <!-- iniziali giocatore loggato -->
+    <div id="appHeaderPlayerBadge" onclick="toggleMenu()" title="" style="display:none;"></div>
     <!-- icona utente: apre side menu / login -->
     <div id="appHeaderUser" onclick="toggleMenu()" title="Account">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
         <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
       </svg>
       <!-- pallino verde = admin loggato -->
-      <span id="appHeaderDot" style="display:none;"></span>
+      <span id="appHeaderDot" style="display:none;">🔓</span>
     </div>
   </div>
 </div>
@@ -1470,7 +1517,7 @@ body > div.page, #homePage, #calendarPage {
 </nav>
 </div><!-- /#topBar -->
 
-<div id="adminBanner">⚡ Admin loggato 🔓</div>
+<div id="adminBanner" style="display:none;"></div> <!-- legacy, non più usato -->
 
 <!-- HOME PAGE — redesign editorial dark -->
 <div id="homePage" class="page active">
@@ -2090,7 +2137,7 @@ window.doLogout = function() {
 window.login = function() {
   if (username.value === "pippo" && password.value === "pippo") {
     isAdmin = true;
-    document.getElementById("adminBanner").style.display = "block";
+    syncHeaderUserDot();
     document.getElementById("pdfBtns").style.display = "block";
     document.getElementById("linkBtns").style.display = "block";
     document.getElementById("comunicatiBtns").style.display = "block";
@@ -3584,9 +3631,9 @@ window.addNovita = async () => {
 
   // Misura altezza reale header e imposta body + pillNav direttamente
   function syncHeaderHeight() {
-    const topBar = document.getElementById('topBar');
-    if (!topBar) return;
-    const h = topBar.getBoundingClientRect().height || topBar.offsetHeight;
+    const header = document.getElementById('appHeader');
+    if (!header) return;
+    const h = header.getBoundingClientRect().height || header.offsetHeight;
     document.body.style.paddingTop = h + 'px';
   }
   // Esegui subito e poi dopo che il browser ha fatto il layout
@@ -4176,6 +4223,24 @@ function initDotsSlider(sliderId, dotsId) {
 }
 
 // Aggiorna pallino admin nell'header
+
+// ── Badge iniziali giocatore nell'header ─────────────────
+function syncHeaderPlayerBadge() {
+  const badge = document.getElementById("appHeaderPlayerBadge");
+  if (!badge) return;
+  if (currentPlayer && currentPlayer.nome) {
+    const parts = currentPlayer.nome.trim().split(/\s+/);
+    const iniziali = parts.length >= 2
+      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+      : parts[0].slice(0, 2).toUpperCase();
+    badge.textContent = iniziali;
+    badge.title = currentPlayer.nome;
+    badge.style.display = "flex";
+  } else {
+    badge.style.display = "none";
+  }
+}
+
 function syncHeaderUserDot() {
   ['appHeaderDot', 'scrollBarDot'].forEach(id => {
     const el = document.getElementById(id);
@@ -4349,6 +4414,7 @@ window.loginPlayer = async function() {
     document.getElementById("sidePlayerName").textContent = data.nome || data.username;
     document.getElementById("sideGuestBlock").style.display = "none";
     document.getElementById("sidePlayerBlock").style.display = "block";
+    syncHeaderPlayerBadge();
     document.getElementById("playerLoginModal").style.display = "none";
     document.getElementById("playerUsername").value = "";
     document.getElementById("playerPassword").value = "";
@@ -4360,6 +4426,7 @@ window.doPlayerLogout = function() {
   currentPlayer = null;
   document.getElementById("sidePlayerBlock").style.display = "none";
   document.getElementById("sideGuestBlock").style.display = "block";
+  syncHeaderPlayerBadge();
   toggleMenu();
 };
 

@@ -41,7 +41,7 @@ body {
   font-family: 'Barlow', Arial, sans-serif;
   font-size: 16px;
   margin: 0;
-  padding-top: 52px; /* fallback: solo header solido, JS lo misura e sovrascrive */
+  padding-top: 122px; /* fallback: header+tab combinati, JS lo misura e sovrascrive */
   text-align: center;
   background-color: var(--bg);
   background-image: var(--bg-pattern);
@@ -590,9 +590,9 @@ button:hover { background: var(--green-dark); }
   z-index: 1;
   background: linear-gradient(
     to bottom,
-    rgb(24, 60, 45) 0%,
-    rgba(24, 60, 45, 0.7) 55%,
-    rgba(24, 60, 45, 0) 100%
+    rgb(24, 80, 45) 0%,
+    rgba(24, 80, 45, 0.7) 55%,
+    rgba(24, 80, 45, 0) 100%
   );
 }
 #pillNav::-webkit-scrollbar { display: none; }
@@ -3629,12 +3629,14 @@ window.addNovita = async () => {
   const data = new Date().toISOString().split("T")[0];
   await addDoc(collection(db, "novita"), { titolo, testo: testo || "", tag: tag || "📌 Novità", data });
 
-  // Misura altezza reale header e imposta body + pillNav direttamente
+  // Misura altezza reale header+tab e imposta body padding
   function syncHeaderHeight() {
     const header = document.getElementById('appHeader');
+    const nav = document.getElementById('pillNav');
     if (!header) return;
-    const h = header.getBoundingClientRect().height || header.offsetHeight;
-    document.body.style.paddingTop = h + 'px';
+    const hHeader = header.getBoundingClientRect().height || header.offsetHeight;
+    const hNav = nav ? (nav.getBoundingClientRect().height || nav.offsetHeight) : 0;
+    document.body.style.paddingTop = (hHeader + hNav) + 'px';
   }
   // Esegui subito e poi dopo che il browser ha fatto il layout
   syncHeaderHeight();
@@ -4492,6 +4494,8 @@ window.votaPresenza = async function(stato) {
   });
   // Aggiorna UI bottoni
   aggiornaBottoniPresenza(stato);
+  // Aggiorna subito la lista presenti/assenti
+  await caricaListaPresenze(currentEventId);
 };
 
 function aggiornaBottoniPresenza(stato) {
@@ -4530,34 +4534,37 @@ async function caricaSezionePresenze(eventId) {
     }
   }
 
+  await caricaListaPresenze(eventId);
+}
+
+async function caricaListaPresenze(eventId) {
   // Lista presenze visibile a tutti (nel tab Presenze)
   const riepilogoEl = document.getElementById("calEventRiepilogoText");
-  if (riepilogoEl) {
-    const snap = await getDocs(query(collection(db, "presenze"), where("eventoId", "==", eventId)));
-    const presenti = [], assenti = [];
-    snap.forEach(d => {
-      const p = d.data();
-      if (p.stato === "presente") presenti.push(p.nome || p.username);
-      else assenti.push(p.nome || p.username);
-    });
-    const pHtml = presenti.length
-      ? presenti.map(n => `<div style="color:#22c55e;">✅ ${n}</div>`).join("")
-      : `<div style="color:#ccc;font-style:italic;">Nessuno ancora</div>`;
-    const aHtml = assenti.length
-      ? assenti.map(n => `<div style="color:#ef4444;">❌ ${n}</div>`).join("")
-      : `<div style="color:#ccc;font-style:italic;">Nessuno ancora</div>`;
-    riepilogoEl.innerHTML = `
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div>
-          <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;color:#22c55e;font-weight:700;margin-bottom:4px;">✅ PRESENTI (${presenti.length})</div>
-          ${pHtml}
-        </div>
-        <div>
-          <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;color:#ef4444;font-weight:700;margin-bottom:4px;">❌ ASSENTI (${assenti.length})</div>
-          ${aHtml}
-        </div>
-      </div>`;
-  }
+  if (!riepilogoEl) return;
+  const snap = await getDocs(query(collection(db, "presenze"), where("eventoId", "==", eventId)));
+  const presenti = [], assenti = [];
+  snap.forEach(d => {
+    const p = d.data();
+    if (p.stato === "presente") presenti.push(p.nome || p.username);
+    else assenti.push(p.nome || p.username);
+  });
+  const pHtml = presenti.length
+    ? presenti.map(n => `<div style="color:#22c55e;">✅ ${n}</div>`).join("")
+    : `<div style="color:#ccc;font-style:italic;">Nessuno ancora</div>`;
+  const aHtml = assenti.length
+    ? assenti.map(n => `<div style="color:#ef4444;">❌ ${n}</div>`).join("")
+    : `<div style="color:#ccc;font-style:italic;">Nessuno ancora</div>`;
+  riepilogoEl.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div>
+        <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;color:#22c55e;font-weight:700;margin-bottom:4px;">✅ PRESENTI (${presenti.length})</div>
+        ${pHtml}
+      </div>
+      <div>
+        <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;color:#ef4444;font-weight:700;margin-bottom:4px;">❌ ASSENTI (${assenti.length})</div>
+        ${aHtml}
+      </div>
+    </div>`;
 }
 
 // ── drag-to-scroll per .home-autoscroll-outer ────────────
@@ -4638,8 +4645,8 @@ if ("serviceWorker" in navigator) {
       <!-- Lista presenze (visibile a tutti) -->
       <div>
         <div style="display:flex;gap:12px;margin-bottom:10px;">
-          <div style="font-family:'Oswald',sans-serif;font-size:12px;color:#ffd800;font-weight:700;"></div>
-          <div style="font-family:'Oswald',sans-serif;font-size:12px;color:#ffc800;font-weight:700;">🗒️ LISTA DEI PRESENTI</div>
+          <div style="font-family:'Oswald',sans-serif;font-size:12px;color:#22c55e;font-weight:700;"></div>
+          <div style="font-family:'Oswald',sans-serif;font-size:12px;color:#ef4444;font-weight:700;"></div>
         </div>
         <div id="calEventRiepilogoText" style="font-family:'Barlow',sans-serif;font-size:13px;color:#333;line-height:1.8;"></div>
       </div>

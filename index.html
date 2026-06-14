@@ -747,16 +747,16 @@ button:hover { background: var(--green-dark); }
   position: absolute;
   bottom: -2px;
   right: -2px;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1;
-  background: var(--gold);
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
+  background: transparent;
+  border-radius: 0;
+  width: auto;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
 }
 
 /* page content padding: non più margin 52px, ora header è fixed 56px */
@@ -870,6 +870,252 @@ body > div.page, #homePage, #calendarPage {
 .cal-tab-content {
   padding-top: 14px;
 }
+
+
+/* ── ICONA CHAT HEADER ─────────────────────────────────── */
+#appHeaderChat {
+  position: relative;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.15s;
+  color: rgba(255,255,255,0.85);
+  flex-shrink: 0;
+}
+#appHeaderChat:hover { background: rgba(255,255,255,0.1); }
+#appHeaderChat.active { display: flex; }
+
+/* ── MODAL CHAT ─────────────────────────────────────────── */
+#chatModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 20002;
+  background: rgba(0,0,0,0.55);
+  align-items: flex-end;
+  justify-content: center;
+}
+#chatModal.open { display: flex; }
+#chatModalBox {
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 480px;
+  max-height: 75vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -4px 30px rgba(0,0,0,0.2);
+}
+#chatModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid #eee;
+  flex-shrink: 0;
+}
+#chatModalTitle {
+  font-family: 'Oswald', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--green-dark);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+#chatModalClose {
+  font-size: 22px;
+  cursor: pointer;
+  color: #aaa;
+  line-height: 1;
+}
+#chatMessages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.chat-msg {
+  background: #f3f4f6;
+  border-left: 4px solid var(--green-dark);
+  border-radius: 0 10px 10px 0;
+  padding: 10px 14px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  color: #111;
+  line-height: 1.5;
+}
+.chat-msg-meta {
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #aaa;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.chat-msg.unread {
+  background: #f0fdf4;
+  border-left-color: var(--gold);
+}
+
+/* ── MODAL ADMIN MESSAGGI ───────────────────────────────── */
+#adminChatModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 20002;
+  background: rgba(0,0,0,0.55);
+  align-items: flex-end;
+  justify-content: center;
+}
+#adminChatModal.open { display: flex; }
+#adminChatBox {
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -4px 30px rgba(0,0,0,0.2);
+  color: #111;
+  font-family: 'Barlow', sans-serif;
+}
+/* header fisso */
+#adminChatBox .admin-chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid #eee;
+  flex-shrink: 0;
+}
+/* tab bar */
+#adminChatBox .admin-chat-tabs {
+  display: flex;
+  border-bottom: 2px solid #eee;
+  flex-shrink: 0;
+}
+.admin-chat-tab {
+  flex: 1;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-family: 'Oswald', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #aaa;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -2px;
+}
+.admin-chat-tab.active {
+  color: var(--green-dark);
+  border-bottom-color: var(--green-dark);
+}
+/* contenuto scrollabile */
+#adminChatBox .admin-chat-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+}
+#adminChatBox select,
+#adminChatBox textarea,
+#adminChatBox input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  color: #111;
+  margin-bottom: 10px;
+  display: block;
+}
+/* footer fisso con bottoni */
+#adminChatBox .admin-chat-footer {
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px 20px;
+  border-top: 1px solid #eee;
+  flex-shrink: 0;
+}
+#adminChatBox .admin-chat-footer button {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+/* thread messaggi */
+.admin-thread {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.admin-thread-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #f9fafb;
+  cursor: pointer;
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  color: var(--green-dark);
+  font-weight: 700;
+}
+.admin-thread-msgs {
+  display: none;
+  padding: 10px 14px;
+  flex-direction: column;
+  gap: 8px;
+}
+.admin-thread-msgs.open { display: flex; }
+.admin-thread-msg {
+  background: #f3f4f6;
+  border-left: 3px solid var(--green-dark);
+  border-radius: 0 8px 8px 0;
+  padding: 8px 12px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 13px;
+  color: #111;
+  position: relative;
+}
+.admin-thread-msg-date {
+  font-size: 10px;
+  color: #aaa;
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.admin-thread-msg-del {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  opacity: 0.5;
+}
+.admin-thread-msg-del:hover { opacity: 1; }
 
 /* ── END TAB NAV BAR ────────────────────────────────── */
 
@@ -1448,6 +1694,13 @@ body > div.page, #homePage, #calendarPage {
     </div>
   </div>
   <div id="appHeaderRight">
+    <!-- icona messaggi (visibile a giocatori loggati e admin) -->
+    <div id="appHeaderChat" onclick="openChat()" title="Messaggi" style="position:relative;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background 0.15s;color:rgba(255,255,255,0.85);">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+      </svg>
+      <span id="chatBadge" style="display:none;position:absolute;top:2px;right:2px;width:10px;height:10px;background:#e53935;border-radius:50%;border:2px solid var(--green-dark);"></span>
+    </div>
     <!-- iniziali giocatore loggato -->
     <div id="appHeaderPlayerBadge" onclick="toggleMenu()" title="" style="display:none;"></div>
     <!-- icona utente: apre side menu / login -->
@@ -2092,6 +2345,7 @@ window.showPage = function(id) {
   if (id === "shopPage") loadProducts();
   if (id === "richiestePage") loadRichieste();
   if (id === "candidaturePage") loadCandidature();
+  if (id === "utentiPage") loadUtenti();
   if (id === "calendarPage" && calendar) {
     setTimeout(() => calendar.updateSize(), 100);
   }
@@ -2130,6 +2384,7 @@ window.doLogout = function() {
   document.getElementById("sideAdminBlock").style.display = "none";
   document.getElementById("sideGuestBlock").style.display = "block";
   syncHeaderUserDot();
+  syncChatIcon();
   toggleMenu();
 };
 
@@ -2138,6 +2393,7 @@ window.login = function() {
   if (username.value === "pippo" && password.value === "pippo") {
     isAdmin = true;
     syncHeaderUserDot();
+    syncChatIcon();
     document.getElementById("pdfBtns").style.display = "block";
     document.getElementById("linkBtns").style.display = "block";
     document.getElementById("comunicatiBtns").style.display = "block";
@@ -4058,7 +4314,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // linkTo ha card statiche — init subito
   requestAnimationFrame(() => initDotsSlider('linkToList', 'linkToDots'));
   loadAllBadges();
-  if (isAdmin) loadUtenti();
+  // loadUtenti viene chiamata da showPage quando si apre utentiPage
   await loadStagioni();
   loadEntrate();
   loadSpese();
@@ -4417,6 +4673,8 @@ window.loginPlayer = async function() {
     document.getElementById("sideGuestBlock").style.display = "none";
     document.getElementById("sidePlayerBlock").style.display = "block";
     syncHeaderPlayerBadge();
+    syncChatIcon();
+    checkChatBadge();
     document.getElementById("playerLoginModal").style.display = "none";
     document.getElementById("playerUsername").value = "";
     document.getElementById("playerPassword").value = "";
@@ -4429,6 +4687,8 @@ window.doPlayerLogout = function() {
   document.getElementById("sidePlayerBlock").style.display = "none";
   document.getElementById("sideGuestBlock").style.display = "block";
   syncHeaderPlayerBadge();
+  syncChatIcon();
+  hideChatBadge();
   toggleMenu();
 };
 
@@ -4587,6 +4847,244 @@ document.querySelectorAll('.home-autoscroll-outer').forEach(el => {
   }, { passive: true });
 });
 
+
+// ══════════════════════════════════════════════════════════
+// SISTEMA MESSAGGI (admin → giocatori)
+// Firestore collection: "messaggi"
+//   doc: { destinatario: username, testo, timestamp, letto: false }
+// ══════════════════════════════════════════════════════════
+
+// ── APERTURA CHAT (giocatore o admin) ────────────────────
+window.openChat = function() {
+  if (isAdmin) {
+    openAdminChat();
+  } else if (currentPlayer) {
+    openPlayerChat();
+  } else {
+    // Ospite: mostra chat con messaggio di invito al login
+    const modal = document.getElementById("chatModal");
+    const container = document.getElementById("chatMessages");
+    container.innerHTML = `
+      <div style="text-align:center;padding:40px 20px;">
+        <div style="font-size:40px;margin-bottom:12px;">💬</div>
+        <div style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;color:var(--green-dark);letter-spacing:1px;margin-bottom:8px;">MESSAGGI PRIVATI</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:13px;color:#888;line-height:1.5;">Effettua il login come giocatore<br>per vedere i tuoi messaggi.</div>
+        <div onclick="closeChat();toggleMenu();" style="margin-top:20px;display:inline-block;padding:10px 24px;background:var(--green-dark);color:white;border-radius:8px;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">🔑 Accedi</div>
+      </div>`;
+    modal.classList.add("open");
+  }
+};
+
+// ── GIOCATORE: apri chat e segna messaggi come letti ─────
+async function openPlayerChat() {
+  const modal = document.getElementById("chatModal");
+  const container = document.getElementById("chatMessages");
+  modal.classList.add("open");
+  container.innerHTML = `<div style="text-align:center;color:#ccc;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;padding:20px;">Caricamento...</div>`;
+
+  const snap = await getDocs(query(
+    collection(db, "messaggi"),
+    where("destinatario", "==", currentPlayer.username)
+  ));
+
+  const msgs = [];
+  snap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
+  msgs.sort((a, b) => b.timestamp - a.timestamp);
+
+  if (msgs.length === 0) {
+    container.innerHTML = `<div style="text-align:center;color:#ccc;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;padding:30px 20px;">Nessun messaggio ricevuto</div>`;
+    return;
+  }
+
+  container.innerHTML = "";
+  const toMark = [];
+  msgs.forEach(msg => {
+    const div = document.createElement("div");
+    div.className = "chat-msg" + (msg.letto ? "" : " unread");
+    const date = new Date(msg.timestamp).toLocaleDateString("it-IT", {
+      day: "numeric", month: "long", hour: "2-digit", minute: "2-digit"
+    });
+    div.innerHTML = `
+      <div class="chat-msg-meta">🦫 Marzenego Staff · ${date}</div>
+      ${msg.testo}
+    `;
+    container.appendChild(div);
+    if (!msg.letto) toMark.push(msg.id);
+  });
+
+  // Segna tutti come letti
+  for (const id of toMark) {
+    await updateDoc(doc(db, "messaggi", id), { letto: true });
+  }
+  // Nascondi badge
+  hideChatBadge();
+};
+
+window.closeChat = function() {
+  document.getElementById("chatModal").classList.remove("open");
+};
+
+// ── ADMIN: apri pannello invio ────────────────────────────
+async function openAdminChat() {
+  // Carica lista utenti nel select
+  const sel = document.getElementById("adminChatDest");
+  sel.innerHTML = '<option value="">— Seleziona giocatore —</option>';
+  const snap = await getDocs(collection(db, "utenti"));
+  snap.forEach(d => {
+    const u = d.data();
+    const opt = document.createElement("option");
+    opt.value = u.username;
+    opt.textContent = (u.nome || u.username) + " (@" + u.username + ")";
+    sel.appendChild(opt);
+  });
+  document.getElementById("adminChatText").value = "";
+  switchAdminTab("invia");
+  document.getElementById("adminChatModal").classList.add("open");
+}
+
+window.closeAdminChat = function() {
+  document.getElementById("adminChatModal").classList.remove("open");
+};
+
+// ── Switch tab admin chat ─────────────────────────────────
+window.switchAdminTab = function(tab) {
+  document.getElementById("adminTabInvia").classList.toggle("active", tab === "invia");
+  document.getElementById("adminTabChat").classList.toggle("active", tab === "chat");
+  document.getElementById("adminTabContentInvia").style.display = tab === "invia" ? "block" : "none";
+  document.getElementById("adminTabContentChat").style.display = tab === "chat" ? "block" : "none";
+  // Footer: mostra Invia solo nel tab nuovo
+  const footer = document.getElementById("adminChatFooter");
+  if (footer) {
+    footer.innerHTML = tab === "invia"
+      ? `<button onclick="inviaMessaggio()" style="flex:1;background:var(--green-dark);color:white;">📨 Invia</button>
+         <button onclick="closeAdminChat()" style="flex:0 0 auto;background:#f3f4f6;color:#666;">✕ Chiudi</button>`
+      : `<button onclick="closeAdminChat()" style="flex:1;background:#f3f4f6;color:#666;">✕ Chiudi</button>`;
+  }
+  if (tab === "chat") loadAdminThreads();
+};
+
+// ── Carica thread per utente ──────────────────────────────
+async function loadAdminThreads() {
+  const container = document.getElementById("adminThreadList");
+  container.innerHTML = `<div style="text-align:center;color:#ccc;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;padding:20px;">Caricamento...</div>`;
+
+  // Carica tutti i messaggi
+  const snap = await getDocs(collection(db, "messaggi"));
+  const msgs = [];
+  snap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
+  msgs.sort((a, b) => b.timestamp - a.timestamp);
+
+  if (msgs.length === 0) {
+    container.innerHTML = `<div style="text-align:center;color:#ccc;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;padding:30px;">Nessun messaggio inviato</div>`;
+    return;
+  }
+
+  // Raggruppa per destinatario
+  const threads = {};
+  msgs.forEach(m => {
+    if (!threads[m.destinatario]) threads[m.destinatario] = [];
+    threads[m.destinatario].push(m);
+  });
+
+  container.innerHTML = "";
+  for (const [username, threadMsgs] of Object.entries(threads)) {
+    const threadEl = document.createElement("div");
+    threadEl.className = "admin-thread";
+    const unread = threadMsgs.filter(m => !m.letto).length;
+    const header = document.createElement("div");
+    header.className = "admin-thread-header";
+    header.innerHTML = `
+      <span>⚽ ${username}</span>
+      <span style="display:flex;align-items:center;gap:8px;">
+        ${unread > 0 ? `<span style="background:#e53935;color:white;border-radius:10px;font-size:10px;padding:2px 7px;font-family:'Oswald',sans-serif;">${unread} non letti</span>` : `<span style="color:#22c55e;font-size:11px;">✓ letti</span>`}
+        <span style="font-size:12px;color:#aaa;">▾</span>
+      </span>`;
+    const msgsEl = document.createElement("div");
+    msgsEl.className = "admin-thread-msgs";
+    threadMsgs.forEach(m => {
+      const msgEl = document.createElement("div");
+      msgEl.className = "admin-thread-msg";
+      const date = new Date(m.timestamp).toLocaleDateString("it-IT", {
+        day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"
+      });
+      msgEl.innerHTML = `
+        <div class="admin-thread-msg-date">${date} · ${m.letto ? "✓ letto" : "⏳ non letto"}</div>
+        ${m.testo}
+        <span class="admin-thread-msg-del" onclick="eliminaMessaggio('${m.id}')">🗑</span>`;
+      msgsEl.appendChild(msgEl);
+    });
+    header.onclick = () => msgsEl.classList.toggle("open");
+    threadEl.appendChild(header);
+    threadEl.appendChild(msgsEl);
+    container.appendChild(threadEl);
+  }
+}
+
+// ── Elimina messaggio ─────────────────────────────────────
+window.eliminaMessaggio = async function(id) {
+  if (!confirm("Eliminare questo messaggio?")) return;
+  await deleteDoc(doc(db, "messaggi", id));
+  loadAdminThreads();
+};
+
+window.inviaMessaggio = async function() {
+  const dest = document.getElementById("adminChatDest").value;
+  const testo = document.getElementById("adminChatText").value.trim();
+  if (!dest) { alert("Seleziona un destinatario"); return; }
+  if (!testo) { alert("Scrivi un messaggio"); return; }
+
+  await addDoc(collection(db, "messaggi"), {
+    destinatario: dest,
+    testo,
+    timestamp: Date.now(),
+    letto: false
+  });
+
+  // Aggiorna badge nel Firestore dei badge
+  try {
+    const ref = doc(db, "badges", "chat_" + dest);
+    await setDoc(ref, { lastUpdate: Date.now() });
+  } catch(e) {}
+
+  closeAdminChat();
+  alert("✅ Messaggio inviato a @" + dest + "!");
+};
+
+// ── BADGE CHAT ────────────────────────────────────────────
+function showChatBadge() {
+  document.getElementById("chatBadge").style.display = "block";
+}
+function hideChatBadge() {
+  document.getElementById("chatBadge").style.display = "none";
+  // Salva "visto" in localStorage
+  if (currentPlayer) {
+    localStorage.setItem("chat_seen_" + currentPlayer.username, String(Date.now()));
+  }
+}
+
+async function checkChatBadge() {
+  if (!currentPlayer) return;
+  // Controlla se ci sono messaggi non letti
+  const snap = await getDocs(query(
+    collection(db, "messaggi"),
+    where("destinatario", "==", currentPlayer.username),
+    where("letto", "==", false)
+  ));
+  if (!snap.empty) {
+    showChatBadge();
+  } else {
+    hideChatBadge();
+  }
+}
+
+// ── MOSTRA/NASCONDI ICONA CHAT ────────────────────────────
+function syncChatIcon() {
+  // L'icona è sempre visibile — il click gestisce ospite/giocatore/admin
+  // Qui aggiorniamo solo il badge se giocatore loggato
+  if (currentPlayer) checkChatBadge();
+}
+
+
 // ─── SERVICE WORKER ──────────────────────────────────────
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/MarzenegoWebpage/service-worker.js")
@@ -4682,5 +5180,55 @@ if ("serviceWorker" in navigator) {
     <button onclick="closeModal('playerLoginModal')" style="width:100%;padding:10px;background:transparent;color:#999;border:1px solid #ddd;border-radius:8px;font-family:'Oswald',sans-serif;font-size:13px;cursor:pointer;">Annulla</button>
   </div>
 </div>
+
+<!-- ── MODAL CHAT GIOCATORE ─────────────────────────────── -->
+<div id="chatModal">
+  <div id="chatModalBox">
+    <div id="chatModalHeader">
+      <div id="chatModalTitle">💬 Messaggi</div>
+      <div id="chatModalClose" onclick="closeChat()">✕</div>
+    </div>
+    <div id="chatMessages">
+      <div style="text-align:center;color:#ccc;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;padding:20px;">Nessun messaggio</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL ADMIN: INVIA MESSAGGIO ─────────────────────── -->
+<div id="adminChatModal">
+  <div id="adminChatBox">
+    <!-- Header -->
+    <div class="admin-chat-header">
+      <div style="font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;color:var(--green-dark);letter-spacing:1px;text-transform:uppercase;">💬 Messaggi</div>
+      <div onclick="closeAdminChat()" style="font-size:22px;cursor:pointer;color:#aaa;line-height:1;">✕</div>
+    </div>
+    <!-- Tab bar -->
+    <div class="admin-chat-tabs">
+      <button class="admin-chat-tab active" id="adminTabInvia" onclick="switchAdminTab('invia')">📨 Nuovo</button>
+      <button class="admin-chat-tab" id="adminTabChat" onclick="switchAdminTab('chat')">💬 Chat</button>
+    </div>
+    <!-- Tab: Invia -->
+    <div class="admin-chat-content" id="adminTabContentInvia">
+      <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;color:#888;text-transform:uppercase;margin-bottom:6px;">Destinatario</div>
+      <select id="adminChatDest">
+        <option value="">— Seleziona giocatore —</option>
+      </select>
+      <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;color:#888;text-transform:uppercase;margin-bottom:6px;">Messaggio</div>
+      <textarea id="adminChatText" rows="4" placeholder="Scrivi il tuo messaggio..."></textarea>
+    </div>
+    <!-- Tab: Chat (lista thread) -->
+    <div class="admin-chat-content" id="adminTabContentChat" style="display:none;">
+      <div id="adminThreadList">
+        <div style="text-align:center;color:#ccc;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;padding:30px;">Caricamento...</div>
+      </div>
+    </div>
+    <!-- Footer bottoni (cambia in base al tab) -->
+    <div class="admin-chat-footer" id="adminChatFooter">
+      <button onclick="inviaMessaggio()" style="flex:1;background:var(--green-dark);color:white;">📨 Invia</button>
+      <button onclick="closeAdminChat()" style="flex:0 0 auto;background:#f3f4f6;color:#666;">✕ Chiudi</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

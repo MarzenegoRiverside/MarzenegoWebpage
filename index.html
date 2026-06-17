@@ -2228,6 +2228,7 @@ body > div.page, #homePage, #calendarPage {
     <input type="time" id="ora">
     <input type="text" id="luogo" placeholder="Dove">
     <input type="number" id="costo" placeholder="Costo (€)">
+    <textarea id="noteEvento" rows="2" placeholder="Note aggiuntive (opzionale)" style="resize:vertical;"></textarea>
     <button onclick="addEvent()">INVIA</button>
   </div>
 </div>
@@ -2476,7 +2477,8 @@ window.addEvent = async function() {
 
   const stagione = document.getElementById("stagioneSelect").value;
 
-  const docRef = await addDoc(collection(db, "eventi"), { tipo, data, ora, luogo, costo, stagione });
+  const noteEvento = document.getElementById("noteEvento")?.value.trim() || "";
+  const docRef = await addDoc(collection(db, "eventi"), { tipo, data, ora, luogo, costo, stagione, note: noteEvento });
 
   let color = tipo === "Altro" ? "#f4d03f" : "";
 
@@ -2487,7 +2489,7 @@ window.addEvent = async function() {
     start: data + "T" + ora,
     backgroundColor: color,
     borderColor: color,
-    extendedProps: { tipo, luogo: luogo || "", note: "", costo, stagione }
+    extendedProps: { tipo, luogo: luogo || "", note: noteEvento, costo, stagione }
   });
 
   closeModal("adminModal");
@@ -4393,6 +4395,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById("calEditLuogo").value = luogo;
         document.getElementById("calEditNote").value = note;
         document.getElementById("calEditTipo").value = tipo || "Altro";
+        document.getElementById("calEditCosto").value = ext.costo || "";
         if (start) {
           const pad = n => String(n).padStart(2,"0");
           document.getElementById("calEditData").value =
@@ -4537,12 +4540,13 @@ window.saveCalEvent = async function() {
   const dataVal = document.getElementById("calEditData").value;
   const tipo = document.getElementById("calEditTipo").value;
   const note = document.getElementById("calEditNote").value.trim();
+  const costo = parseFloat(document.getElementById("calEditCosto")?.value) || 0;
   if (!dataVal) { alert("Seleziona una data"); return; }
   const start = new Date(dataVal);
   const data = start.toISOString().split("T")[0];
   const ora = start.toTimeString().slice(0,5);
   try {
-    await updateDoc(doc(db, "eventi", eventId), { tipo, luogo, note, data, ora });
+    await updateDoc(doc(db, "eventi", eventId), { tipo, luogo, note, data, ora, costo });
   } catch(e) {
     alert("Errore salvataggio: " + e.message);
     return;
@@ -4556,6 +4560,7 @@ window.saveCalEvent = async function() {
       calEv.setExtendedProp("tipo", tipo);
       calEv.setExtendedProp("luogo", luogo);
       calEv.setExtendedProp("note", note);
+      calEv.setExtendedProp("costo", costo);
       const isAltro = tipo === "Altro";
       calEv.setProp("backgroundColor", isAltro ? "#f4d03f" : "");
       calEv.setProp("borderColor", isAltro ? "#f4d03f" : "");
@@ -5160,6 +5165,7 @@ if ("serviceWorker" in navigator) {
       </select>
       <input id="calEditLuogo" placeholder="Luogo (es. Campo Gazzera)" style="width:100%;margin-bottom:8px;padding:8px 10px;border:1px solid #ccc;border-radius:8px;font-family:'Barlow',sans-serif;font-size:14px;box-sizing:border-box;color:#111;">
       <textarea id="calEditNote" rows="2" placeholder="Note aggiuntive (opzionale)" style="width:100%;margin-bottom:8px;padding:8px 10px;border:1px solid #ccc;border-radius:8px;font-family:'Barlow',sans-serif;font-size:14px;box-sizing:border-box;color:#111;resize:vertical;"></textarea>
+      <input id="calEditCosto" type="number" placeholder="Costo (€) — non visibile agli utenti" style="width:100%;margin-bottom:8px;padding:8px 10px;border:1px solid #ccc;border-radius:8px;font-family:'Barlow',sans-serif;font-size:14px;box-sizing:border-box;color:#111;">
       <div style="display:flex;gap:8px;margin-top:4px;align-items:stretch;">
         <button id="calEventModalSave" onclick="saveCalEvent()" style="flex:1;background:var(--green-dark);color:white;border:none;border-radius:8px;padding:12px 10px;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;min-width:0;">💾 Salva</button>
         <button id="calEventModalDelete" onclick="deleteCalEvent()" style="flex:0 0 48px;width:48px;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;padding:12px 0;font-size:20px;cursor:pointer;text-align:center;">🗑</button>

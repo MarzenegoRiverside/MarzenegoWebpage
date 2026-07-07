@@ -710,10 +710,13 @@ button:hover { background: var(--green-dark); }
 }
 
 .pill-item.active .pill-label {
-  color: var(--green-dark);
-  background: var(--gold);
-  border-color: var(--gold);
-  box-shadow: 0 4px 14px rgba(244,196,48,0.4);
+  color: var(--gold);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(244,196,48,0.26), transparent 55%),
+    radial-gradient(circle at 0% 100%, rgba(30,122,58,0.3), transparent 60%),
+    linear-gradient(150deg, #1a5c34 0%, #071c0e 100%);
+  border: 1.5px solid var(--gold);
+  box-shadow: 0 0 0 1px rgba(244,196,48,0.12), 0 4px 14px rgba(244,196,48,0.22);
 }
 
 .pill-item:hover .pill-label {

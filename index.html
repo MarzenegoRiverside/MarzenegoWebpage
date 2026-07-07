@@ -4112,6 +4112,26 @@ function inviaNotificaLocale(titolo, corpo) {
   }
 }
 
+// Misura altezza reale header+tab e imposta il padding del body,
+// così il contenuto non si sovrappone mai alla barra fissa in alto.
+function syncHeaderHeight() {
+  const header = document.getElementById('appHeader');
+  const nav = document.getElementById('pillNav');
+  if (!header) return;
+  const hHeader = header.getBoundingClientRect().height || header.offsetHeight;
+  const hNav = nav ? (nav.getBoundingClientRect().height || nav.offsetHeight) : 0;
+  document.body.style.paddingTop = (hHeader + hNav) + 'px';
+}
+// Esegui subito e poi dopo che il browser ha fatto il layout
+syncHeaderHeight();
+requestAnimationFrame(() => { syncHeaderHeight(); });
+window.addEventListener('load', syncHeaderHeight);
+window.addEventListener('resize', syncHeaderHeight);
+// Ricalcola anche dopo che i font sono pronti (cambia altezza testo)
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(syncHeaderHeight);
+}
+
 window.addNovita = async () => {
   if (!isAdmin) return alert("Solo admin");
   const titolo = prompt("Titolo novità (es. Nuova maglia disponibile!):");
@@ -4120,25 +4140,6 @@ window.addNovita = async () => {
   const tag = prompt("Tag categoria (es. 🛒 Shop, 📅 Evento, 📢 Comunicato, ⚽ Squadra):");
   const data = new Date().toISOString().split("T")[0];
   await addDoc(collection(db, "novita"), { titolo, testo: testo || "", tag: tag || "📌 Novità", data });
-
-  // Misura altezza reale header+tab e imposta body padding
-  function syncHeaderHeight() {
-    const header = document.getElementById('appHeader');
-    const nav = document.getElementById('pillNav');
-    if (!header) return;
-    const hHeader = header.getBoundingClientRect().height || header.offsetHeight;
-    const hNav = nav ? (nav.getBoundingClientRect().height || nav.offsetHeight) : 0;
-    document.body.style.paddingTop = (hHeader + hNav) + 'px';
-  }
-  // Esegui subito e poi dopo che il browser ha fatto il layout
-  syncHeaderHeight();
-  requestAnimationFrame(() => { syncHeaderHeight(); });
-  window.addEventListener('load', syncHeaderHeight);
-  window.addEventListener('resize', syncHeaderHeight);
-  // Ricalcola anche dopo che i font sono pronti (cambia altezza testo)
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(syncHeaderHeight);
-  }
 
   loadNovita();
 

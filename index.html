@@ -267,44 +267,121 @@ button:hover { background: var(--green-dark); }
 .deleteX { color: #ff6b6b; cursor: pointer; margin-left: 10px; }
 
 /* ── ORGANIGRAMMA ────────────────────────────────── */
-#organigramma { margin-top: 20px; }
-
-#organigramma .row {
+#organigramma {
+  margin-top: 20px;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+#organigramma .org-connector {
+  width: 2px;
+  height: 22px;
+  background: var(--gold);
+  opacity: 0.7;
+}
+
+#organigramma .org-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 620px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  align-items: start;
+}
+
+/* contenitore "ramo" senza nominativi propri (es. MZ LAB), che raggruppa più box sotto di sé */
+#organigramma .org-group {
+  border: 2px dashed var(--gold);
+  border-radius: 10px;
+  padding: 10px 8px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(244,196,48,0.06);
+}
+
+#organigramma .org-group-label {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--gold);
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 1px solid var(--gold);
+  border-radius: 20px;
+  margin-bottom: 4px;
+}
+
+#organigramma .org-connector.small {
+  height: 14px;
+  margin: 2px 0;
+}
+
+#organigramma .org-subgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+
+#organigramma .box.sub {
+  font-size: 11px;
+  padding: 9px 6px;
+}
+
+#organigramma .box.sub span {
+  font-size: 12px;
 }
 
 .box {
   background: var(--green-dark);
   color: white;
   border: 2px solid var(--gold);
-  padding: 10px 12px;
-  margin: 8px;
+  padding: 12px 10px;
   border-radius: 10px;
-  min-width: 130px;
   cursor: pointer;
   font-family: 'Oswald', sans-serif;
   font-weight: 600;
-  font-size: 13px;
-  letter-spacing: 0.8px;
+  font-size: 12.5px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
-  transition: background 0.15s;
+  text-align: center;
+  transition: background 0.15s, transform 0.15s;
 }
 
-.box:hover { background: var(--green-mid); }
+.box:hover { background: var(--green-mid); transform: translateY(-2px); }
+
+/* box di primo livello (es. Presidente): evidenziato per dare subito l'idea della gerarchia */
+.box.top {
+  background: var(--gold);
+  color: var(--green-dark);
+  border-color: var(--gold);
+  font-size: 14px;
+  padding: 14px 24px;
+  min-width: 190px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  margin-bottom: 0;
+}
+
+.box.top:hover { background: #fff; }
 
 .box span {
   display: block;
   margin-top: 6px;
-  font-size: 16px;
-  font-weight: 600;
-  font-family: 'Dancing Script', cursive;
+  font-size: 13.5px;
+  font-weight: 500;
+  font-family: 'Oswald', sans-serif;
   color: var(--gold);
-  letter-spacing: 0;
+  letter-spacing: 0.2px;
   text-transform: none;
-  line-height: 1.4em;
+  line-height: 1.5em;
 }
+
+.box.top span { color: var(--green-dark); font-weight: 600; }
 
 /* ── CALENDARIO ──────────────────────────────────── */
 #calendar {
@@ -1798,7 +1875,7 @@ body > div.page, #homePage, #calendarPage {
     </div>
   </div>
 
-  <div class="home-divider"></div>
+  
 
   <!-- ══ 2 · NEWS DAL FIUME ══ -->
   <div class="home-section">
@@ -1817,7 +1894,6 @@ body > div.page, #homePage, #calendarPage {
     </div>
   </div>
 
-  <div class="home-divider"></div>
 
   <!-- ══ 3 · ULTIMI RISULTATI ══ -->
   <div class="home-section">
@@ -1836,7 +1912,7 @@ body > div.page, #homePage, #calendarPage {
     </div>
   </div>
 
-  <div class="home-divider"></div>
+
 
   <!-- ══ 4 · ABOUT US ══ -->
   <div class="home-section">
@@ -1996,14 +2072,21 @@ body > div.page, #homePage, #calendarPage {
   <h3>Organigramma</h3>
   <div style="font-family:'Dancing Script',cursive;color:var(--gold);font-size:22px;margin:-6px 0 10px 0;">la struttura del club</div>
   <div id="organigramma">
-    <div class="box" data-ruolo="presidente">PRESIDENTE<br><span></span></div>
-    <div class="row">
+    <div class="box top" data-ruolo="presidente">👑 PRESIDENTE<br><span></span></div>
+    <div class="org-connector"></div>
+    <div class="org-grid">
       <div class="box" data-ruolo="tesoreria">TESORERIA<br><span></span></div>
       <div class="box" data-ruolo="manutenzione">MANUTENZIONE CAMPO<br><span></span></div>
       <div class="box" data-ruolo="dirigenti">DIRIGENTI<br><span></span></div>
-      <div class="box" data-ruolo="social">SOCIAL TEAM<br><span></span></div>
-      <div class="box" data-ruolo="marketing">MARKETING & FASHION<br><span></span></div>
-      <div class="box" data-ruolo="planning">PLANNING SPECIAL EVENTS<br><span></span></div>
+      <div class="org-group">
+        <div class="org-group-label">MZ LAB</div>
+        <div class="org-connector small"></div>
+        <div class="org-subgrid">
+          <div class="box sub" data-ruolo="social">SOCIAL TEAM<br><span></span></div>
+          <div class="box sub" data-ruolo="marketing">MARKETING & FASHION<br><span></span></div>
+          <div class="box sub" data-ruolo="planning">PLANNING SPECIAL EVENTS<br><span></span></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -2152,8 +2235,8 @@ body > div.page, #homePage, #calendarPage {
       <input id="convDateInput" type="date">
       <input id="convTimeInput" type="time">
       <select id="convPlaceSelect">
-        <option value="CASA">SEVEN GAZZERA ARENA</option>
-        <option value="TRASFERTA">✈️✈️✈️</option>
+        <option value="SEVEN GAZZERA ARENA">CASA</option>
+        <option value="✈️✈️✈️">Trasferta</option>
       </select>
       <button onclick="generaGraficaConvocati()">Genera grafica</button>
       <canvas id="convCanvas" width="1080" height="1350" style="width:100%;height:auto;margin-top:14px;border-radius:8px;background:#0f4d23;box-shadow:0 6px 18px rgba(0,0,0,0.28);"></canvas>
@@ -2905,71 +2988,109 @@ function drawVs(ctx, x, y, size = 76) {
   ctx.restore();
 }
 
+// ── URL basi PNG Canva (carica questi file nel tuo repo GitHub) ──────────────
+// Metti i file nella root del repo MarzenegoWebpage con questi nomi:
+//   grafiche/fulltime.png   ← base FULL TIME
+//   grafiche/halftime.png   ← base HALF TIME
+//   grafiche/convocati.png  ← base CONVOCATI
+// Poi aggiorna i percorsi qui sotto se usi nomi diversi.
+const GITHUB_RAW = "https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/";
+const GRAFICA_FULLTIME  = GITHUB_RAW + "grafiche/fulltime.png";   // ← CAMBIA QUI il nome file se diverso
+const GRAFICA_HALFTIME  = GITHUB_RAW + "grafiche/halftime.png";   // ← CAMBIA QUI
+const GRAFICA_CONVOCATI = GITHUB_RAW + "grafiche/convocati.png";  // ← CAMBIA QUI
+
+function loadRemoteImage(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null); // se non trovata, null → sfondo verde codice
+    img.src = url + "?t=" + Date.now(); // cache-bust
+  });
+}
+
 async function renderScoreGraphic() {
   const canvas = document.getElementById("scoreCanvas");
   const ctx = canvas.getContext("2d");
   const w = canvas.width, h = canvas.height;
-  const logoImg = await loadClubLogo();
-  const opponentImg = await loadFileImage(document.getElementById("scoreOpponentLogoInput")?.files?.[0]);
 
-  const grad = ctx.createLinearGradient(0, 0, w, h);
-  grad.addColorStop(0, "#0f4d23");
-  grad.addColorStop(1, "#0a3116");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, w, h);
+  const tipo = (document.getElementById("scoreTypeSelect").value || "FULL TIME").toUpperCase();
+  const baseUrl = tipo === "HALF TIME" ? GRAFICA_HALFTIME : GRAFICA_FULLTIME;
 
-  drawWavyLines(ctx, w, h, {
-    count: 15,
-    spacing: 70,
-    amplitude: 10,
-    waveLength: 180,
-    color: "rgba(170, 235, 170, 0.10)",
-    lineWidth: 3,
-  });
+  // Carica PNG base Canva + loghi
+  const [baseImg, logoImg, opponentImg] = await Promise.all([
+    loadRemoteImage(baseUrl),
+    loadClubLogo(),
+    loadFileImage(document.getElementById("scoreOpponentLogoInput")?.files?.[0])
+  ]);
 
-  ctx.strokeStyle = "rgba(244,196,48,0.3)";
-  ctx.lineWidth = 4;
-  drawRoundedRect(ctx, 60, 60, w - 120, h - 120, 14);
-  ctx.stroke();
-
-  ctx.fillStyle = "rgba(255,255,255,0.96)";
-  ctx.font = "700 56px Oswald, Arial, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText("MARZENEGO RIVERSIDE", w / 2, 160);
-
-  ctx.fillStyle = "rgba(244,196,48,0.95)";
-  ctx.font = "700 30px Oswald, Arial, sans-serif";
-  ctx.fillText((document.getElementById("scoreTypeSelect").value || "FULL TIME").toUpperCase(), w / 2, 230);
-
-  drawLogoImage(ctx, logoImg, 110, 315, 220, 220, 1);
-  drawVs(ctx, w / 2, 420, 82);
-  drawLogoImage(ctx, opponentImg, 750, 315, 220, 220, 1);
-
-  const result = document.getElementById("scoreResultInput").value.trim() || "-";
-  ctx.fillStyle = "#fff";
-  fitFont(ctx, result, 170, 160, "Oswald, Arial, sans-serif", "700");
-  ctx.fillText(result, w / 2, 575);
-
-  const scorers = splitLines(document.getElementById("scoreScorersInput").value);
-  ctx.fillStyle = "rgba(255,255,255,0.9)";
-  ctx.font = "600 40px Barlow, Arial, sans-serif";
-  ctx.fillText("MARCATORI", w / 2, 760);
-
-  ctx.font = "500 30px Barlow, Arial, sans-serif";
-  const startY = 810;
-  if (scorers.length === 0) {
-    ctx.fillStyle = "rgba(255,255,255,0.6)";
-    ctx.fillText("Inserisci i marcatori", w / 2, startY);
+  // Sfondo: PNG Canva se disponibile, altrimenti verde codice
+  if (baseImg) {
+    // Disegna il PNG base mantenendo le proporzioni (cover, centrato)
+    const bw = baseImg.naturalWidth, bh = baseImg.naturalHeight;
+    const scale = Math.max(w / bw, h / bh);
+    const dw = bw * scale, dh = bh * scale;
+    const dx = (w - dw) / 2, dy = (h - dh) / 2;
+    ctx.drawImage(baseImg, dx, dy, dw, dh);
   } else {
-    scorers.slice(0, 6).forEach((line, idx) => {
-      fitFont(ctx, line, 560, 30, "Barlow, Arial, sans-serif", "500");
-      ctx.fillText(line, w / 2, startY + idx * 42);
-    });
+    // Fallback: sfondo verde (nessun PNG trovato su GitHub)
+    const grad = ctx.createLinearGradient(0, 0, w, h);
+    grad.addColorStop(0, "#0f4d23");
+    grad.addColorStop(1, "#0a3116");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+    drawWavyLines(ctx, w, h, { count: 15, spacing: 70, amplitude: 10, waveLength: 180, color: "rgba(170,235,170,0.10)", lineWidth: 3 });
+    // Se fallback, scrivi anche Full/Half Time come prima
+    ctx.fillStyle = "rgba(255,255,255,0.96)";
+    ctx.font = "700 56px Oswald, Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("MARZENEGO RIVERSIDE", w / 2, 160);
+    ctx.fillStyle = "rgba(244,196,48,0.95)";
+    ctx.font = "700 30px Oswald, Arial, sans-serif";
+    ctx.fillText(tipo, w / 2, 230);
   }
 
-  ctx.fillStyle = "rgba(244,196,48,0.95)";
-  ctx.font = "700 28px Oswald, Arial, sans-serif";
-  ctx.fillText("#KeepFordingNutries 🌊🐭", w / 2, h - 100);
+  // ── ELEMENTI SOVRAPPOSTI ───────────────────────────────────────────────────
+  // Logo avversario: in alto a destra del riquadro
+  drawLogoImage(ctx, opponentImg, 820, 455, 190, 190, 1);
+
+  // Punteggio: NOstra rete vicino al logo nostro (sinistra), loro vicino al loro (destra)
+  // Parsing del risultato (es. "2-1" → nostriGol=2, loroGol=1)
+  const resultRaw = document.getElementById("scoreResultInput").value.trim() || "0-0";
+  const parts = resultRaw.split(/[-–]/);
+  const goalN = parts[0]?.trim() || "0";  // gol nostri
+  const goalL = parts[1]?.trim() || "0";  // gol loro
+
+  ctx.shadowColor = "rgba(0,0,0,0.65)";
+  ctx.shadowBlur = 10;
+  ctx.fillStyle = "#ffffff";
+  ctx.textAlign = "center";
+
+  // Gol nostri: vicino al logo Marzenego (a sinistra del VS)
+  ctx.font = "bold 150px Oswald, Arial, sans-serif";
+  ctx.fillText(goalN, 370, 610);   // ← aggiusta X/Y se serve
+
+  // Gol avversario: vicino al logo avversario (a destra del VS)
+  ctx.fillText(goalL, 710, 610);   // ← aggiusta X/Y se serve
+  ctx.shadowBlur = 0;
+
+  // Marcatori: lista, font più grande
+  const scorers = splitLines(document.getElementById("scoreScorersInput").value);
+  ctx.shadowColor = "rgba(0,0,0,0.5)";
+  ctx.shadowBlur = 4;
+  const startY = 880;
+  if (scorers.length === 0) {
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.font = "400 28px Barlow, Arial, sans-serif";
+    ctx.fillText("inserisci qui i marcatori", w / 2, startY);
+  } else {
+    ctx.fillStyle = "rgba(255,255,255,0.92)";
+    scorers.slice(0, 6).forEach((line, idx) => {
+      fitFont(ctx, line, 700, 40, "Barlow, Arial, sans-serif", "600");
+      ctx.fillText(line, w / 2, startY + idx * 50);
+    });
+  }
+  ctx.shadowBlur = 0;
 
   createDownloadLink(canvas, "scoreDownloadLink", "marzenego-score.png");
 }
@@ -2978,71 +3099,83 @@ async function renderConvocatiGraphic() {
   const canvas = document.getElementById("convCanvas");
   const ctx = canvas.getContext("2d");
   const w = canvas.width, h = canvas.height;
-  const logoImg = await loadClubLogo();
-  const opponentImg = await loadFileImage(document.getElementById("convOpponentLogoInput")?.files?.[0]);
 
-  const grad = ctx.createLinearGradient(0, 0, w, h);
-  grad.addColorStop(0, "#0f4d23");
-  grad.addColorStop(1, "#092d14");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, w, h);
+  const [baseImg, logoImg, opponentImg] = await Promise.all([
+    loadRemoteImage(GRAFICA_CONVOCATI),
+    loadClubLogo(),
+    loadFileImage(document.getElementById("convOpponentLogoInput")?.files?.[0])
+  ]);
 
-  drawWavyLines(ctx, w, h, {
-    count: 15,
-    spacing: 70,
-    amplitude: 10,
-    waveLength: 180,
-    color: "rgba(170, 235, 170, 0.10)",
-    lineWidth: 3,
-  });
-
-  ctx.strokeStyle = "rgba(244,196,48,0.3)";
-  ctx.lineWidth = 4;
-  drawRoundedRect(ctx, 50, 50, w - 100, h - 100, 12);
-  ctx.stroke();
-
-  ctx.fillStyle = "#fff";
-  ctx.font = "700 54px Oswald, Arial, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText("MATCH DAY", w / 2, 150);
-
-  const date = formatDateReadable(document.getElementById("convDateInput").value);
-  const time = document.getElementById("convTimeInput").value || "--:--";
-  const place = document.getElementById("convPlaceSelect").value;
-  ctx.fillStyle = "rgba(244,196,48,0.95)";
-  ctx.font = "600 34px Oswald, Arial, sans-serif";
-  ctx.fillText(`${date}  ${time}  ${place}`, w / 2, 210);
-
-  ctx.textAlign = "left";
-  ctx.fillStyle = "#fff";
-  ctx.font = "700 44px Oswald, Arial, sans-serif";
-  ctx.fillText("LISTA CONVOCATI", 90, 315);
-  ctx.fillStyle = "rgba(255,255,255,0.65)";
-  ctx.font = "500 28px Barlow, Arial, sans-serif";
-  ctx.fillText("Un fiume una passione", 90, 355);
-
-  drawLogoImage(ctx, logoImg, 60, 430, 520, 520, 0.18);
-  drawLogoImage(ctx, opponentImg, 760, 370, 170, 170, 1);
-  drawVs(ctx, 600, 455, 82);
-
-  const players = splitLines(document.getElementById("convPlayersInput").value);
-  ctx.font = "500 30px Barlow, Arial, sans-serif";
-  ctx.fillStyle = "rgba(255,255,255,0.94)";
-  const startY = 410;
-  if (players.length === 0) {
-    ctx.fillStyle = "rgba(255,255,255,0.6)";
-    ctx.fillText(" ", 90, startY);
+  // Sfondo: PNG Canva o fallback verde
+  if (baseImg) {
+    // Disegna il PNG base mantenendo le proporzioni (cover, centrato)
+    const bw = baseImg.naturalWidth, bh = baseImg.naturalHeight;
+    const scale = Math.max(w / bw, h / bh);
+    const dw = bw * scale, dh = bh * scale;
+    const dx = (w - dw) / 2, dy = (h - dh) / 2;
+    ctx.drawImage(baseImg, dx, dy, dw, dh);
   } else {
-    players.slice(0, 14).forEach((line, idx) => {
-      fitFont(ctx, line, 470, 30, "Barlow, Arial, sans-serif", "500");
-      ctx.fillText(line, 90, startY + idx * 40);
-    });
+    const grad = ctx.createLinearGradient(0, 0, w, h);
+    grad.addColorStop(0, "#0f4d23");
+    grad.addColorStop(1, "#092d14");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+    drawWavyLines(ctx, w, h, { count: 15, spacing: 70, amplitude: 10, waveLength: 180, color: "rgba(170,235,170,0.10)", lineWidth: 3 });
+    ctx.fillStyle = "#fff";
+    ctx.font = "700 54px Oswald, Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("MATCH DAY", w / 2, 150);
   }
 
-  ctx.fillStyle = "rgba(244,196,48,0.95)";
-  ctx.font = "700 28px Oswald, Arial, sans-serif";
+  // ── DATI VARIABILI sovrapposti al PNG ────────────────────
+  const convDateRaw = document.getElementById("convDateInput").value; // "2026-07-02"
+  const dateParts = convDateRaw ? convDateRaw.split("-") : [];
+  const dateShort = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}` : "??/??"; // "02/07"
+  const time = document.getElementById("convTimeInput").value || "--:--";
+  const place = document.getElementById("convPlaceSelect").value;
+
+  ctx.shadowColor = "rgba(0,0,0,0.55)";
+  ctx.shadowBlur = 6;
+
+  // Data a sinistra di MATCH DAY, ora a destra — sulla stessa riga
+  // La scritta MATCH DAY nel PNG è circa a Y=130 (canvas 1080px)
+  // Usiamo textAlign left/right per affiancarla
+  ctx.font = "700 38px Oswald, Arial, sans-serif";
+  ctx.fillStyle = "rgba(255,255,255,0.95)";
+  ctx.textAlign = "left";
+  ctx.fillText(dateShort, 70, 90);      // ← data a sinistra di MATCH DAY
+
+  ctx.textAlign = "right";
+  ctx.fillText(time, w - 70, 90);       // ← ora a destra di MATCH DAY
+
+  // Luogo: riga sotto, centrato, piccolo, oro
+  ctx.fillStyle = "rgba(21, 52, 34, 1)";
+  ctx.font = "600 45px Oswald, Arial, sans-serif";
   ctx.textAlign = "center";
-  ctx.fillText("#KeepFordingNutries 🌊🐭", w / 2, h - 100);
+  ctx.fillText(place, w / 2, 100);       // ← luogo sotto MATCH DAY
+  ctx.shadowBlur = 0;
+
+  // Logo avversario: in alto a destra del riquadro, NON sovrapposto al VS
+  // Il riquadro nel template è circa X:70-1010, Y:380-870
+  // Il VS è al centro (X≈540). Logo avversario va a destra del VS.
+  drawLogoImage(ctx, opponentImg, 820, 460, 185, 185, 1); // ← aggiusta se serve
+
+  // Lista giocatori: a destra del logo Marzenego
+  // Logo nostro occupa circa X:70-370, quindi i nomi partono da X≈420
+  const players = splitLines(document.getElementById("convPlayersInput").value);
+  ctx.shadowColor = "rgba(0,0,0,0.5)";
+  ctx.shadowBlur = 3;
+  ctx.font = "600 45px Oswald, Arial, sans-serif"; // font più grande
+  ctx.fillStyle = "rgba(21, 52, 34, 1)";
+  ctx.textAlign = "left";
+  const startY = 470;  // Y di partenza (allinea all'interno del riquadro)
+  const colX = 120;    // X di partenza (a destra del logo)
+  if (players.length > 0) {
+    players.slice(0, 10).forEach((line, idx) => {
+      ctx.fillText(line, colX, startY + idx * 46);
+    });
+  }
+  ctx.shadowBlur = 0;
 
   createDownloadLink(canvas, "convDownloadLink", "marzenego-convocati.png");
 }

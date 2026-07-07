@@ -689,43 +689,37 @@ button:hover { background: var(--green-dark); }
 .pill-label {
   font-family: 'Oswald', sans-serif;
   font-weight: 700;
-  font-size: 16px;
-  letter-spacing: 2px;
+  font-size: 15px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.55);
-  background: var(--green-mid);
-  padding: 6px 18px;
-  border-radius: 4px;
-  border-left: 4px solid var(--green-dark);
+  color: rgba(255,255,255,0.75);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(244,196,48,0.14), transparent 55%),
+    radial-gradient(circle at 0% 100%, rgba(30,122,58,0.28), transparent 60%),
+    linear-gradient(150deg, #12492a 0%, #071c0e 100%);
+  padding: 9px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(244,196,48,0.22);
   white-space: nowrap;
-  transition: color 0.15s, background 0.15s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .pill-item.active .pill-label {
-  color: white;
-  background: var(--green-mid);
-  border-left-color: var(--gold);
+  color: var(--green-dark);
+  background: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 4px 14px rgba(244,196,48,0.4);
 }
 
 .pill-item:hover .pill-label {
-  color: rgba(255,255,255,0.85);
+  color: white;
+  border-color: rgba(244,196,48,0.5);
+  transform: translateY(-2px);
 }
 
-/* lineetta gialla sotto la voce attiva — fuori dal flusso */
-.pill-underline {
-  position: absolute;
-  bottom: 0;
-  left: 4px; /* allineata dopo il border-left */
-  width: 0;
-  height: 3px;
-  background: var(--gold);
-  border-radius: 0 0 2px 2px;
-  transition: width 0.2s;
-}
-
-.pill-item.active .pill-underline {
-  width: calc(100% - 4px);
-}
+/* lineetta gialla non più necessaria: lo stato attivo è ora il riempimento oro pieno */
+.pill-underline { display: none; }
 
 
 /* ══ APP HEADER (stile WhatsApp) ══════════════════════════ */
@@ -756,8 +750,11 @@ button:hover { background: var(--green-dark); }
   justify-content: space-between;
   padding: 8px 14px;
   min-height: 52px;
-  background: var(--green-dark);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(244,196,48,0.16), transparent 55%),
+    linear-gradient(150deg, #12492a 0%, #071c0e 100%);
+  border-bottom: 1px solid rgba(244,196,48,0.22);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
   position: relative;
   z-index: 2;
 }
@@ -1326,18 +1323,38 @@ body > div.page, #homePage, #calendarPage {
 .hcard-bacheca {
   flex-shrink: 0;
   width: 220px;
-  background: var(--green-dark);
-  border: 1px solid rgba(244,196,48,0.35);
-  border-left: 4px solid var(--gold);
-  border-radius: 12px;
-  padding: 18px 16px 14px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(244,196,48,0.16), transparent 55%),
+    radial-gradient(circle at 0% 100%, rgba(30,122,58,0.28), transparent 60%),
+    linear-gradient(150deg, #12492a 0%, #071c0e 100%);
+  border: 1px solid rgba(244,196,48,0.22);
+  border-radius: 16px;
+  padding: 20px 16px 14px;
   position: relative;
-  transition: transform 0.2s, border-color 0.2s, background 0.2s;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
   text-align: left;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
 }
-.hcard-bacheca:hover { transform: translateY(-3px); background: var(--green-mid); }
-.hcard-bacheca-pin { position: absolute; top: -14px; left: 16px; font-size: 20px; z-index: 2; }
+.hcard-bacheca:hover {
+  transform: translateY(-4px);
+  filter: brightness(1.08);
+  box-shadow: 0 12px 28px rgba(244,196,48,0.15), 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.hcard-bacheca-pin {
+  position: absolute;
+  top: -14px;
+  left: 16px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(150deg, var(--gold), #d9a51c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: 0 4px 10px rgba(244,196,48,0.4);
+  z-index: 2;
+}
 .hcard-bacheca-text {
   font-family: 'Barlow', sans-serif;
   font-size: 13px;
@@ -1357,17 +1374,23 @@ body > div.page, #homePage, #calendarPage {
 .hcard-news {
   flex-shrink: 0;
   width: 270px;
-  background: var(--green-dark);
-  border: 1px solid rgba(244,196,48,0.35);
-  border-left: 4px solid var(--gold);
-  border-radius: 12px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(244,196,48,0.14), transparent 55%),
+    radial-gradient(circle at 0% 100%, rgba(30,122,58,0.28), transparent 60%),
+    linear-gradient(150deg, #12492a 0%, #071c0e 100%);
+  border: 1px solid rgba(244,196,48,0.22);
+  border-radius: 16px;
   overflow: hidden;
   text-align: left;
-  transition: transform 0.2s, background 0.2s;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
 }
-.hcard-news:hover { transform: translateY(-3px); background: var(--green-mid); }
+.hcard-news:hover {
+  transform: translateY(-4px);
+  filter: brightness(1.08);
+  box-shadow: 0 12px 28px rgba(244,196,48,0.15), 0 8px 24px rgba(0,0,0,0.4);
+}
 .hcard-news-accent { height: 3px; background: linear-gradient(to right, var(--green-light), var(--gold)); }
 .hcard-news-body { padding: 14px 16px 12px; }
 .hcard-news-tag {
@@ -1396,29 +1419,61 @@ body > div.page, #homePage, #calendarPage {
   transition: max-height 0.35s ease;
 }
 .hcard-news.expanded .hcard-news-excerpt { max-height: 600px; }
-.hcard-news-readmore {
+.hcard-news-readmore,
+.hcard-bacheca-hint {
+  display: block;
+  text-align: center;
   font-family: 'Oswald', sans-serif;
-  font-size: 10px;
-  letter-spacing: 1.5px;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--gold);
-  margin-top: 8px;
+  color: var(--green-dark);
+  background: var(--gold);
+  padding: 9px 14px;
+  border-radius: 10px;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(244,196,48,0.35);
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+.hcard-news:hover .hcard-news-readmore,
+.hcard-bacheca:hover .hcard-bacheca-hint {
+  background: #fff;
+  transform: translateY(-1px);
+}
+/* badge "NUOVO" in stile pillola, ispirato al badge "New" */
+.hcard-badge-new {
+  background: var(--gold);
+  color: var(--green-dark);
+  font-family: 'Oswald', sans-serif;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 3px 11px;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(244,196,48,0.3);
 }
 /* RISULTATI */
 .hcard-risultato {
   flex-shrink: 0;
   width: 185px;
-  background: var(--green-dark);
-  border: 1px solid rgba(244,196,48,0.35);
-  border-left: 4px solid var(--gold);
-  border-radius: 12px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(244,196,48,0.14), transparent 55%),
+    radial-gradient(circle at 0% 100%, rgba(30,122,58,0.28), transparent 60%),
+    linear-gradient(150deg, #12492a 0%, #071c0e 100%);
+  border: 1px solid rgba(244,196,48,0.22);
+  border-radius: 16px;
   padding: 16px 14px 12px;
   text-align: center;
   position: relative;
-  transition: transform 0.2s, background 0.2s;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
 }
-.hcard-risultato:hover { transform: translateY(-3px); background: var(--green-mid); }
+.hcard-risultato:hover {
+  transform: translateY(-4px);
+  filter: brightness(1.08);
+  box-shadow: 0 12px 28px rgba(244,196,48,0.15), 0 8px 24px rgba(0,0,0,0.4);
+}
 .hcard-risultato-vs {
   font-family: 'Oswald', sans-serif;
   font-size: 9px;
@@ -1471,18 +1526,24 @@ body > div.page, #homePage, #calendarPage {
 .hcard-about {
   flex-shrink: 0;
   width: 185px;
-  background: var(--green-dark);
-  border: 1px solid rgba(244,196,48,0.35);
-  border-left: 4px solid var(--gold);
-  border-radius: 12px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(244,196,48,0.14), transparent 55%),
+    radial-gradient(circle at 0% 100%, rgba(30,122,58,0.28), transparent 60%),
+    linear-gradient(150deg, #12492a 0%, #071c0e 100%);
+  border: 1px solid rgba(244,196,48,0.22);
+  border-radius: 16px;
   padding: 20px 16px 16px;
   text-align: left;
   text-decoration: none;
   display: block;
-  transition: transform 0.2s, background 0.2s;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
 }
-.hcard-about:hover { transform: translateY(-3px); background: var(--green-mid); }
+.hcard-about:hover {
+  transform: translateY(-4px);
+  filter: brightness(1.08);
+  box-shadow: 0 12px 28px rgba(244,196,48,0.15), 0 8px 24px rgba(0,0,0,0.4);
+}
 .hcard-about-icon { font-size: 26px; margin-bottom: 10px; display: block; }
 .hcard-about-label {
   font-family: 'Oswald', sans-serif;
@@ -1500,7 +1561,28 @@ body > div.page, #homePage, #calendarPage {
   color: rgba(255,255,255,0.65);
   line-height: 1.4;
 }
-.hcard-about-arrow { font-size: 16px; color: var(--gold); margin-top: 12px; display: block; }
+.hcard-about-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  background: var(--gold);
+  color: var(--green-dark);
+  font-family: 'Oswald', sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 7px 13px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(244,196,48,0.35);
+  transition: background 0.2s ease, transform 0.15s ease;
+  white-space: nowrap;
+}
+.hcard-about:hover .hcard-about-arrow {
+  background: #fff;
+  transform: translateY(-1px);
+}
 /* empty placeholder */
 .hcard-empty {
   flex-shrink: 0;
@@ -1927,37 +2009,37 @@ body > div.page, #homePage, #calendarPage {
         <span class="hcard-about-icon">📸</span>
         <div class="hcard-about-label">Seguici su Instagram</div>
         <div class="hcard-about-sub">Le foto e le storie del club</div>
-        <span class="hcard-about-arrow">↗</span>
+        <span class="hcard-about-arrow">Apri ↗</span>
       </a>
       <a class="hcard-about" href="https://chat.whatsapp.com/BMPFyLqQS4kBQSHLi0UUju" target="_blank">
         <span class="hcard-about-icon">💬</span>
         <div class="hcard-about-label">Gruppo WhatsApp</div>
         <div class="hcard-about-sub">Entra nella chat ufficiale</div>
-        <span class="hcard-about-arrow">↗</span>
+        <span class="hcard-about-arrow">Apri ↗</span>
       </a>
       <div class="hcard-about" onclick="showPage('shopPage')" style="cursor:pointer;">
         <span class="hcard-about-icon">🛍</span>
         <div class="hcard-about-label">MarzeNegozio</div>
         <div class="hcard-about-sub">Abbigliamento e gadget</div>
-        <span class="hcard-about-arrow">→</span>
+        <span class="hcard-about-arrow">Visita →</span>
       </div>
       <div class="hcard-about" onclick="showPage('eventiPage')" style="cursor:pointer;">
         <span class="hcard-about-icon">📅</span>
         <div class="hcard-about-label">Prossimi Eventi</div>
         <div class="hcard-about-sub">Gare, feste e appuntamenti</div>
-        <span class="hcard-about-arrow">→</span>
+        <span class="hcard-about-arrow">Visita →</span>
       </div>
       <a class="hcard-about" href="https://classifica.legaamatoricalciotreviso.it/" target="_blank">
         <span class="hcard-about-icon">🏆</span>
         <div class="hcard-about-label">Sito del Campionato</div>
         <div class="hcard-about-sub">Classifiche ufficiali</div>
-        <span class="hcard-about-arrow">↗</span>
+        <span class="hcard-about-arrow">Apri ↗</span>
       </a>
       <div class="hcard-about" onclick="showPage('chiSiamoPage')" style="cursor:pointer;">
         <span class="hcard-about-icon">🦫</span>
         <div class="hcard-about-label">Chi siamo</div>
         <div class="hcard-about-sub">Conosci di più sulla nostra storia</div>
-        <span class="hcard-about-arrow">→</span>
+        <span class="hcard-about-arrow">Visita →</span>
       </div>
       </div><!-- fine dots-slider -->
       <div class="dots-nav" id="linkToDots"></div>
@@ -4097,7 +4179,7 @@ async function loadNovita() {
     card.innerHTML = `
       <div class="hcard-bacheca-pin">${isNew ? "📌" : "📎"}</div>
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
-        ${isNew ? `<span style="background:var(--gold);color:#0b3d1b;font-family:'Oswald',sans-serif;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;">NUOVO</span>` : ""}
+        ${isNew ? `<span class="hcard-badge-new">NUOVO</span>` : ""}
         <span style="font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(244,196,48,0.7);padding:2px 8px;border:1px solid rgba(244,196,48,0.3);border-radius:20px;">${d.tag}</span>
       </div>
       <div class="hcard-bacheca-text">${d.titolo}</div>
@@ -4105,7 +4187,7 @@ async function loadNovita() {
         <div class="hcard-bacheca-expand" style="max-height:0;overflow:hidden;transition:max-height 0.35s ease;">
           <div style="font-family:'Barlow',sans-serif;font-size:12px;color:rgba(255,255,255,0.55);line-height:1.5;margin-top:8px;white-space:pre-wrap;">${d.testo}</div>
         </div>
-        <div class="hcard-bacheca-hint" style="font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:1.5px;color:rgba(244,196,48,0.5);margin-top:8px;text-transform:uppercase;">Leggi tutto →</div>
+        <div class="hcard-bacheca-hint">Leggi tutto →</div>
       ` : ""}
       <div class="hcard-bacheca-date">${d.data}</div>
     `;

@@ -433,18 +433,27 @@ button:hover { background: var(--green-dark); }
   padding: 24px 20px 20px;
   width: 100%;
   max-width: 400px;
+  max-height: 85vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   box-shadow: 0 8px 40px rgba(0,0,0,0.35);
   position: relative;
   color: #111;
   font-family: 'Barlow', sans-serif;
 }
 #calEventModalClose {
-  position: absolute;
-  top: 12px; right: 14px;
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: flex-end;
+  margin: -24px -20px 0;
+  padding: 12px 14px 4px;
   font-size: 22px;
   cursor: pointer;
   color: #666;
   line-height: 1;
+  background: #fff;
+  z-index: 1;
 }
 #calEventModalTitle {
   font-family: 'Oswald', sans-serif;

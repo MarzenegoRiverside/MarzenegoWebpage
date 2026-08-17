@@ -502,6 +502,21 @@ button:hover { background: var(--green-dark); }
   box-sizing: border-box;
   color: #111;
 }
+.presenze-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.presenze-top-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (max-width: 600px) {
+  .presenze-top-grid {
+    grid-template-columns: 1fr;
+  }
+}
 #calEventModalSave {
   background: var(--green-dark);
   color: white;
@@ -2371,6 +2386,9 @@ body > div.page, #homePage, #calendarPage {
     <h3>Login Admin</h3>
     <input id="username" class="loginInput" placeholder="Username">
     <input id="password" class="loginInput" type="password">
+    <label style="display:flex;align-items:center;gap:8px;font-family:'Barlow',sans-serif;font-size:14px;color:#333;margin:8px 0;cursor:pointer;">
+      <input type="checkbox" id="adminRestaCollegato" style="width:16px;height:16px;cursor:pointer;"> Resta collegato
+    </label>
     <button onclick="login()">Accedi</button>
   </div>
 </div>
@@ -2460,6 +2478,60 @@ let calendar;
 let isAdmin = false;
 let currentPlayer = null; // { username, nome } quando loggato come giocatore
 let calendarDeleteMode = false;
+
+// ══════════════════════════════════════════════════════════
+// SESSIONE / "RESTA COLLEGATO"
+// Non salviamo mai la password: solo i dati minimi per
+// ricostruire currentPlayer / isAdmin al successivo avvio.
+// localStorage  → sessione persistente ("Resta collegato" attivo)
+// sessionStorage→ sessione valida solo per la scheda/sessione corrente
+// ══════════════════════════════════════════════════════════
+const SESSION_KEY = "mzr_session";
+
+function saveSession(data, persist) {
+  try {
+    // Rimuovi eventuale sessione precedente (garantisce un solo utente autenticato)
+    localStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem(SESSION_KEY);
+    const json = JSON.stringify(data);
+    if (persist) {
+      localStorage.setItem(SESSION_KEY, json);
+    } else {
+      sessionStorage.setItem(SESSION_KEY, json);
+    }
+  } catch (e) {
+    console.warn("Impossibile salvare la sessione:", e);
+  }
+}
+
+function clearSession() {
+  try {
+    localStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem(SESSION_KEY);
+  } catch (e) {}
+}
+
+function readStoredSession() {
+  try {
+    const fromLocal = localStorage.getItem(SESSION_KEY);
+    if (fromLocal) return JSON.parse(fromLocal);
+    const fromSession = sessionStorage.getItem(SESSION_KEY);
+    if (fromSession) return JSON.parse(fromSession);
+  } catch (e) {}
+  return null;
+}
+
+// Ripristina la sessione salvata (se presente) all'avvio della webapp.
+// Non richiede alcuna azione da parte dell'utente.
+function restoreSession() {
+  const session = readStoredSession();
+  if (!session) return;
+  if (session.type === "admin") {
+    applyAdminLoggedInUI();
+  } else if (session.type === "player" && session.username) {
+    applyPlayerLoggedInUI(session);
+  }
+}
 let quoteSortKey = null;   // 'nome' | 'importo' | 'pagata'
 let quoteSortDir = 1;       // 1 = asc, -1 = desc
 
@@ -2539,6 +2611,7 @@ window.closeModal = id => document.getElementById(id).style.display = "none";
 
 window.doLogout = function() {
   isAdmin = false;
+  clearSession();
   // nascondi elementi admin
   document.getElementById("adminBanner").style.display = "none";
   ["pdfBtns","linkBtns","comunicatiBtns","novitaBtns","newsBtns","risultatiBtns","adminDocsSection","adminDocsBtns",
@@ -2560,44 +2633,52 @@ window.doLogout = function() {
 };
 
 // ─── LOGIN ───────────────────────────────────────────────
+// Applica la UI da amministratore loggato (usata sia dal login vero e proprio
+// sia dal ripristino automatico della sessione "Resta collegato")
+function applyAdminLoggedInUI() {
+  isAdmin = true;
+  syncHeaderUserDot();
+  syncChatIcon();
+  document.getElementById("pdfBtns").style.display = "block";
+  document.getElementById("linkBtns").style.display = "block";
+  document.getElementById("comunicatiBtns").style.display = "block";
+  document.getElementById("novitaBtns").style.display = "flex";
+  document.getElementById("newsBtns").style.display = "flex";
+  document.getElementById("risultatiBtns").style.display = "flex";
+  document.getElementById("adminDocsSection").style.display = "block";
+  document.getElementById("adminDocsBtns").style.display = "block";
+  document.getElementById("calendarBtns").style.display = "block";
+  document.getElementById("eventiBtns").style.display = "block";
+  document.getElementById("jobBtns").style.display = "block";
+  document.getElementById("shopBtns").style.display = "block";
+  document.getElementById("entrateBtns").style.display = "block";
+  document.getElementById("speseBtns").style.display = "block";
+  document.getElementById("stagioneBtns").style.display = "block";
+  document.getElementById("contabileLock").style.display = "none";
+  document.getElementById("contabileContent").style.display = "block";
+  document.getElementById("quoteInlineBtns").style.display = "block";
+  document.getElementById("contabileMenuBtn").style.display = "block";
+  document.getElementById("candidatureMenuBtn").style.display = "block";
+  document.getElementById("exportMenuBtn").style.display = "block";
+  document.getElementById("graficheMenuBtn").style.display = "block";
+  document.getElementById("contabilePillBtn").style.display = "inline-flex";
+  document.getElementById("candidaturePillBtn").style.display = "inline-flex";
+  document.getElementById("exportPillBtn").style.display = "inline-flex";
+  document.getElementById("grafichePillBtn").style.display = "inline-flex";
+  document.getElementById("utentiPillBtn").style.display = "inline-flex";
+  document.getElementById("utentiBtns").style.display = "flex";
+  // side menu: mostra blocco admin
+  document.getElementById("sideGuestBlock").style.display = "none";
+  document.getElementById("sideAdminBlock").style.display = "block";
+  syncHeaderUserDot();
+  loadAdminDocs();
+}
+
 window.login = function() {
   if (username.value === "pippo" && password.value === "pippo") {
-    isAdmin = true;
-    syncHeaderUserDot();
-    syncChatIcon();
-    document.getElementById("pdfBtns").style.display = "block";
-    document.getElementById("linkBtns").style.display = "block";
-    document.getElementById("comunicatiBtns").style.display = "block";
-    document.getElementById("novitaBtns").style.display = "flex";
-    document.getElementById("newsBtns").style.display = "flex";
-    document.getElementById("risultatiBtns").style.display = "flex";
-    document.getElementById("adminDocsSection").style.display = "block";
-    document.getElementById("adminDocsBtns").style.display = "block";
-    document.getElementById("calendarBtns").style.display = "block";
-    document.getElementById("eventiBtns").style.display = "block";
-    document.getElementById("jobBtns").style.display = "block";
-    document.getElementById("shopBtns").style.display = "block";
-    document.getElementById("entrateBtns").style.display = "block";
-    document.getElementById("speseBtns").style.display = "block";
-    document.getElementById("stagioneBtns").style.display = "block";
-    document.getElementById("contabileLock").style.display = "none";
-    document.getElementById("contabileContent").style.display = "block";
-    document.getElementById("quoteInlineBtns").style.display = "block";
-    document.getElementById("contabileMenuBtn").style.display = "block";
-    document.getElementById("candidatureMenuBtn").style.display = "block";
-    document.getElementById("exportMenuBtn").style.display = "block";
-    document.getElementById("graficheMenuBtn").style.display = "block";
-    document.getElementById("contabilePillBtn").style.display = "inline-flex";
-    document.getElementById("candidaturePillBtn").style.display = "inline-flex";
-    document.getElementById("exportPillBtn").style.display = "inline-flex";
-    document.getElementById("grafichePillBtn").style.display = "inline-flex";
-    document.getElementById("utentiPillBtn").style.display = "inline-flex";
-    document.getElementById("utentiBtns").style.display = "flex";
-    // side menu: mostra blocco admin
-    document.getElementById("sideGuestBlock").style.display = "none";
-    document.getElementById("sideAdminBlock").style.display = "block";
-    syncHeaderUserDot();
-    loadAdminDocs();
+    const restaCollegato = document.getElementById("adminRestaCollegato")?.checked;
+    applyAdminLoggedInUI();
+    saveSession({ type: "admin" }, restaCollegato);
     closeModal("loginModal");
   } else {
     alert("Credenziali errate");
@@ -4532,6 +4613,8 @@ window.addEventListener("appinstalled", () => {
 
 // ─── INIT ────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
+  // Ripristina sessione ("Resta collegato") se presente, prima di ogni altra cosa
+  restoreSession();
   // ── center default active pill (Home) ─────────────
   setTimeout(() => {
     const activePill = document.querySelector("#pillNav .pill-item.active");
@@ -4899,6 +4982,18 @@ window.openPlayerLogin = function() {
   document.getElementById("playerLoginModal").style.display = "flex";
 };
 
+// Applica la UI da giocatore loggato (usata sia dal login vero e proprio
+// sia dal ripristino automatico della sessione "Resta collegato")
+function applyPlayerLoggedInUI(data) {
+  currentPlayer = { username: data.username, nome: data.nome };
+  document.getElementById("sidePlayerName").textContent = data.nome || data.username;
+  document.getElementById("sideGuestBlock").style.display = "none";
+  document.getElementById("sidePlayerBlock").style.display = "block";
+  syncHeaderPlayerBadge();
+  syncChatIcon();
+  checkChatBadge();
+}
+
 window.loginPlayer = async function() {
   const username = document.getElementById("playerUsername").value.trim();
   const password = document.getElementById("playerPassword").value.trim();
@@ -4911,13 +5006,9 @@ window.loginPlayer = async function() {
     ));
     if (snap.empty) { alert("Credenziali errate"); return; }
     const data = snap.docs[0].data();
-    currentPlayer = { username: data.username, nome: data.nome };
-    document.getElementById("sidePlayerName").textContent = data.nome || data.username;
-    document.getElementById("sideGuestBlock").style.display = "none";
-    document.getElementById("sidePlayerBlock").style.display = "block";
-    syncHeaderPlayerBadge();
-    syncChatIcon();
-    checkChatBadge();
+    const restaCollegato = document.getElementById("playerRestaCollegato")?.checked;
+    applyPlayerLoggedInUI(data);
+    saveSession({ type: "player", username: data.username, nome: data.nome, ruolo: data.ruolo || "" }, restaCollegato);
     document.getElementById("playerLoginModal").style.display = "none";
     document.getElementById("playerUsername").value = "";
     document.getElementById("playerPassword").value = "";
@@ -4927,6 +5018,7 @@ window.loginPlayer = async function() {
 
 window.doPlayerLogout = function() {
   currentPlayer = null;
+  clearSession();
   document.getElementById("sidePlayerBlock").style.display = "none";
   document.getElementById("sideGuestBlock").style.display = "block";
   syncHeaderPlayerBadge();
@@ -5044,28 +5136,56 @@ async function caricaListaPresenze(eventId) {
   // Lista presenze visibile a tutti (nel tab Presenze)
   const riepilogoEl = document.getElementById("calEventRiepilogoText");
   if (!riepilogoEl) return;
+
+  // Utenti che hanno risposto (presente/assente) per questo evento
   const snap = await getDocs(query(collection(db, "presenze"), where("eventoId", "==", eventId)));
   const presenti = [], assenti = [];
+  const votatiUsernames = new Set();
   snap.forEach(d => {
     const p = d.data();
+    if (p.username) votatiUsernames.add(p.username);
     if (p.stato === "presente") presenti.push(p.nome || p.username);
     else assenti.push(p.nome || p.username);
   });
+
+  // Tutti gli utenti della rosa: chi non è tra i votati non ha ancora risposto
+  const nonVotato = [];
+  try {
+    const utentiSnap = await getDocs(collection(db, "utenti"));
+    utentiSnap.forEach(d => {
+      const u = d.data();
+      if (u.username && !votatiUsernames.has(u.username)) {
+        nonVotato.push(u.nome || u.username);
+      }
+    });
+  } catch (e) {
+    // se il caricamento utenti fallisce, mostriamo comunque presenti/assenti
+  }
+
   const pHtml = presenti.length
     ? presenti.map(n => `<div style="color:#22c55e;">✅ ${n}</div>`).join("")
     : `<div style="color:#ccc;font-style:italic;">Nessuno ancora</div>`;
   const aHtml = assenti.length
     ? assenti.map(n => `<div style="color:#ef4444;">❌ ${n}</div>`).join("")
     : `<div style="color:#ccc;font-style:italic;">Nessuno ancora</div>`;
+  const nHtml = nonVotato.length
+    ? nonVotato.map(n => `<div style="color:#aaa;">⚪ ${n}</div>`).join("")
+    : `<div style="color:#ccc;font-style:italic;">Nessuno</div>`;
   riepilogoEl.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-      <div>
-        <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;color:#22c55e;font-weight:700;margin-bottom:4px;">✅ PRESENTI (${presenti.length})</div>
-        ${pHtml}
+    <div class="presenze-grid">
+      <div class="presenze-top-grid">
+        <div>
+          <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;color:#22c55e;font-weight:700;margin-bottom:4px;">✅ PRESENTI (${presenti.length})</div>
+          ${pHtml}
+        </div>
+        <div>
+          <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;color:#ef4444;font-weight:700;margin-bottom:4px;">❌ ASSENTI (${assenti.length})</div>
+          ${aHtml}
+        </div>
       </div>
       <div>
-        <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;color:#ef4444;font-weight:700;margin-bottom:4px;">❌ ASSENTI (${assenti.length})</div>
-        ${aHtml}
+        <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;color:#aaa;font-weight:700;margin-bottom:4px;">⚪ NON HANNO ANCORA VOTATO (${nonVotato.length})</div>
+        ${nHtml}
       </div>
     </div>`;
 }
@@ -5419,7 +5539,10 @@ if ("serviceWorker" in navigator) {
   <div style="background:#fff;border-radius:16px;padding:28px 24px;width:100%;max-width:340px;box-shadow:0 8px 40px rgba(0,0,0,0.4);">
     <div style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:var(--green-dark);margin-bottom:20px;letter-spacing:1px;text-align:center;">⚽ AREA GIOCATORI</div>
     <input id="playerUsername" placeholder="Username" autocomplete="off" style="width:100%;padding:10px 14px;border:1.5px solid #ddd;border-radius:8px;font-family:'Barlow',sans-serif;font-size:15px;margin-bottom:10px;box-sizing:border-box;color:#111;">
-    <input id="playerPassword" type="password" placeholder="Password" style="width:100%;padding:10px 14px;border:1.5px solid #ddd;border-radius:8px;font-family:'Barlow',sans-serif;font-size:15px;margin-bottom:16px;box-sizing:border-box;color:#111;">
+    <input id="playerPassword" type="password" placeholder="Password" style="width:100%;padding:10px 14px;border:1.5px solid #ddd;border-radius:8px;font-family:'Barlow',sans-serif;font-size:15px;margin-bottom:10px;box-sizing:border-box;color:#111;">
+    <label style="display:flex;align-items:center;gap:8px;font-family:'Barlow',sans-serif;font-size:14px;color:#333;margin-bottom:16px;cursor:pointer;">
+      <input type="checkbox" id="playerRestaCollegato" style="width:16px;height:16px;cursor:pointer;"> Resta collegato
+    </label>
     <button onclick="loginPlayer()" style="width:100%;padding:12px;background:var(--green-dark);color:white;border:none;border-radius:8px;font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-bottom:10px;">Entra</button>
     <button onclick="closeModal('playerLoginModal')" style="width:100%;padding:10px;background:transparent;color:#999;border:1px solid #ddd;border-radius:8px;font-family:'Oswald',sans-serif;font-size:13px;cursor:pointer;">Annulla</button>
   </div>

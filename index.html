@@ -5057,19 +5057,73 @@ window.loadUtenti = async function() {
     list.innerHTML = '<div style="color:rgba(255,255,255,0.4);font-family:Oswald,sans-serif;font-size:13px;letter-spacing:1px;text-align:center;padding:20px;">Nessun giocatore registrato</div>';
     return;
   }
-  snap.forEach(docSnap => {
-    const d = docSnap.data();
+  // Ordina alfabeticamente per nome (fallback su username)
+  const utenti = [];
+  snap.forEach(docSnap => utenti.push({ id: docSnap.id, ...docSnap.data() }));
+  utenti.sort((a, b) => (a.nome || a.username || "").localeCompare(b.nome || b.username || "", "it", { sensitivity: "base" }));
+
+  // Contatore in cima alla lista
+  const counter = document.createElement("div");
+  counter.style.cssText = "font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;color:var(--gold);text-transform:uppercase;text-align:left;margin-bottom:10px;";
+  counter.textContent = `Totale giocatori: ${utenti.length}`;
+  list.appendChild(counter);
+
+  utenti.forEach((d, idx) => {
+    const disabilitato = !!d.votoDisabilitato;
     const row = document.createElement("div");
-    row.style.cssText = "background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;";
+    row.style.cssText = `background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;${disabilitato ? "opacity:0.55;" : ""}`;
     row.innerHTML = `
-      <div>
-        <div style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;color:white;">${d.nome || "—"}</div>
+      <div style="text-align:left;">
+        <div style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;color:white;">${idx + 1}. ${d.nome || "—"}${disabilitato ? ' <span style="font-size:10px;color:#f4c430;font-weight:400;">(voto disabilitato)</span>' : ""}</div>
         <div style="font-family:'Barlow',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">@${d.username} · psw: ${d.password}</div>
       </div>
-      ${dm("utentiList") ? `<span onclick="eliminaUtente('${docSnap.id}')" style="cursor:pointer;font-size:18px;opacity:0.6;">❌</span>` : ""}
+      <div style="display:flex;align-items:center;gap:10px;flex:0 0 auto;">
+        <span onclick="copiaCredenzialiUtente('${d.id}')" title="Copia credenziali" style="cursor:pointer;font-size:18px;opacity:0.85;">📋</span>
+        <span onclick="toggleVotoUtente('${d.id}')" title="${disabilitato ? "Riattiva voto" : "Disabilita voto"}" style="cursor:pointer;font-size:18px;opacity:0.85;">${disabilitato ? "🔕" : "🔔"}</span>
+        ${dm("utentiList") ? `<span onclick="eliminaUtente('${d.id}')" style="cursor:pointer;font-size:18px;opacity:0.6;">❌</span>` : ""}
+      </div>
     `;
     list.appendChild(row);
   });
+};
+
+window.copiaCredenzialiUtente = async function(id) {
+  const snap = await getDoc(doc(db, "utenti", id));
+  if (!snap.exists()) return;
+  const d = snap.data();
+  const testo = `⚽ Marzenego Riverside\nCiao ${d.nome || d.username}, ecco le tue credenziali per accedere all'app:\n\nUsername: ${d.username}\nPassword: ${d.password}`;
+  try {
+    await navigator.clipboard.writeText(testo);
+    alert("✅ Credenziali copiate! Ora puoi incollarle in WhatsApp.");
+  } catch (e) {
+    // Fallback per browser/contesti senza permesso clipboard
+    const ta = document.createElement("textarea");
+    ta.value = testo;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+      document.execCommand("copy");
+      alert("✅ Credenziali copiate! Ora puoi incollarle in WhatsApp.");
+    } catch (e2) {
+      alert("Impossibile copiare automaticamente. Credenziali:\n\n" + testo);
+    }
+    document.body.removeChild(ta);
+  }
+};
+
+window.toggleVotoUtente = async function(id) {
+  const snap = await getDoc(doc(db, "utenti", id));
+  if (!snap.exists()) return;
+  const d = snap.data();
+  const nuovoStato = !d.votoDisabilitato;
+  if (!confirm(nuovoStato
+    ? `Disabilitare il voto presenze per ${d.nome || d.username}?\nNon comparirà più tra i "non votati" nel calendario.`
+    : `Riabilitare il voto presenze per ${d.nome || d.username}?`)) return;
+  await updateDoc(doc(db, "utenti", id), { votoDisabilitato: nuovoStato });
+  loadUtenti();
 };
 
 window.eliminaUtente = async function(id) {
@@ -5158,7 +5212,7 @@ async function caricaListaPresenze(eventId) {
     const utentiSnap = await getDocs(collection(db, "utenti"));
     utentiSnap.forEach(d => {
       const u = d.data();
-      if (u.username && !votatiUsernames.has(u.username)) {
+      if (u.username && !u.votoDisabilitato && !votatiUsernames.has(u.username)) {
         nonVotato.push(u.nome || u.username);
       }
     });

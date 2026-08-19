@@ -1719,11 +1719,52 @@ body > div.page, #homePage, #calendarPage {
     transform: none !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════
+   TEMA CHIARO — attivato con body[data-theme="light"]
+   Header, menu laterale e tab bar restano sempre verdi
+   (brand fisso); qui cambia solo l'area di contenuto.
+   ═══════════════════════════════════════════════════════ */
+body[data-theme="light"] {
+  background-color: #f6f3ec;
+  background-image: none;
+  color: #2a2a26;
+}
+body[data-theme="light"] .item {
+  color: #2a2a26;
+}
+body[data-theme="light"] h3 {
+  background: #ffffff;
+  color: var(--green-dark);
+  border: 1px solid #e2dccb;
+  border-bottom: 2px solid var(--gold);
+  box-shadow: none;
+}
+body[data-theme="light"] h2.section-script {
+  color: var(--gold-dark);
+  text-shadow: none;
+}
+body[data-theme="light"] h4 {
+  color: var(--gold-dark);
+}
+body[data-theme="light"] #footer {
+  color: rgba(0,0,0,0.35);
+}
+body[data-theme="light"] #adminBanner {
+  color: var(--gold-dark);
+}
+body[data-theme="light"] #installBanner {
+  color: var(--green-dark);
+}
   </style>
 </head>
 
 <body>
-
+<script>
+if (localStorage.getItem("marzenego_theme") === "light") {
+  document.body.setAttribute("data-theme", "light");
+}
+</script>
 
 </div>
 
@@ -1853,6 +1894,20 @@ body > div.page, #homePage, #calendarPage {
         <div style="font-family:'Barlow',sans-serif;font-size:11px;color:rgba(255,255,255,0.45);">marzenego.riverside@gmail.com</div>
       </div>
     </a>
+  </div>
+
+  <!-- ASPETTO / TEMA -->
+  <div style="padding:16px 18px;border-bottom:1px solid rgba(244,196,48,0.25);">
+    <div style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1.5px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:8px;">Aspetto</div>
+    <div id="themeToggleRow" onclick="toggleTheme()" style="
+      display:flex;align-items:center;gap:10px;cursor:pointer;
+      background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);
+      border-radius:8px;padding:10px 14px;
+      font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:1px;
+      text-transform:uppercase;color:white;transition:background 0.15s;
+    " onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+      <span id="themeToggleIcon" style="font-size:20px;">🌙</span> <span id="themeToggleLabel">Tema chiaro</span>
+    </div>
   </div>
 
   <!-- MOTTO -->
@@ -2557,6 +2612,34 @@ const deleteModes = {
   risultatiList: false,
 };
 function dm(target) { return deleteModes[target] && isAdmin; }
+
+// ─── TEMA (chiaro / verde originale) ──────────────────────
+function updateThemeToggleUI(isLight) {
+  const icon = document.getElementById("themeToggleIcon");
+  const label = document.getElementById("themeToggleLabel");
+  if (!icon || !label) return;
+  icon.textContent = isLight ? "☀️" : "🌙";
+  label.textContent = isLight ? "Tema verde" : "Tema chiaro";
+}
+window.toggleTheme = function() {
+  const isLight = document.body.getAttribute("data-theme") === "light";
+  if (isLight) {
+    document.body.removeAttribute("data-theme");
+    localStorage.setItem("marzenego_theme", "dark");
+    updateThemeToggleUI(false);
+  } else {
+    document.body.setAttribute("data-theme", "light");
+    localStorage.setItem("marzenego_theme", "light");
+    updateThemeToggleUI(true);
+  }
+}
+(function applySavedTheme() {
+  const saved = localStorage.getItem("marzenego_theme");
+  if (saved === "light") {
+    document.body.setAttribute("data-theme", "light");
+  }
+  updateThemeToggleUI(saved === "light");
+})();
 
 // ─── MENU ───────────────────────────────────────────────
 window.toggleMenu = function() {

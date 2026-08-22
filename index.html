@@ -1933,6 +1933,141 @@ body[data-theme="light"] #sideMenu [style*="color:#ff8080"] { color: #c0392b !im
 body[data-theme="light"] #sideMenu [style*="background:rgba(255,255,255,0.05)"] { background: rgba(0,0,0,0.035) !important; }
 body[data-theme="light"] #sideMenu [style*="border:1px solid rgba(255,255,255,0.1)"] { border-color: rgba(0,0,0,0.08) !important; }
 body[data-theme="light"] #sideMenu [style*="border:1px solid rgba(255,255,255,0.15)"] { border-color: rgba(0,0,0,0.12) !important; }
+  /* ══════════════════════════════════════════════════════════
+     TAB ALLENAMENTI (sezione staff: esercizi / sessioni / calendario)
+     ══════════════════════════════════════════════════════════ */
+  .training-tabs { display:flex; gap:6px; padding:0 16px 14px; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .training-tab {
+    flex:0 0 auto; padding:8px 16px; background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.15); border-radius:20px;
+    font-family:'Oswald',sans-serif; font-size:12px; font-weight:700;
+    letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,0.65);
+    cursor:pointer; transition:all .15s; white-space:nowrap;
+  }
+  .training-tab.active { background:var(--gold); color:var(--green-dark); border-color:var(--gold); }
+  .training-tab-content { padding:0 16px 26px; }
+  .training-toolbar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:14px; }
+  .training-toolbar input[type="text"], .training-toolbar select {
+    flex:1; min-width:130px; padding:9px 10px; border-radius:8px;
+    border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.06);
+    color:white; font-family:'Barlow',sans-serif; font-size:13px;
+  }
+  .training-empty { color:rgba(255,255,255,0.4); font-family:'Barlow',sans-serif; font-size:13px; text-align:center; padding:24px 10px; }
+  .training-card { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:12px 14px; margin-bottom:10px; }
+  .training-card-top { display:flex; gap:10px; align-items:flex-start; justify-content:space-between; }
+  .training-card-title { font-family:'Oswald',sans-serif; font-weight:700; font-size:15px; color:white; }
+  .training-card-meta { font-family:'Barlow',sans-serif; font-size:12px; color:rgba(255,255,255,0.6); margin-top:4px; line-height:1.5; }
+  .training-card-tags { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+  .training-tag { font-size:10px; padding:3px 9px; border-radius:10px; background:rgba(244,196,48,0.15); color:var(--gold); font-family:'Oswald',sans-serif; letter-spacing:0.5px; text-transform:uppercase; white-space:nowrap; }
+  .training-card-actions { display:flex; gap:16px; margin-top:10px; flex-shrink:0; }
+  .training-card-actions span { cursor:pointer; font-size:17px; opacity:0.85; }
+  .training-thumb {
+    width:52px; height:38px; border-radius:6px; flex-shrink:0; overflow:hidden;
+    background:linear-gradient(180deg,#1e7a3a,#145a2a); border:1px solid rgba(255,255,255,0.25);
+  }
+  .training-thumb svg { width:100%; height:100%; display:block; }
+
+  /* ── Editor grafico esercizio ─────────────────────────── */
+  .diagram-toolbar { display:flex; flex-wrap:wrap; gap:6px; padding:2px 0 10px; }
+  .diagram-tool-btn {
+    padding:7px 11px; border-radius:8px; border:1px solid rgba(255,255,255,0.2);
+    background:rgba(255,255,255,0.07); color:white; font-size:11px;
+    font-family:'Oswald',sans-serif; letter-spacing:0.3px; cursor:pointer; white-space:nowrap;
+  }
+  .diagram-tool-btn:active { background:var(--gold); color:var(--green-dark); }
+  .diagram-field-wrap {
+    position:relative; width:100%; aspect-ratio:1.5; max-height:60vh;
+    background:linear-gradient(180deg,#1e8a42,#125423);
+    border:2px solid rgba(255,255,255,0.45); border-radius:8px; overflow:hidden; touch-action:none;
+  }
+  .diagram-field-wrap svg { position:absolute; inset:0; width:100%; height:100%; display:block; }
+  .diagram-selbar {
+    display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap;
+    padding:9px; margin-top:8px; background:rgba(255,255,255,0.07); border-radius:8px;
+    font-family:'Barlow',sans-serif; font-size:12px; color:white;
+  }
+  .diagram-selbar button {
+    padding:6px 12px; border-radius:6px; border:none; background:var(--gold);
+    color:var(--green-dark); font-weight:700; cursor:pointer; font-size:11px; font-family:'Oswald',sans-serif;
+  }
+  .diagram-selbar button.secondary { background:rgba(255,255,255,0.15); color:white; }
+
+  /* ── Modali larghe (form allenamenti) ─────────────────── */
+  .training-modal-wide .modal-content {
+    width:min(560px,92vw); max-height:88vh; overflow-y:auto;
+    background:#0e2414; color:white; border-top:5px solid var(--gold);
+  }
+  .training-modal-wide .modal-content h3 { color:var(--gold); }
+  .training-modal-wide label {
+    display:block; font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:1px;
+    text-transform:uppercase; color:rgba(255,255,255,0.6); margin:12px 0 5px;
+  }
+  .training-modal-wide input[type="text"], .training-modal-wide input[type="number"],
+  .training-modal-wide input[type="date"], .training-modal-wide input[type="time"],
+  .training-modal-wide textarea, .training-modal-wide select {
+    width:100%; padding:9px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.2);
+    background:rgba(255,255,255,0.07); color:white; font-family:'Barlow',sans-serif;
+    font-size:14px; box-sizing:border-box;
+  }
+  .training-modal-wide textarea { resize:vertical; }
+  .training-cat-checks { display:flex; flex-wrap:wrap; gap:8px; }
+  .training-cat-checks label {
+    display:flex; align-items:center; gap:5px; font-family:'Barlow',sans-serif; font-size:13px;
+    text-transform:none; letter-spacing:0; color:white; margin:0;
+    background:rgba(255,255,255,0.07); padding:7px 10px; border-radius:8px; cursor:pointer;
+  }
+  .training-row2 { display:flex; gap:10px; }
+  .training-row2 > div { flex:1; }
+  .training-modal-actions { display:flex; gap:10px; margin-top:18px; }
+  .training-modal-actions button {
+    flex:1; padding:11px; border-radius:8px; border:none; font-family:'Oswald',sans-serif;
+    font-weight:700; letter-spacing:1px; cursor:pointer; font-size:13px;
+  }
+  .training-btn-primary { background:var(--gold); color:var(--green-dark); }
+  .training-btn-secondary { background:rgba(255,255,255,0.12); color:white; }
+
+  /* ── Sessione: elenco esercizi riordinabile ───────────── */
+  .sess-ex-row {
+    display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.06);
+    border-radius:8px; padding:8px 10px; margin-bottom:6px;
+  }
+  .sess-ex-row .sess-ex-order { font-family:'Oswald',sans-serif; color:var(--gold); font-weight:700; font-size:12px; width:20px; text-align:center; flex-shrink:0; }
+  .sess-ex-row .sess-ex-name { flex:1; font-family:'Barlow',sans-serif; font-size:13px; color:white; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .sess-ex-row input[type="number"] {
+    width:52px; padding:6px; border-radius:6px; border:1px solid rgba(255,255,255,0.2);
+    background:rgba(255,255,255,0.1); color:white; text-align:center; font-size:13px;
+  }
+  .sess-ex-row .sess-ex-btns { display:flex; gap:2px; flex-shrink:0; }
+  .sess-ex-row .sess-ex-btns span { cursor:pointer; font-size:15px; opacity:0.85; padding:2px 3px; }
+  #trainingSessionTotalDuration {
+    font-family:'Oswald',sans-serif; font-weight:700; color:var(--gold); font-size:13px;
+    letter-spacing:1px; margin:10px 0 4px; text-transform:uppercase;
+  }
+
+  /* ── Mini calendario allenamenti ──────────────────────── */
+  #trainingCalendarHeader {
+    display:flex; align-items:center; justify-content:space-between; padding:0 4px 12px;
+    font-family:'Oswald',sans-serif; color:white; font-weight:700; letter-spacing:1px; font-size:14px; text-transform:uppercase;
+  }
+  #trainingCalendarHeader span.tcal-nav { cursor:pointer; font-size:20px; color:var(--gold); padding:0 14px; user-select:none; }
+  #trainingCalendarGrid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .tcal-daylabel { text-align:center; font-family:'Oswald',sans-serif; font-size:10px; color:rgba(255,255,255,0.4); text-transform:uppercase; padding-bottom:4px; }
+  .tcal-day {
+    aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    border-radius:8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);
+    color:white; font-family:'Barlow',sans-serif; font-size:13px; cursor:pointer; position:relative;
+  }
+  .tcal-day.empty { background:transparent; border:none; cursor:default; }
+  .tcal-day.has-session { background:rgba(244,196,48,0.16); border-color:var(--gold); }
+  .tcal-day.selected { outline:2px solid var(--gold); outline-offset:1px; }
+  .tcal-day .tcal-dot { width:5px; height:5px; border-radius:50%; background:var(--gold); margin-top:2px; }
+  #trainingDayDetail { margin-top:18px; }
+  .training-presenze-badge {
+    display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:14px;
+    background:rgba(34,197,94,0.15); color:#22c55e; font-family:'Oswald',sans-serif;
+    font-weight:700; font-size:13px; cursor:pointer; border:1px solid rgba(34,197,94,0.35);
+  }
+  .training-presenze-row { display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.08); font-family:'Barlow',sans-serif; font-size:13px; color:white; }
   </style>
 </head>
 
@@ -2179,6 +2314,10 @@ body[data-theme="light"] #sideMenu [style*="border:1px solid rgba(255,255,255,0.
   </div>
   <div class="pill-item pill-admin" id="utentiPillBtn" style="display:none;" onclick="showPage('utentiPage')" data-page="utentiPage">
     <span class="pill-label">🔒&nbsp;Utenti</span>
+    <div class="pill-underline"></div>
+  </div>
+  <div class="pill-item pill-admin" id="trainingPillBtn" style="display:none;" onclick="showPage('trainingPage')" data-page="trainingPage">
+    <span class="pill-label">🏋️&nbsp;Allenamenti</span>
     <div class="pill-underline"></div>
   </div>
 </nav>
@@ -2603,6 +2742,54 @@ body[data-theme="light"] #sideMenu [style*="border:1px solid rgba(255,255,255,0.
   <div id="utentiList" style="padding:0 16px 20px;"></div>
 </div>
 
+<!-- ══════════════════════════════════════════════════════════
+     TAB ALLENAMENTI — area privata staff (Admin / Gestione Allenamenti)
+     ══════════════════════════════════════════════════════════ -->
+<div id="trainingPage" class="page">
+  <h3 style="margin:20px 16px 6px;">🏋️ Allenamenti</h3>
+  <div class="training-tabs">
+    <button class="training-tab active" id="trainingTabBtn-esercizi" onclick="switchTrainingTab('esercizi')">Esercizi</button>
+    <button class="training-tab" id="trainingTabBtn-sessioni" onclick="switchTrainingTab('sessioni')">Sessione d'allenamento</button>
+    <button class="training-tab" id="trainingTabBtn-calendario" onclick="switchTrainingTab('calendario')">Abbina sessione</button>
+  </div>
+
+  <!-- ── ESERCIZI ── -->
+  <div id="trainingTab-esercizi" class="training-tab-content">
+    <div class="training-toolbar">
+      <input type="text" id="trainingExSearch" placeholder="🔍 Cerca esercizio..." oninput="renderTrainingExercises()">
+      <select id="trainingExFilterCat" onchange="renderTrainingExercises()">
+        <option value="">Tutte le categorie</option>
+        <option value="Tecnica">Tecnica</option>
+        <option value="Tattica">Tattica</option>
+        <option value="Condizione fisica">Condizione fisica</option>
+        <option value="Forza muscolare">Forza muscolare</option>
+        <option value="Piazzati">Piazzati</option>
+      </select>
+      <button class="miniBtn" onclick="openExerciseEditor(null)">➕ Nuovo esercizio</button>
+    </div>
+    <div id="trainingExerciseList"><div class="training-empty">Caricamento...</div></div>
+  </div>
+
+  <!-- ── SESSIONI ── -->
+  <div id="trainingTab-sessioni" class="training-tab-content" style="display:none;">
+    <div class="training-toolbar">
+      <button class="miniBtn" onclick="openSessionEditor(null)">➕ Nuova sessione</button>
+    </div>
+    <div id="trainingSessionList"><div class="training-empty">Caricamento...</div></div>
+  </div>
+
+  <!-- ── ABBINA SESSIONE (calendario dedicato) ── -->
+  <div id="trainingTab-calendario" class="training-tab-content" style="display:none;">
+    <div id="trainingCalendarHeader">
+      <span class="tcal-nav" onclick="trainingCalPrevMonth()">‹</span>
+      <span id="trainingCalMonthLabel"></span>
+      <span class="tcal-nav" onclick="trainingCalNextMonth()">›</span>
+    </div>
+    <div id="trainingCalendarGrid"></div>
+    <div id="trainingDayDetail"></div>
+  </div>
+</div>
+
 <div id="footer" onclick="openLogin()">v1.2, 19/05/2026, Develop by Marzenego Staff</div>
 
 <!-- INSTALL BANNER -->
@@ -2651,6 +2838,173 @@ body[data-theme="light"] #sideMenu [style*="border:1px solid rgba(255,255,255,0.
     <input type="number" id="costo" placeholder="Costo (€)">
     <textarea id="noteEvento" rows="2" placeholder="Note aggiuntive (opzionale)" style="resize:vertical;"></textarea>
     <button onclick="addEvent()">INVIA</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MODALI SEZIONE ALLENAMENTI
+     ══════════════════════════════════════════════════════════ -->
+
+<!-- MODAL: crea/modifica ESERCIZIO -->
+<div id="trainingExerciseModal" class="modal training-modal-wide">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('trainingExerciseModal')">✖</span>
+    <h3 id="trainingExerciseModalTitle">Nuovo esercizio</h3>
+    <input type="hidden" id="trainingExId">
+
+    <label>Nome esercizio *</label>
+    <input type="text" id="trainingExNome" placeholder="Es. Possesso 4vs2">
+
+    <label>Descrizione</label>
+    <textarea id="trainingExDescrizione" rows="4" placeholder="Svolgimento, regole, varianti, obiettivo..."></textarea>
+
+    <label>Categorie (più di una possibile)</label>
+    <div class="training-cat-checks" id="trainingExCategorie">
+      <label><input type="checkbox" value="Tecnica"> Tecnica</label>
+      <label><input type="checkbox" value="Tattica"> Tattica</label>
+      <label><input type="checkbox" value="Condizione fisica"> Condizione fisica</label>
+      <label><input type="checkbox" value="Forza muscolare"> Forza muscolare</label>
+      <label><input type="checkbox" value="Piazzati"> Piazzati</label>
+    </div>
+
+    <div class="training-row2">
+      <div>
+        <label>Min. giocatori</label>
+        <input type="number" id="trainingExMin" min="0">
+      </div>
+      <div>
+        <label>Max. giocatori</label>
+        <input type="number" id="trainingExMax" min="0">
+      </div>
+    </div>
+
+    <div class="training-row2">
+      <div>
+        <label>A coppie</label>
+        <select id="trainingExPairs">
+          <option value="no">No</option>
+          <option value="si">Sì</option>
+        </select>
+      </div>
+      <div>
+        <label>Durata consigliata (min)</label>
+        <input type="number" id="trainingExDurata" min="0" placeholder="Es. 15">
+      </div>
+    </div>
+
+    <label>Materiale</label>
+    <input type="text" id="trainingExMateriale" placeholder="Es. 8 conetti, 4 palloni, 2 porticine">
+
+    <label>Note</label>
+    <textarea id="trainingExNote" rows="2"></textarea>
+
+    <label>Schema grafico</label>
+    <div id="trainingExDiagramPreview" class="training-thumb" style="width:100%;height:120px;display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="openDiagramEditor()">
+      <span style="font-family:'Barlow',sans-serif;font-size:12px;color:rgba(255,255,255,0.6);">✏️ Apri editor schema</span>
+    </div>
+
+    <div class="training-modal-actions">
+      <button class="training-btn-secondary" onclick="closeModal('trainingExerciseModal')">Annulla</button>
+      <button class="training-btn-primary" onclick="saveTrainingExercise()">Salva esercizio</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDITOR GRAFICO SCHEMA ESERCIZIO -->
+<div id="trainingDiagramModal" class="modal training-modal-wide">
+  <div class="modal-content" style="width:min(720px,95vw);">
+    <span class="close" onclick="closeModal('trainingDiagramModal')">✖</span>
+    <h3>Schema esercizio</h3>
+    <div class="diagram-toolbar">
+      <button type="button" class="diagram-tool-btn" onclick="addDiagramElement('player')">🔵 Giocatore</button>
+      <button type="button" class="diagram-tool-btn" onclick="addDiagramElement('opponent')">🔴 Avversario</button>
+      <button type="button" class="diagram-tool-btn" onclick="addDiagramElement('ball')">⚽ Pallone</button>
+      <button type="button" class="diagram-tool-btn" onclick="addDiagramElement('cone')">🔶 Conetto</button>
+      <button type="button" class="diagram-tool-btn" onclick="addDiagramElement('pole')">▮ Palo</button>
+      <button type="button" class="diagram-tool-btn" onclick="addDiagramElement('hurdle')">▭ Ostacolo</button>
+      <button type="button" class="diagram-tool-btn" onclick="addDiagramElement('circle')">⭕ Cerchio</button>
+      <button type="button" class="diagram-tool-btn" onclick="addDiagramElement('goal')">🥅 Porta</button>
+      <button type="button" class="diagram-tool-btn" onclick="addDiagramElement('minigoal')">🥅 Porticina</button>
+      <button type="button" class="diagram-tool-btn" onclick="addDiagramElement('arrow')">➡️ Freccia</button>
+      <button type="button" class="diagram-tool-btn" onclick="addDiagramElement('line')">— Linea</button>
+      <button type="button" class="diagram-tool-btn" onclick="addDiagramElement('dashedline')">┄ Tratteggiata</button>
+      <button type="button" class="diagram-tool-btn" onclick="addDiagramElement('zonerect')">▢ Zona rett.</button>
+      <button type="button" class="diagram-tool-btn" onclick="addDiagramElement('zonecircle')">◯ Zona circ.</button>
+    </div>
+    <div class="diagram-field-wrap" id="diagramFieldWrap">
+      <svg id="diagramSvg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+    </div>
+    <div class="diagram-selbar" id="diagramSelBar" style="display:none;">
+      <span id="diagramSelLabel">Elemento selezionato</span>
+      <button type="button" onclick="duplicateDiagramSelected()">⧉ Duplica</button>
+      <button type="button" onclick="deleteDiagramSelected()">🗑 Elimina</button>
+      <button type="button" class="secondary" onclick="deselectDiagramElement()">Deseleziona</button>
+    </div>
+    <div class="training-modal-actions">
+      <button class="training-btn-secondary" onclick="clearDiagram()">🧹 Pulisci schema</button>
+      <button class="training-btn-primary" onclick="confirmDiagramEditor()">✔ Conferma schema</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: crea/modifica SESSIONE -->
+<div id="trainingSessionModal" class="modal training-modal-wide">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('trainingSessionModal')">✖</span>
+    <h3 id="trainingSessionModalTitle">Nuova sessione</h3>
+    <input type="hidden" id="trainingSessId">
+
+    <label>Nome sessione *</label>
+    <input type="text" id="trainingSessNome" placeholder="Es. Preparazione partita">
+
+    <label>Descrizione</label>
+    <textarea id="trainingSessDescrizione" rows="2"></textarea>
+
+    <label>Esercizi nella sessione</label>
+    <div id="trainingSessExList"></div>
+    <button type="button" class="miniBtn" onclick="openExercisePicker()">➕ Aggiungi esercizio</button>
+
+    <div id="trainingSessionTotalDuration">Durata totale: 0 min</div>
+
+    <div class="training-modal-actions">
+      <button class="training-btn-secondary" onclick="closeModal('trainingSessionModal')">Annulla</button>
+      <button class="training-btn-primary" onclick="saveTrainingSession()">Salva sessione</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: scegli esercizio da libreria da aggiungere alla sessione -->
+<div id="trainingExercisePickerModal" class="modal training-modal-wide">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('trainingExercisePickerModal')">✖</span>
+    <h3>Scegli esercizio</h3>
+    <input type="text" id="trainingPickerSearch" placeholder="🔍 Cerca..." oninput="renderExercisePickerList()">
+    <div id="trainingExercisePickerList" style="margin-top:10px;max-height:50vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- MODAL: abbina sessione a una data -->
+<div id="trainingScheduleModal" class="modal training-modal-wide">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('trainingScheduleModal')">✖</span>
+    <h3 id="trainingScheduleModalTitle">Abbina sessione</h3>
+    <label>Sessione</label>
+    <select id="trainingScheduleSessionSelect"></select>
+    <label>Orario (opzionale)</label>
+    <input type="time" id="trainingScheduleOrario">
+    <div class="training-modal-actions">
+      <button class="training-btn-secondary" onclick="removeTrainingSchedule()" id="trainingScheduleRemoveBtn" style="display:none;">🗑 Rimuovi</button>
+      <button class="training-btn-primary" onclick="saveTrainingSchedule()">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: popup presenze del giorno -->
+<div id="trainingPresenzeModal" class="modal training-modal-wide">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('trainingPresenzeModal')">✖</span>
+    <h3 id="trainingPresenzeModalTitle">Presenti</h3>
+    <div id="trainingPresenzeModalBody"></div>
   </div>
 </div>
 
@@ -2786,6 +3140,27 @@ const deleteModes = {
   risultatiList: false,
 };
 function dm(target) { return deleteModes[target] && isAdmin; }
+
+// ══════════════════════════════════════════════════════════
+// PERMESSI SPECIALI (funzionalità aggiuntive per utenti normali)
+// L'utente resta un normale utente "giocatore": non esiste un
+// nuovo tipo di account. Un permesso speciale sblocca solo
+// l'accesso a una sezione aggiuntiva (es. futuro tab ALLENAMENTI).
+//
+// Struttura Firestore su ogni doc "utenti/{id}":
+//   permissions: { specialFeatures: { manage_training: true, ... } }
+// Assenza del campo "permissions" (utenti esistenti) = nessuna
+// funzionalità speciale: comportamento identico a prima.
+//
+// Chiave attuale disponibile: "manage_training" (Gestione Allenamenti)
+// In futuro si potranno aggiungere altre chiavi (es. "manage_stats",
+// "manage_comunicati") senza modificare questa funzione.
+// ══════════════════════════════════════════════════════════
+window.hasPermission = function(feature) {
+  if (!currentPlayer || !currentPlayer.permissions) return false;
+  const sf = currentPlayer.permissions.specialFeatures;
+  return !!(sf && sf[feature] === true);
+};
 
 // ─── TEMA (chiaro / verde originale) ──────────────────────
 function updateThemeToggleUI(isLight) {
@@ -5250,7 +5625,7 @@ window.openPlayerLogin = function() {
 // Applica la UI da giocatore loggato (usata sia dal login vero e proprio
 // sia dal ripristino automatico della sessione "Resta collegato")
 function applyPlayerLoggedInUI(data) {
-  currentPlayer = { username: data.username, nome: data.nome };
+  currentPlayer = { username: data.username, nome: data.nome, permissions: data.permissions || null };
   document.getElementById("sidePlayerName").textContent = data.nome || data.username;
   document.getElementById("sideGuestBlock").style.display = "none";
   document.getElementById("sidePlayerBlock").style.display = "block";
@@ -5273,7 +5648,7 @@ window.loginPlayer = async function() {
     const data = snap.docs[0].data();
     const restaCollegato = document.getElementById("playerRestaCollegato")?.checked;
     applyPlayerLoggedInUI(data);
-    saveSession({ type: "player", username: data.username, nome: data.nome, ruolo: data.ruolo || "" }, restaCollegato);
+    saveSession({ type: "player", username: data.username, nome: data.nome, ruolo: data.ruolo || "", permissions: data.permissions || null }, restaCollegato);
     document.getElementById("playerLoginModal").style.display = "none";
     document.getElementById("playerUsername").value = "";
     document.getElementById("playerPassword").value = "";
@@ -5331,12 +5706,19 @@ window.loadUtenti = async function() {
 
   utenti.forEach((d, idx) => {
     const disabilitato = !!d.votoDisabilitato;
+    const haAllenamenti = !!(d.permissions && d.permissions.specialFeatures && d.permissions.specialFeatures.manage_training);
     const row = document.createElement("div");
     row.style.cssText = `background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;${disabilitato ? "opacity:0.55;" : ""}`;
     row.innerHTML = `
       <div style="text-align:left;">
-        <div style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;color:white;">${idx + 1}. ${d.nome || "—"}${disabilitato ? ' <span style="font-size:10px;color:#f4c430;font-weight:400;">(voto disabilitato)</span>' : ""}</div>
+        <div style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;color:white;">${idx + 1}. ${d.nome || "—"}${disabilitato ? ' <span style="font-size:10px;color:#f4c430;font-weight:400;">(voto disabilitato)</span>' : ""}${haAllenamenti ? ' <span style="font-size:10px;color:#7ee787;font-weight:400;">(Gestione Allenamenti)</span>' : ""}</div>
         <div style="font-family:'Barlow',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">@${d.username} · psw: ${d.password}</div>
+        <div style="margin-top:6px;">
+          <label style="display:flex;align-items:center;gap:6px;font-family:'Barlow',sans-serif;font-size:12px;color:rgba(255,255,255,0.75);cursor:pointer;">
+            <input type="checkbox" onchange="togglePermessoAllenamenti('${d.id}', this.checked)" ${haAllenamenti ? "checked" : ""} style="width:15px;height:15px;cursor:pointer;">
+            Gestione Allenamenti
+          </label>
+        </div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex:0 0 auto;">
         <span onclick="copiaCredenzialiUtente('${d.id}')" title="Copia credenziali" style="cursor:pointer;font-size:18px;opacity:0.85;">📋</span>
@@ -5346,6 +5728,22 @@ window.loadUtenti = async function() {
     `;
     list.appendChild(row);
   });
+};
+
+// Attiva/disattiva la funzionalità speciale "Gestione Allenamenti" per un utente.
+// L'utente resta un normale utente: non viene creato alcun nuovo ruolo/account.
+// Struttura estendibile: in futuro basterà aggiungere altre chiavi sotto
+// "permissions.specialFeatures" (es. manage_stats, manage_comunicati) seguendo
+// lo stesso schema, senza toccare gli utenti che non le possiedono.
+window.togglePermessoAllenamenti = async function(id, nuovoStato) {
+  if (!isAdmin) return;
+  try {
+    await updateDoc(doc(db, "utenti", id), { "permissions.specialFeatures.manage_training": !!nuovoStato });
+    loadUtenti();
+  } catch (e) {
+    alert("Errore nel salvataggio del permesso: " + e.message);
+    loadUtenti();
+  }
 };
 
 window.copiaCredenzialiUtente = async function(id) {
@@ -5772,6 +6170,801 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/MarzenegoWebpage/service-worker.js")
     .then(() => console.log("Service Worker registrato"));
 }
+
+// ══════════════════════════════════════════════════════════
+// TAB ALLENAMENTI — libreria esercizi, sessioni, programmazione
+// Riusa: isAdmin, currentPlayer, hasPermission(), db/collection/
+// addDoc/getDocs/getDoc/setDoc/updateDoc/deleteDoc/doc/query/where
+// già disponibili in questo stesso modulo. Nessun nuovo sistema
+// di permessi o di presenze: si appoggia a quelli esistenti.
+// ══════════════════════════════════════════════════════════
+
+// Autorizzazione per le operazioni di scrittura (stesso criterio di accesso al tab)
+function trainingCanManage() {
+  return isAdmin || window.hasPermission("manage_training");
+}
+
+// ── VISIBILITÀ TAB (Admin oppure permesso "manage_training") ──
+function updateTrainingTabVisibility() {
+  const btn = document.getElementById("trainingPillBtn");
+  if (!btn) return;
+  const canSee = isAdmin || window.hasPermission("manage_training");
+  btn.style.display = canSee ? "inline-flex" : "none";
+  // Se l'utente perde l'accesso mentre è sulla pagina Allenamenti, torna alla Home
+  if (!canSee && document.getElementById("trainingPage")?.classList.contains("active")) {
+    showPage("homePage");
+  }
+}
+// Aggancio ai punti in cui cambia lo stato di login (senza toccare login/logout esistenti)
+const _origApplyAdminLoggedInUI = applyAdminLoggedInUI;
+applyAdminLoggedInUI = function() { _origApplyAdminLoggedInUI(); updateTrainingTabVisibility(); };
+const _origApplyPlayerLoggedInUIRef = applyPlayerLoggedInUI;
+applyPlayerLoggedInUI = function(data) { _origApplyPlayerLoggedInUIRef(data); updateTrainingTabVisibility(); };
+const _origDoLogout = window.doLogout;
+window.doLogout = function() { _origDoLogout(); updateTrainingTabVisibility(); };
+const _origDoPlayerLogout = window.doPlayerLogout;
+window.doPlayerLogout = function() { _origDoPlayerLogout(); updateTrainingTabVisibility(); };
+// stato iniziale (utente non loggato)
+updateTrainingTabVisibility();
+
+// ── SWITCH SOTTO-TAB ────────────────────────────────────────
+let trainingCurrentTab = "esercizi";
+window.switchTrainingTab = function(tab) {
+  trainingCurrentTab = tab;
+  ["esercizi", "sessioni", "calendario"].forEach(t => {
+    const btn = document.getElementById("trainingTabBtn-" + t);
+    const content = document.getElementById("trainingTab-" + t);
+    if (btn) btn.classList.toggle("active", t === tab);
+    if (content) content.style.display = t === tab ? "block" : "none";
+  });
+  if (tab === "esercizi") loadTrainingExercises();
+  if (tab === "sessioni") loadTrainingSessions();
+  if (tab === "calendario") { ensureExercisesAndSessionsLoaded().then(renderTrainingCalendar); }
+};
+// carica la sezione Esercizi quando si apre il tab dal pillNav
+const _origShowPageForTraining = window.showPage;
+window.showPage = function(id) {
+  _origShowPageForTraining(id);
+  if (id === "trainingPage") switchTrainingTab(trainingCurrentTab);
+};
+
+// ══════════════════════════════════════════════════════════
+// ESERCIZI (trainingExercises)
+// ══════════════════════════════════════════════════════════
+let trainingExercisesCache = null; // array in memoria dopo il primo caricamento
+
+async function loadTrainingExercises(force) {
+  if (trainingExercisesCache && !force) { renderTrainingExercises(); return; }
+  const list = document.getElementById("trainingExerciseList");
+  if (list) list.innerHTML = '<div class="training-empty">Caricamento...</div>';
+  const snap = await getDocs(collection(db, "trainingExercises"));
+  trainingExercisesCache = [];
+  snap.forEach(d => trainingExercisesCache.push({ id: d.id, ...d.data() }));
+  trainingExercisesCache.sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "it", { sensitivity: "base" }));
+  renderTrainingExercises();
+}
+
+window.renderTrainingExercises = function() {
+  const list = document.getElementById("trainingExerciseList");
+  if (!list || !trainingExercisesCache) return;
+  const search = (document.getElementById("trainingExSearch")?.value || "").trim().toLowerCase();
+  const cat = document.getElementById("trainingExFilterCat")?.value || "";
+  const filtered = trainingExercisesCache.filter(ex => {
+    if (search && !(ex.nome || "").toLowerCase().includes(search)) return false;
+    if (cat && !(Array.isArray(ex.categorie) && ex.categorie.includes(cat))) return false;
+    return true;
+  });
+  if (!filtered.length) {
+    list.innerHTML = '<div class="training-empty">Nessun esercizio trovato. Crea il primo con "➕ Nuovo esercizio".</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(ex => {
+    const tags = (ex.categorie || []).map(c => `<span class="training-tag">${escapeHtmlTraining(c)}</span>`).join("");
+    const giocatori = (ex.minPlayers || ex.maxPlayers)
+      ? `${ex.minPlayers ?? "?"}–${ex.maxPlayers ?? "?"} giocatori${ex.pairs ? " · a coppie" : ""}`
+      : (ex.pairs ? "A coppie" : "");
+    const durata = ex.recommendedDuration ? `${ex.recommendedDuration}'` : "";
+    const thumb = trainingDiagramThumbSvg(ex.diagramData);
+    return `
+      <div class="training-card">
+        <div class="training-card-top">
+          <div class="training-thumb">${thumb}</div>
+          <div style="flex:1;min-width:0;">
+            <div class="training-card-title">${escapeHtmlTraining(ex.nome || "—")}</div>
+            <div class="training-card-meta">${[giocatori, durata].filter(Boolean).join(" · ")}</div>
+            <div class="training-card-tags">${tags}</div>
+          </div>
+          <div class="training-card-actions">
+            <span title="Modifica" onclick="openExerciseEditor('${ex.id}')">✏️</span>
+            <span title="Elimina" onclick="deleteTrainingExercise('${ex.id}')">🗑</span>
+          </div>
+        </div>
+      </div>`;
+  }).join("");
+};
+
+function escapeHtmlTraining(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+window.openExerciseEditor = function(id) {
+  const ex = id ? trainingExercisesCache.find(e => e.id === id) : null;
+  document.getElementById("trainingExerciseModalTitle").textContent = ex ? "Modifica esercizio" : "Nuovo esercizio";
+  document.getElementById("trainingExId").value = ex ? ex.id : "";
+  document.getElementById("trainingExNome").value = ex?.nome || "";
+  document.getElementById("trainingExDescrizione").value = ex?.descrizione || "";
+  document.getElementById("trainingExMin").value = ex?.minPlayers ?? "";
+  document.getElementById("trainingExMax").value = ex?.maxPlayers ?? "";
+  document.getElementById("trainingExPairs").value = ex?.pairs ? "si" : "no";
+  document.getElementById("trainingExDurata").value = ex?.recommendedDuration ?? "";
+  document.getElementById("trainingExMateriale").value = ex?.materials || "";
+  document.getElementById("trainingExNote").value = ex?.notes || "";
+  document.querySelectorAll("#trainingExCategorie input[type=checkbox]").forEach(cb => {
+    cb.checked = !!(ex?.categorie || []).includes(cb.value);
+  });
+  currentExerciseDiagram = ex?.diagramData ? JSON.parse(JSON.stringify(ex.diagramData)) : { elements: [] };
+  updateExerciseDiagramPreview();
+  document.getElementById("trainingExerciseModal").style.display = "flex";
+};
+
+function updateExerciseDiagramPreview() {
+  const el = document.getElementById("trainingExDiagramPreview");
+  const hasElements = currentExerciseDiagram && currentExerciseDiagram.elements && currentExerciseDiagram.elements.length;
+  el.innerHTML = hasElements
+    ? trainingDiagramThumbSvg(currentExerciseDiagram, true)
+    : '<span style="font-family:\'Barlow\',sans-serif;font-size:12px;color:rgba(255,255,255,0.6);">✏️ Apri editor schema</span>';
+}
+
+window.saveTrainingExercise = async function() {
+  if (!trainingCanManage()) return alert("Non autorizzato");
+  const nome = document.getElementById("trainingExNome").value.trim();
+  if (!nome) return alert("Il nome dell'esercizio è obbligatorio");
+  const id = document.getElementById("trainingExId").value;
+  const categorie = Array.from(document.querySelectorAll("#trainingExCategorie input[type=checkbox]:checked")).map(cb => cb.value);
+  const payload = {
+    nome,
+    descrizione: document.getElementById("trainingExDescrizione").value.trim(),
+    categorie,
+    minPlayers: document.getElementById("trainingExMin").value ? parseInt(document.getElementById("trainingExMin").value) : null,
+    maxPlayers: document.getElementById("trainingExMax").value ? parseInt(document.getElementById("trainingExMax").value) : null,
+    pairs: document.getElementById("trainingExPairs").value === "si",
+    recommendedDuration: document.getElementById("trainingExDurata").value ? parseInt(document.getElementById("trainingExDurata").value) : null,
+    materials: document.getElementById("trainingExMateriale").value.trim(),
+    notes: document.getElementById("trainingExNote").value.trim(),
+    diagramData: currentExerciseDiagram || { elements: [] },
+    updatedAt: new Date().toISOString(),
+  };
+  try {
+    if (id) {
+      await updateDoc(doc(db, "trainingExercises", id), payload);
+    } else {
+      payload.createdBy = (currentPlayer && currentPlayer.username) || (isAdmin ? "admin" : "");
+      payload.createdAt = new Date().toISOString();
+      await addDoc(collection(db, "trainingExercises"), payload);
+    }
+    closeModal("trainingExerciseModal");
+    await loadTrainingExercises(true);
+  } catch (e) {
+    alert("Errore nel salvataggio dell'esercizio: " + e.message);
+  }
+};
+
+window.deleteTrainingExercise = async function(id) {
+  if (!trainingCanManage()) return alert("Non autorizzato");
+  if (!confirm("Eliminare questo esercizio dalla libreria?")) return;
+  try {
+    await deleteDoc(doc(db, "trainingExercises", id));
+    await loadTrainingExercises(true);
+  } catch (e) {
+    alert("Errore nell'eliminazione: " + e.message);
+  }
+};
+
+// ══════════════════════════════════════════════════════════
+// EDITOR GRAFICO SCHEMA ESERCIZIO (SVG leggero, coordinate %)
+// ══════════════════════════════════════════════════════════
+let currentExerciseDiagram = { elements: [] };
+let diagramSelectedId = null;
+let diagramIdCounter = 1;
+let diagramDrag = null; // { id, mode:'move'|'resize'|'endpoint1'|'endpoint2', startX, startY, orig }
+
+const DIAGRAM_TYPES = {
+  player:     { kind: "point",  label: "Giocatore",  fill: "#1e7a3a", stroke: "white", r: 3.2 },
+  opponent:   { kind: "point",  label: "Avversario",  fill: "#c0392b", stroke: "white", r: 3.2 },
+  ball:       { kind: "point",  label: "Pallone",     fill: "white",   stroke: "#222",  r: 1.6 },
+  cone:       { kind: "cone",   label: "Conetto",     fill: "#f39c12", stroke: "#7a4a00", r: 2 },
+  pole:       { kind: "pole",   label: "Palo",        fill: "#dcdcdc", stroke: "#555" },
+  hurdle:     { kind: "hurdle", label: "Ostacolo",    fill: "#f4c430", stroke: "#7a5c00" },
+  circle:     { kind: "shapeC", label: "Cerchio",     fill: "none",    stroke: "white", resizable: true, dw: 10, dh: 10 },
+  goal:       { kind: "shapeR", label: "Porta",       fill: "none",    stroke: "white", resizable: true, dw: 16, dh: 7, strokeWidth: 1.4 },
+  minigoal:   { kind: "shapeR", label: "Porticina",   fill: "none",    stroke: "white", resizable: true, dw: 8,  dh: 4.5, dashed: true },
+  arrow:      { kind: "line",   label: "Freccia",     stroke: "#f4c430", arrow: true },
+  line:       { kind: "line",   label: "Linea",       stroke: "white" },
+  dashedline: { kind: "line",   label: "Tratteggiata", stroke: "white", dashed: true },
+  zonerect:   { kind: "shapeR", label: "Zona rett.",  fill: "rgba(244,196,48,0.25)", stroke: "#f4c430", resizable: true, dw: 22, dh: 16 },
+  zonecircle: { kind: "shapeC", label: "Zona circ.",  fill: "rgba(244,196,48,0.25)", stroke: "#f4c430", resizable: true, dw: 18, dh: 18 },
+};
+
+window.openDiagramEditor = function() {
+  diagramSelectedId = null;
+  renderDiagramSvg();
+  document.getElementById("trainingDiagramModal").style.display = "flex";
+};
+
+window.addDiagramElement = function(type) {
+  const def = DIAGRAM_TYPES[type];
+  if (!def) return;
+  const id = "el" + (diagramIdCounter++);
+  const jitter = ((currentExerciseDiagram.elements.length % 5) * 3);
+  const el = { id, type, x: 46 + jitter, y: 46 + jitter };
+  if (def.kind === "line") { el.x2 = el.x + 16; el.y2 = el.y; }
+  if (def.kind === "shapeR" || def.kind === "shapeC") { el.w = def.dw; el.h = def.dh; }
+  if (def.kind === "player" || type === "player" || type === "opponent") el.label = "";
+  currentExerciseDiagram.elements.push(el);
+  diagramSelectedId = id;
+  renderDiagramSvg();
+};
+
+function renderDiagramSvg() {
+  const svg = document.getElementById("diagramSvg");
+  if (!svg) return;
+  svg.innerHTML = trainingFieldMarkingsSvg() + currentExerciseDiagram.elements.map(el => diagramElementSvg(el)).join("");
+  // handlers
+  currentExerciseDiagram.elements.forEach(el => {
+    const node = svg.querySelector(`[data-el-id="${el.id}"]`);
+    if (node) node.addEventListener("pointerdown", ev => onDiagramPointerDown(ev, el.id, "move"));
+    const rh = svg.querySelector(`[data-resize-for="${el.id}"]`);
+    if (rh) rh.addEventListener("pointerdown", ev => { ev.stopPropagation(); onDiagramPointerDown(ev, el.id, "resize"); });
+    const h1 = svg.querySelector(`[data-endpoint1-for="${el.id}"]`);
+    if (h1) h1.addEventListener("pointerdown", ev => { ev.stopPropagation(); onDiagramPointerDown(ev, el.id, "endpoint1"); });
+    const h2 = svg.querySelector(`[data-endpoint2-for="${el.id}"]`);
+    if (h2) h2.addEventListener("pointerdown", ev => { ev.stopPropagation(); onDiagramPointerDown(ev, el.id, "endpoint2"); });
+  });
+  svg.addEventListener("pointerdown", ev => { if (ev.target === svg) deselectDiagramElement(); }, { once: true });
+  updateDiagramSelBar();
+}
+
+function trainingFieldMarkingsSvg() {
+  return `
+    <rect x="1" y="1" width="98" height="98" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="0.4"/>
+    <line x1="50" y1="1" x2="50" y2="99" stroke="rgba(255,255,255,0.4)" stroke-width="0.3"/>
+    <circle cx="50" cy="50" r="9" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.3"/>
+    <rect x="1" y="32" width="12" height="36" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.3"/>
+    <rect x="87" y="32" width="12" height="36" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.3"/>
+  `;
+}
+
+function diagramElementSvg(el, forThumb) {
+  const def = DIAGRAM_TYPES[el.type];
+  if (!def) return "";
+  const sel = !forThumb && el.id === diagramSelectedId;
+  const selAttr = sel ? `stroke-dasharray="1.2,1" stroke-width="0.6"` : "";
+  if (def.kind === "point") {
+    const label = el.label ? `<text x="${el.x}" y="${el.y + 1}" font-size="2.6" fill="white" text-anchor="middle" font-family="Oswald,sans-serif" font-weight="700" pointer-events="none">${escapeHtmlTraining(el.label)}</text>` : "";
+    return `<g data-el-id="${el.id}" style="cursor:${forThumb ? "default" : "grab"};">
+      <circle cx="${el.x}" cy="${el.y}" r="${def.r}" fill="${def.fill}" stroke="${sel ? "#f4c430" : def.stroke}" stroke-width="${sel ? 0.7 : 0.4}"/>
+      ${label}
+    </g>`;
+  }
+  if (def.kind === "cone") {
+    return `<polygon data-el-id="${el.id}" points="${el.x},${el.y - def.r} ${el.x - def.r},${el.y + def.r} ${el.x + def.r},${el.y + def.r}"
+      fill="${def.fill}" stroke="${sel ? "#f4c430" : def.stroke}" stroke-width="${sel ? 0.6 : 0.3}" style="cursor:${forThumb ? "default" : "grab"};"/>`;
+  }
+  if (def.kind === "pole") {
+    return `<rect data-el-id="${el.id}" x="${el.x - 0.5}" y="${el.y - 4}" width="1" height="8"
+      fill="${def.fill}" stroke="${sel ? "#f4c430" : def.stroke}" stroke-width="${sel ? 0.5 : 0.2}" style="cursor:${forThumb ? "default" : "grab"};"/>`;
+  }
+  if (def.kind === "hurdle") {
+    return `<rect data-el-id="${el.id}" x="${el.x - 3.5}" y="${el.y - 0.9}" width="7" height="1.8" rx="0.4"
+      fill="${def.fill}" stroke="${sel ? "#f4c430" : def.stroke}" stroke-width="${sel ? 0.5 : 0.25}" style="cursor:${forThumb ? "default" : "grab"};"/>`;
+  }
+  if (def.kind === "shapeR") {
+    const dashArr = def.dashed ? `stroke-dasharray="1.5,1"` : "";
+    return `<g data-el-id="${el.id}" style="cursor:${forThumb ? "default" : "grab"};">
+      <rect x="${el.x - el.w/2}" y="${el.y - el.h/2}" width="${el.w}" height="${el.h}"
+        fill="${def.fill}" stroke="${sel ? "#f4c430" : def.stroke}" stroke-width="${sel ? 0.7 : 0.4}" ${dashArr}/>
+      ${(!forThumb && def.resizable) ? `<rect data-resize-for="${el.id}" x="${el.x + el.w/2 - 2}" y="${el.y + el.h/2 - 2}" width="4" height="4" fill="#f4c430" style="cursor:nwse-resize;"/>` : ""}
+    </g>`;
+  }
+  if (def.kind === "shapeC") {
+    return `<g data-el-id="${el.id}" style="cursor:${forThumb ? "default" : "grab"};">
+      <ellipse cx="${el.x}" cy="${el.y}" rx="${el.w/2}" ry="${el.h/2}"
+        fill="${def.fill}" stroke="${sel ? "#f4c430" : def.stroke}" stroke-width="${sel ? 0.7 : 0.4}"/>
+      ${(!forThumb && def.resizable) ? `<rect data-resize-for="${el.id}" x="${el.x + el.w/2 - 2}" y="${el.y - 2}" width="4" height="4" fill="#f4c430" style="cursor:ew-resize;"/>` : ""}
+    </g>`;
+  }
+  if (def.kind === "line") {
+    const dashArr = def.dashed ? `stroke-dasharray="2,1.4"` : "";
+    const markerId = "arrowhead-" + el.id;
+    const marker = def.arrow ? `<defs><marker id="${markerId}" markerWidth="6" markerHeight="6" refX="4" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4 z" fill="${def.stroke}"/></marker></defs>` : "";
+    return `<g data-el-id="${el.id}">
+      ${marker}
+      <line x1="${el.x}" y1="${el.y}" x2="${el.x2}" y2="${el.y2}" stroke="${sel ? "#f4c430" : def.stroke}"
+        stroke-width="${sel ? 1 : 0.7}" ${dashArr} ${def.arrow ? `marker-end="url(#${markerId})"` : ""} style="cursor:${forThumb ? "default" : "grab"};"/>
+      ${!forThumb ? `<circle data-endpoint1-for="${el.id}" cx="${el.x}" cy="${el.y}" r="1.6" fill="#f4c430" style="cursor:grab;opacity:${sel ? 1 : 0};"/>` : ""}
+      ${!forThumb ? `<circle data-endpoint2-for="${el.id}" cx="${el.x2}" cy="${el.y2}" r="1.6" fill="#f4c430" style="cursor:grab;opacity:${sel ? 1 : 0};"/>` : ""}
+    </g>`;
+  }
+  return "";
+}
+
+function onDiagramPointerDown(ev, id, mode) {
+  ev.preventDefault();
+  diagramSelectedId = id;
+  const el = currentExerciseDiagram.elements.find(e => e.id === id);
+  const wrap = document.getElementById("diagramFieldWrap");
+  const rect = wrap.getBoundingClientRect();
+  diagramDrag = { id, mode, rect, orig: JSON.parse(JSON.stringify(el)) };
+  const move = e => onDiagramPointerMove(e);
+  const up = () => { window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); diagramDrag = null; };
+  window.addEventListener("pointermove", move);
+  window.addEventListener("pointerup", up);
+  renderDiagramSvg();
+}
+
+function onDiagramPointerMove(ev) {
+  if (!diagramDrag) return;
+  const { id, mode, rect, orig } = diagramDrag;
+  const el = currentExerciseDiagram.elements.find(e => e.id === id);
+  if (!el) return;
+  const px = ((ev.clientX - rect.left) / rect.width) * 100;
+  const py = ((ev.clientY - rect.top) / rect.height) * 100;
+  const clamp = v => Math.max(0, Math.min(100, v));
+  if (mode === "move") {
+    if (el.x2 !== undefined) {
+      el.x = clamp(orig.x + (px - orig.x)); el.y = clamp(orig.y + (py - orig.y));
+      el.x2 = orig.x2 + (el.x - orig.x); el.y2 = orig.y2 + (el.y - orig.y);
+    } else {
+      el.x = clamp(px); el.y = clamp(py);
+    }
+  } else if (mode === "resize") {
+    el.w = Math.max(3, Math.min(90, (px - orig.x) * 2));
+    el.h = Math.max(3, Math.min(90, (py - orig.y) * 2));
+  } else if (mode === "endpoint1") {
+    el.x = clamp(px); el.y = clamp(py);
+  } else if (mode === "endpoint2") {
+    el.x2 = clamp(px); el.y2 = clamp(py);
+  }
+  renderDiagramSvgLight();
+}
+
+// re-render leggero durante il drag (evita di ricreare tutti i listener ad ogni frame)
+function renderDiagramSvgLight() {
+  const svg = document.getElementById("diagramSvg");
+  if (!svg) return;
+  svg.innerHTML = trainingFieldMarkingsSvg() + currentExerciseDiagram.elements.map(el => diagramElementSvg(el)).join("");
+}
+
+window.deselectDiagramElement = function() { diagramSelectedId = null; renderDiagramSvg(); };
+window.duplicateDiagramSelected = function() {
+  const el = currentExerciseDiagram.elements.find(e => e.id === diagramSelectedId);
+  if (!el) return;
+  const copy = JSON.parse(JSON.stringify(el));
+  copy.id = "el" + (diagramIdCounter++);
+  copy.x = Math.min(96, copy.x + 4);
+  copy.y = Math.min(96, copy.y + 4);
+  if (copy.x2 !== undefined) { copy.x2 = Math.min(96, copy.x2 + 4); copy.y2 = Math.min(96, copy.y2 + 4); }
+  currentExerciseDiagram.elements.push(copy);
+  diagramSelectedId = copy.id;
+  renderDiagramSvg();
+};
+window.deleteDiagramSelected = function() {
+  currentExerciseDiagram.elements = currentExerciseDiagram.elements.filter(e => e.id !== diagramSelectedId);
+  diagramSelectedId = null;
+  renderDiagramSvg();
+};
+window.clearDiagram = function() {
+  if (!currentExerciseDiagram.elements.length) return;
+  if (!confirm("Rimuovere tutti gli elementi dallo schema?")) return;
+  currentExerciseDiagram.elements = [];
+  diagramSelectedId = null;
+  renderDiagramSvg();
+};
+function updateDiagramSelBar() {
+  const bar = document.getElementById("diagramSelBar");
+  if (!bar) return;
+  const el = currentExerciseDiagram.elements.find(e => e.id === diagramSelectedId);
+  if (!el) { bar.style.display = "none"; return; }
+  bar.style.display = "flex";
+  document.getElementById("diagramSelLabel").textContent = (DIAGRAM_TYPES[el.type]?.label || el.type) + " selezionato";
+}
+window.confirmDiagramEditor = function() {
+  closeModal("trainingDiagramModal");
+  updateExerciseDiagramPreview();
+};
+
+// miniatura SVG per lista esercizi / anteprima form (elementi non interattivi)
+function trainingDiagramThumbSvg(diagramData, big) {
+  if (!diagramData || !diagramData.elements || !diagramData.elements.length) {
+    return `<svg viewBox="0 0 100 100" preserveAspectRatio="none"><rect width="100" height="100" fill="#145a2a"/></svg>`;
+  }
+  const savedSel = diagramSelectedId;
+  diagramSelectedId = null;
+  const inner = trainingFieldMarkingsSvg() + diagramData.elements.map(el => diagramElementSvg(el, true)).join("");
+  diagramSelectedId = savedSel;
+  return `<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%;height:100%;">${inner}</svg>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// SESSIONI D'ALLENAMENTO (trainingSessions)
+// ══════════════════════════════════════════════════════════
+let trainingSessionsCache = null;
+let currentSessionExercises = []; // [{exerciseId, duration}]
+
+async function loadTrainingSessions(force) {
+  if (trainingSessionsCache && !force) { renderTrainingSessions(); return; }
+  const list = document.getElementById("trainingSessionList");
+  if (list) list.innerHTML = '<div class="training-empty">Caricamento...</div>';
+  await loadTrainingExercises(); // servono per mostrare i nomi
+  const snap = await getDocs(collection(db, "trainingSessions"));
+  trainingSessionsCache = [];
+  snap.forEach(d => trainingSessionsCache.push({ id: d.id, ...d.data() }));
+  trainingSessionsCache.sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "it", { sensitivity: "base" }));
+  renderTrainingSessions();
+}
+
+function exerciseNameById(id) {
+  const ex = trainingExercisesCache?.find(e => e.id === id);
+  return ex ? ex.nome : "(esercizio rimosso)";
+}
+
+function renderTrainingSessions() {
+  const list = document.getElementById("trainingSessionList");
+  if (!list || !trainingSessionsCache) return;
+  if (!trainingSessionsCache.length) {
+    list.innerHTML = '<div class="training-empty">Nessuna sessione creata. Crea la prima con "➕ Nuova sessione".</div>';
+    return;
+  }
+  list.innerHTML = trainingSessionsCache.map(sess => {
+    const nEx = (sess.esercizi || []).length;
+    return `
+      <div class="training-card">
+        <div class="training-card-top">
+          <div style="flex:1;min-width:0;">
+            <div class="training-card-title">${escapeHtmlTraining(sess.nome || "—")}</div>
+            <div class="training-card-meta">${nEx} esercizi · durata totale ${sess.durataTotale || 0} min</div>
+          </div>
+          <div class="training-card-actions">
+            <span title="Modifica" onclick="openSessionEditor('${sess.id}')">✏️</span>
+            <span title="Elimina" onclick="deleteTrainingSession('${sess.id}')">🗑</span>
+          </div>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+window.openSessionEditor = async function(id) {
+  await loadTrainingExercises();
+  const sess = id ? trainingSessionsCache.find(s => s.id === id) : null;
+  document.getElementById("trainingSessionModalTitle").textContent = sess ? "Modifica sessione" : "Nuova sessione";
+  document.getElementById("trainingSessId").value = sess ? sess.id : "";
+  document.getElementById("trainingSessNome").value = sess?.nome || "";
+  document.getElementById("trainingSessDescrizione").value = sess?.descrizione || "";
+  currentSessionExercises = sess ? JSON.parse(JSON.stringify(sess.esercizi || [])) : [];
+  renderSessionExerciseList();
+  document.getElementById("trainingSessionModal").style.display = "flex";
+};
+
+function renderSessionExerciseList() {
+  const box = document.getElementById("trainingSessExList");
+  if (!box) return;
+  if (!currentSessionExercises.length) {
+    box.innerHTML = '<div class="training-empty" style="padding:14px 0;">Nessun esercizio aggiunto</div>';
+  } else {
+    box.innerHTML = currentSessionExercises.map((se, idx) => `
+      <div class="sess-ex-row">
+        <span class="sess-ex-order">${String(idx + 1).padStart(2, "0")}</span>
+        <span class="sess-ex-name">${escapeHtmlTraining(exerciseNameById(se.exerciseId))}</span>
+        <input type="number" min="0" value="${se.duration ?? 0}" onchange="updateSessionExerciseDuration(${idx}, this.value)"> min
+        <div class="sess-ex-btns">
+          <span onclick="moveExerciseInSession(${idx}, -1)" title="Sposta su">⬆️</span>
+          <span onclick="moveExerciseInSession(${idx}, 1)" title="Sposta giù">⬇️</span>
+          <span onclick="removeExerciseFromSession(${idx})" title="Rimuovi">✖</span>
+        </div>
+      </div>`).join("");
+  }
+  const total = currentSessionExercises.reduce((sum, se) => sum + (parseInt(se.duration) || 0), 0);
+  document.getElementById("trainingSessionTotalDuration").textContent = `Durata totale: ${total} min`;
+}
+
+window.updateSessionExerciseDuration = function(idx, val) {
+  currentSessionExercises[idx].duration = parseInt(val) || 0;
+  renderSessionExerciseList();
+};
+window.moveExerciseInSession = function(idx, dir) {
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= currentSessionExercises.length) return;
+  [currentSessionExercises[idx], currentSessionExercises[newIdx]] = [currentSessionExercises[newIdx], currentSessionExercises[idx]];
+  renderSessionExerciseList();
+};
+window.removeExerciseFromSession = function(idx) {
+  currentSessionExercises.splice(idx, 1);
+  renderSessionExerciseList();
+};
+
+window.openExercisePicker = function() {
+  document.getElementById("trainingPickerSearch").value = "";
+  renderExercisePickerList();
+  document.getElementById("trainingExercisePickerModal").style.display = "flex";
+};
+window.renderExercisePickerList = function() {
+  const box = document.getElementById("trainingExercisePickerList");
+  if (!box) return;
+  const search = (document.getElementById("trainingPickerSearch").value || "").trim().toLowerCase();
+  const items = (trainingExercisesCache || []).filter(ex => !search || (ex.nome || "").toLowerCase().includes(search));
+  if (!items.length) { box.innerHTML = '<div class="training-empty">Nessun esercizio trovato</div>'; return; }
+  box.innerHTML = items.map(ex => `
+    <div class="training-card" style="cursor:pointer;" onclick="addExerciseToSession('${ex.id}')">
+      <div class="training-card-title" style="font-size:14px;">${escapeHtmlTraining(ex.nome)}</div>
+      <div class="training-card-meta">${ex.recommendedDuration ? ex.recommendedDuration + "' consigliati" : ""}</div>
+    </div>`).join("");
+};
+window.addExerciseToSession = function(exerciseId) {
+  const ex = trainingExercisesCache.find(e => e.id === exerciseId);
+  currentSessionExercises.push({ exerciseId, duration: ex?.recommendedDuration || 0 });
+  closeModal("trainingExercisePickerModal");
+  renderSessionExerciseList();
+};
+
+window.saveTrainingSession = async function() {
+  if (!trainingCanManage()) return alert("Non autorizzato");
+  const nome = document.getElementById("trainingSessNome").value.trim();
+  if (!nome) return alert("Il nome della sessione è obbligatorio");
+  const id = document.getElementById("trainingSessId").value;
+  const durataTotale = currentSessionExercises.reduce((sum, se) => sum + (parseInt(se.duration) || 0), 0);
+  const payload = {
+    nome,
+    descrizione: document.getElementById("trainingSessDescrizione").value.trim(),
+    esercizi: currentSessionExercises,
+    durataTotale,
+    updatedAt: new Date().toISOString(),
+  };
+  try {
+    if (id) {
+      await updateDoc(doc(db, "trainingSessions", id), payload);
+    } else {
+      payload.createdBy = (currentPlayer && currentPlayer.username) || (isAdmin ? "admin" : "");
+      payload.createdAt = new Date().toISOString();
+      await addDoc(collection(db, "trainingSessions"), payload);
+    }
+    closeModal("trainingSessionModal");
+    await loadTrainingSessions(true);
+  } catch (e) {
+    alert("Errore nel salvataggio della sessione: " + e.message);
+  }
+};
+
+window.deleteTrainingSession = async function(id) {
+  if (!trainingCanManage()) return alert("Non autorizzato");
+  if (!confirm("Eliminare questa sessione? Le eventuali programmazioni che la usano resteranno associate a una sessione non più esistente.")) return;
+  try {
+    await deleteDoc(doc(db, "trainingSessions", id));
+    await loadTrainingSessions(true);
+  } catch (e) {
+    alert("Errore nell'eliminazione: " + e.message);
+  }
+};
+
+async function ensureExercisesAndSessionsLoaded() {
+  await loadTrainingExercises();
+  await loadTrainingSessions();
+}
+
+// ══════════════════════════════════════════════════════════
+// ABBINA SESSIONE — calendario dedicato (trainingSchedules)
+// ══════════════════════════════════════════════════════════
+let trainingCalDate = new Date();
+let trainingSchedulesCache = {}; // { "YYYY-MM-DD": {id, sessionId, orario, ...} }
+let trainingSelectedDay = null;
+const MESI_IT = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+const GIORNI_IT = ["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
+
+function fmtDateYMD(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+async function loadTrainingSchedulesForMonth(year, month) {
+  // trainingSchedules ha come id la data stessa (YYYY-MM-DD): filtriamo lato client sul mese corrente
+  const snap = await getDocs(collection(db, "trainingSchedules"));
+  trainingSchedulesCache = {};
+  snap.forEach(d => {
+    const data = d.data();
+    if (data.date) trainingSchedulesCache[data.date] = { id: d.id, ...data };
+  });
+}
+
+window.trainingCalPrevMonth = function() {
+  trainingCalDate.setMonth(trainingCalDate.getMonth() - 1);
+  renderTrainingCalendar();
+};
+window.trainingCalNextMonth = function() {
+  trainingCalDate.setMonth(trainingCalDate.getMonth() + 1);
+  renderTrainingCalendar();
+};
+
+async function renderTrainingCalendar() {
+  const year = trainingCalDate.getFullYear();
+  const month = trainingCalDate.getMonth();
+  document.getElementById("trainingCalMonthLabel").textContent = `${MESI_IT[month]} ${year}`;
+  await loadTrainingSchedulesForMonth(year, month);
+
+  const grid = document.getElementById("trainingCalendarGrid");
+  let html = GIORNI_IT.map(g => `<div class="tcal-daylabel">${g}</div>`).join("");
+
+  const firstDay = new Date(year, month, 1);
+  const startOffset = (firstDay.getDay() + 6) % 7; // lunedì = 0
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayStr = fmtDateYMD(new Date());
+
+  for (let i = 0; i < startOffset; i++) html += `<div class="tcal-day empty"></div>`;
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = fmtDateYMD(new Date(year, month, day));
+    const hasSession = !!trainingSchedulesCache[dateStr];
+    const isSelected = dateStr === trainingSelectedDay;
+    const isToday = dateStr === todayStr;
+    html += `<div class="tcal-day ${hasSession ? "has-session" : ""} ${isSelected ? "selected" : ""}"
+      onclick="selectTrainingDay('${dateStr}')" style="${isToday ? "font-weight:700;" : ""}">
+      ${day}${hasSession ? '<span class="tcal-dot"></span>' : ""}
+    </div>`;
+  }
+  grid.innerHTML = html;
+
+  if (trainingSelectedDay) renderTrainingDayDetail(trainingSelectedDay);
+  else document.getElementById("trainingDayDetail").innerHTML = "";
+}
+
+window.selectTrainingDay = function(dateStr) {
+  trainingSelectedDay = dateStr;
+  renderTrainingCalendar();
+};
+
+async function renderTrainingDayDetail(dateStr) {
+  const box = document.getElementById("trainingDayDetail");
+  const sched = trainingSchedulesCache[dateStr];
+  const dateObj = new Date(dateStr + "T00:00:00");
+  const dataLabel = dateObj.toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" }).toUpperCase();
+
+  let sessioneHtml;
+  if (sched) {
+    const sess = trainingSessionsCache?.find(s => s.id === sched.sessionId);
+    sessioneHtml = `
+      <div class="training-card">
+        <div class="training-card-title">${escapeHtmlTraining(sess?.nome || "(sessione non trovata)")}</div>
+        <div class="training-card-meta">
+          ${sched.orario ? "Orario: " + sched.orario + " · " : ""}Durata: ${sess?.durataTotale || 0} minuti
+        </div>
+        <div class="training-card-actions" style="margin-top:10px;">
+          <span onclick="openTrainingScheduleModal('${dateStr}')">✏️ Modifica</span>
+          <span onclick="quickRemoveTrainingSchedule('${dateStr}')">🗑 Rimuovi</span>
+        </div>
+      </div>`;
+  } else {
+    sessioneHtml = `<button class="miniBtn" onclick="openTrainingScheduleModal('${dateStr}')">➕ Abbina sessione</button>`;
+  }
+
+  box.innerHTML = `
+    <div style="font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:1px;color:var(--gold);font-size:14px;margin-bottom:10px;">${dataLabel}</div>
+    ${sessioneHtml}
+    <div id="trainingPresenzeBox" style="margin-top:14px;"></div>
+  `;
+  loadTrainingPresenzeForDate(dateStr);
+}
+
+window.openTrainingScheduleModal = function(dateStr) {
+  const sched = trainingSchedulesCache[dateStr];
+  document.getElementById("trainingScheduleModalTitle").textContent = "Abbina sessione — " + dateStr.split("-").reverse().join("/");
+  document.getElementById("trainingScheduleSessionSelect").innerHTML =
+    (trainingSessionsCache || []).map(s => `<option value="${s.id}">${escapeHtmlTraining(s.nome)}</option>`).join("")
+    || '<option value="">Nessuna sessione disponibile — creane una prima</option>';
+  if (sched) document.getElementById("trainingScheduleSessionSelect").value = sched.sessionId;
+  document.getElementById("trainingScheduleOrario").value = sched?.orario || "";
+  document.getElementById("trainingScheduleRemoveBtn").style.display = sched ? "block" : "none";
+  document.getElementById("trainingScheduleModal").dataset.date = dateStr;
+  document.getElementById("trainingScheduleModal").style.display = "flex";
+};
+
+window.saveTrainingSchedule = async function() {
+  if (!trainingCanManage()) return alert("Non autorizzato");
+  const dateStr = document.getElementById("trainingScheduleModal").dataset.date;
+  const sessionId = document.getElementById("trainingScheduleSessionSelect").value;
+  if (!sessionId) return alert("Seleziona una sessione");
+  const orario = document.getElementById("trainingScheduleOrario").value || "";
+  try {
+    await setDoc(doc(db, "trainingSchedules", dateStr), {
+      date: dateStr,
+      sessionId,
+      orario,
+      createdBy: (currentPlayer && currentPlayer.username) || (isAdmin ? "admin" : ""),
+      createdAt: trainingSchedulesCache[dateStr]?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    closeModal("trainingScheduleModal");
+    await renderTrainingCalendar();
+  } catch (e) {
+    alert("Errore nel salvataggio della programmazione: " + e.message);
+  }
+};
+
+window.removeTrainingSchedule = async function() {
+  const dateStr = document.getElementById("trainingScheduleModal").dataset.date;
+  await quickRemoveTrainingSchedule(dateStr);
+  closeModal("trainingScheduleModal");
+};
+
+window.quickRemoveTrainingSchedule = async function(dateStr) {
+  if (!trainingCanManage()) return alert("Non autorizzato");
+  if (!confirm("Rimuovere la sessione programmata per questo giorno?")) return;
+  try {
+    await deleteDoc(doc(db, "trainingSchedules", dateStr));
+    await renderTrainingCalendar();
+  } catch (e) {
+    alert("Errore nella rimozione: " + e.message);
+  }
+};
+
+// ── PRESENZE del giorno (riusa la collezione "presenze" e "eventi" esistenti) ──
+async function loadTrainingPresenzeForDate(dateStr) {
+  const box = document.getElementById("trainingPresenzeBox");
+  if (!box) return;
+  box.innerHTML = '<div class="training-empty" style="padding:8px 0;">Caricamento presenze...</div>';
+  try {
+    // Trova un evento di tipo "Allenamento" già presente nel calendario generale per questa data
+    const snap = await getDocs(query(collection(db, "eventi"), where("data", "==", dateStr)));
+    let eventoId = null;
+    snap.forEach(d => {
+      const tipo = (d.data().tipo || "").toLowerCase();
+      if (!eventoId && tipo.includes("allenamento")) eventoId = d.id;
+    });
+    if (!eventoId) {
+      box.innerHTML = '<div class="training-empty" style="padding:8px 0;">Nessun evento "Allenamento" nel calendario generale per questa data: presenze non disponibili.</div>';
+      return;
+    }
+    const presSnap = await getDocs(query(collection(db, "presenze"), where("eventoId", "==", eventoId)));
+    let presenti = 0, assenti = 0;
+    const presentiNomi = [], assentiNomi = [];
+    presSnap.forEach(d => {
+      const p = d.data();
+      if (p.stato === "presente") { presenti++; presentiNomi.push(p.nome || p.username); }
+      else { assenti++; assentiNomi.push(p.nome || p.username); }
+    });
+    box.innerHTML = `
+      <span class="training-presenze-badge" onclick="openTrainingPresenzeModal('${eventoId}')">🟢 ${presenti} presenti${assenti ? " · 🔴 " + assenti + " assenti" : ""}</span>
+    `;
+    box.dataset.presentiNomi = JSON.stringify(presentiNomi);
+    box.dataset.assentiNomi = JSON.stringify(assentiNomi);
+  } catch (e) {
+    box.innerHTML = '<div class="training-empty" style="padding:8px 0;">Errore nel caricamento delle presenze.</div>';
+  }
+}
+
+window.openTrainingPresenzeModal = async function(eventoId) {
+  document.getElementById("trainingPresenzeModalBody").innerHTML = '<div class="training-empty">Caricamento...</div>';
+  document.getElementById("trainingPresenzeModal").style.display = "flex";
+  const presSnap = await getDocs(query(collection(db, "presenze"), where("eventoId", "==", eventoId)));
+  const presenti = [], assenti = [];
+  const votati = new Set();
+  presSnap.forEach(d => {
+    const p = d.data();
+    if (p.username) votati.add(p.username);
+    if (p.stato === "presente") presenti.push(p.nome || p.username);
+    else assenti.push(p.nome || p.username);
+  });
+  let nonRisposto = [];
+  try {
+    const utentiSnap = await getDocs(collection(db, "utenti"));
+    utentiSnap.forEach(d => {
+      const u = d.data();
+      if (u.username && !u.votoDisabilitato && !votati.has(u.username)) nonRisposto.push(u.nome || u.username);
+    });
+  } catch (e) { /* mostriamo comunque presenti/assenti */ }
+
+  document.getElementById("trainingPresenzeModalTitle").textContent = `Presenti — ${presenti.length}`;
+  document.getElementById("trainingPresenzeModalBody").innerHTML = `
+    ${presenti.map(n => `<div class="training-presenze-row"><span>🟢 ${escapeHtmlTraining(n)}</span></div>`).join("") || '<div class="training-empty">Nessun presente ancora</div>'}
+    ${assenti.length ? `<div style="margin-top:14px;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;color:#ef4444;">🔴 ASSENTI (${assenti.length})</div>` + assenti.map(n => `<div class="training-presenze-row"><span>🔴 ${escapeHtmlTraining(n)}</span></div>`).join("") : ""}
+    ${nonRisposto.length ? `<div style="margin-top:14px;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;color:#aaa;">⚪ NON RISPOSTO (${nonRisposto.length})</div>` + nonRisposto.map(n => `<div class="training-presenze-row"><span>⚪ ${escapeHtmlTraining(n)}</span></div>`).join("") : ""}
+  `;
+};
 
 </script>
 

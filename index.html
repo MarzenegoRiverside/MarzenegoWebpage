@@ -1722,8 +1722,11 @@ body > div.page, #homePage, #calendarPage {
 
 /* ═══════════════════════════════════════════════════════
    TEMA CHIARO — attivato con body[data-theme="light"]
-   Header, menu laterale e tab bar restano sempre verdi
-   (brand fisso); qui cambia solo l'area di contenuto.
+   Non è mai il tema di default: si applica solo dopo il
+   click dell'utente su "Tema chiaro" nel menu, e vale solo
+   per la sessione corrente (non viene salvato).
+   Header, menu laterale, tab bar e contenuto cambiano tutti
+   insieme.
    ═══════════════════════════════════════════════════════ */
 body[data-theme="light"] {
   background-color: #f6f3ec;
@@ -1869,17 +1872,73 @@ body[data-theme="light"] .themeCardText {
 body[data-theme="light"] #installBanner {
   color: var(--green-dark);
 }
+
+/* ── BARRA SUPERIORE (header) in tema chiaro ─────────────── */
+body[data-theme="light"] #appHeader {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(244,196,48,0.18), transparent 55%),
+    linear-gradient(150deg, #ffffff 0%, #f7f3ea 100%);
+  border-bottom: 1px solid #e2dccb;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+}
+body[data-theme="light"] #appHeaderName {
+  color: var(--green-dark);
+}
+body[data-theme="light"] #appHeaderName strong {
+  color: var(--gold-dark);
+}
+body[data-theme="light"] #appHeaderUser {
+  color: rgba(0,0,0,0.55);
+}
+body[data-theme="light"] #appHeaderUser:hover {
+  background: rgba(0,0,0,0.06);
+}
+body[data-theme="light"] #appHeaderChat {
+  color: rgba(0,0,0,0.55);
+}
+body[data-theme="light"] #appHeaderChat:hover {
+  background: rgba(0,0,0,0.06);
+}
+body[data-theme="light"] #chatBadge {
+  border-color: #f6f3ec;
+}
+
+/* ── MENU LATERALE in tema chiaro ────────────────────────── */
+body[data-theme="light"] #sideMenu {
+  background: #ffffff;
+  border-right: 1px solid #e2dccb;
+}
+body[data-theme="light"] #sideMenu::before {
+  color: var(--gold-dark);
+  border-bottom: 1px solid rgba(201,162,0,0.3);
+}
+body[data-theme="light"] #closeMenuBtn {
+  color: rgba(0,0,0,0.4);
+}
+body[data-theme="light"] #closeMenuBtn:hover {
+  color: var(--gold-dark);
+}
+/* testo bianco/oro/celeste/rosso inline nel menu: varianti leggibili su sfondo chiaro */
+body[data-theme="light"] #sideMenu [style*="color:white"],
+body[data-theme="light"] #sideMenu [style*="color: white"] { color: #2a2a26 !important; }
+body[data-theme="light"] #sideMenu [style*="color:var(--gold)"],
+body[data-theme="light"] #sideMenu [style*="color: var(--gold)"] { color: var(--gold-dark) !important; }
+body[data-theme="light"] #sideMenu [style*="color:rgba(244,196,48,0.6)"] { color: rgba(169,130,10,0.85) !important; }
+body[data-theme="light"] #sideMenu [style*="color:rgba(255,255,255,0.4)"] { color: rgba(0,0,0,0.45) !important; }
+body[data-theme="light"] #sideMenu [style*="color:rgba(255,255,255,0.45)"] { color: rgba(0,0,0,0.5) !important; }
+body[data-theme="light"] #sideMenu [style*="color:rgba(255,255,255,0.5)"] { color: rgba(0,0,0,0.55) !important; }
+body[data-theme="light"] #sideMenu [style*="color:#90cdf4"] { color: #1a6fa8 !important; }
+body[data-theme="light"] #sideMenu [style*="color:#ff8080"] { color: #c0392b !important; }
+/* sfondi/bordi neutri traslucidi: da bianco-su-scuro a scuro-su-chiaro */
+body[data-theme="light"] #sideMenu [style*="background:rgba(255,255,255,0.05)"] { background: rgba(0,0,0,0.035) !important; }
+body[data-theme="light"] #sideMenu [style*="border:1px solid rgba(255,255,255,0.1)"] { border-color: rgba(0,0,0,0.08) !important; }
+body[data-theme="light"] #sideMenu [style*="border:1px solid rgba(255,255,255,0.15)"] { border-color: rgba(0,0,0,0.12) !important; }
   </style>
 </head>
 
 <body>
-<script>
-try {
-  if (localStorage.getItem("marzenego_theme") === "light") {
-    document.body.setAttribute("data-theme", "light");
-  }
-} catch (e) {}
-</script>
+<!-- Il tema di default è sempre quello verde: nessuna preferenza salvata
+     viene riletta all'apertura (vedi toggleTheme più sotto). -->
 
 </div>
 
@@ -2743,24 +2802,18 @@ window.toggleTheme = function() {
     const isLight = document.body.getAttribute("data-theme") === "light";
     if (isLight) {
       document.body.removeAttribute("data-theme");
-      localStorage.setItem("marzenego_theme", "dark");
       updateThemeToggleUI(false);
     } else {
       document.body.setAttribute("data-theme", "light");
-      localStorage.setItem("marzenego_theme", "light");
       updateThemeToggleUI(true);
     }
   } catch (e) { console.warn("toggleTheme error:", e); }
 }
+// Il tema chiaro non viene mai ricordato tra un'apertura e l'altra:
+// ogni volta che l'app si apre parte sempre con il tema verde di default.
 try {
-  (function applySavedTheme() {
-    const saved = localStorage.getItem("marzenego_theme");
-    if (saved === "light") {
-      document.body.setAttribute("data-theme", "light");
-    }
-    updateThemeToggleUI(saved === "light");
-  })();
-} catch (e) { console.warn("applySavedTheme error:", e); }
+  updateThemeToggleUI(false);
+} catch (e) { console.warn("initThemeUI error:", e); }
 
 // ─── MENU ───────────────────────────────────────────────
 window.toggleMenu = function() {

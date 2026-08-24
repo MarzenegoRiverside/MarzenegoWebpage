@@ -1936,12 +1936,12 @@ body[data-theme="light"] #sideMenu [style*="border:1px solid rgba(255,255,255,0.
   /* ══════════════════════════════════════════════════════════
      TAB ALLENAMENTI (sezione staff: esercizi / sessioni / calendario)
      ══════════════════════════════════════════════════════════ */
-  .training-tabs { display:flex; gap:6px; padding:0 16px 14px; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .training-tabs { display:flex; flex-wrap:wrap; gap:5px; padding:0 16px 14px; }
   .training-tab {
-    flex:0 0 auto; padding:8px 16px; background:rgba(255,255,255,0.06);
-    border:1px solid rgba(255,255,255,0.15); border-radius:20px;
-    font-family:'Oswald',sans-serif; font-size:12px; font-weight:700;
-    letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,0.65);
+    flex:0 0 auto; padding:6px 10px; background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.15); border-radius:16px;
+    font-family:'Oswald',sans-serif; font-size:10px; font-weight:700;
+    letter-spacing:0.4px; text-transform:uppercase; color:rgba(255,255,255,0.65);
     cursor:pointer; transition:all .15s; white-space:nowrap;
   }
   .training-tab.active { background:var(--gold); color:var(--green-dark); border-color:var(--gold); }
@@ -1993,8 +1993,14 @@ body[data-theme="light"] #sideMenu [style*="border:1px solid rgba(255,255,255,0.
   .diagram-selbar button.secondary { background:rgba(255,255,255,0.15); color:white; }
 
   /* ── Modali larghe (form allenamenti) ─────────────────── */
+  .training-modal-wide {
+    /* sopra #topBar (z-index:10000) e #sideMenu (z-index:10002), altrimenti la tabBar
+       resta cliccabile sopra il modale e ne copre la parte superiore */
+    z-index:10010;
+    padding-top:70px; box-sizing:border-box;
+  }
   .training-modal-wide .modal-content {
-    width:min(560px,92vw); max-height:88vh; overflow-y:auto;
+    width:min(560px,92vw); max-height:calc(88vh - 70px); overflow-y:auto;
     background:#0e2414; color:white; border-top:5px solid var(--gold);
   }
   .training-modal-wide .modal-content h3 { color:var(--gold); }
@@ -3008,6 +3014,16 @@ body[data-theme="light"] #sideMenu [style*="border:1px solid rgba(255,255,255,0.
   </div>
 </div>
 
+<!-- MODAL: anteprima rapida esercizio (schema + descrizione) -->
+<div id="trainingExercisePreviewModal" class="modal training-modal-wide">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('trainingExercisePreviewModal')">✖</span>
+    <h3 id="trainingExPreviewTitle">Esercizio</h3>
+    <div id="trainingExPreviewThumb" class="training-thumb" style="width:100%;height:200px;margin-bottom:12px;"></div>
+    <div id="trainingExPreviewDescrizione" style="font-family:'Barlow',sans-serif;font-size:13px;line-height:1.5;color:rgba(255,255,255,0.85);white-space:pre-wrap;"></div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
 <script type="module">
@@ -3241,6 +3257,13 @@ window.onclick = function(event) {
   const modal = document.getElementById("imgModal");
   if (event.target === modal) modal.style.display = "none";
 }
+
+// Chiudi i modali della sezione Allenamenti cliccando fuori dal contenuto
+document.addEventListener('click', function(event) {
+  if (event.target.classList && event.target.classList.contains('training-modal-wide')) {
+    event.target.style.display = "none";
+  }
+});
 
 window.openLogin = () => document.getElementById("loginModal").style.display = "flex";
 window.closeModal = id => document.getElementById(id).style.display = "none";
@@ -6268,7 +6291,7 @@ window.renderTrainingExercises = function() {
     return `
       <div class="training-card">
         <div class="training-card-top">
-          <div class="training-thumb">${thumb}</div>
+          <div class="training-thumb" style="cursor:pointer;" onclick="openExercisePreview('${ex.id}')" title="Anteprima esercizio">${thumb}</div>
           <div style="flex:1;min-width:0;">
             <div class="training-card-title">${escapeHtmlTraining(ex.nome || "—")}</div>
             <div class="training-card-meta">${[giocatori, durata].filter(Boolean).join(" · ")}</div>
@@ -6281,6 +6304,15 @@ window.renderTrainingExercises = function() {
         </div>
       </div>`;
   }).join("");
+};
+
+window.openExercisePreview = function(id) {
+  const ex = trainingExercisesCache?.find(e => e.id === id);
+  if (!ex) return;
+  document.getElementById("trainingExPreviewTitle").textContent = ex.nome || "Esercizio";
+  document.getElementById("trainingExPreviewThumb").innerHTML = trainingDiagramThumbSvg(ex.diagramData);
+  document.getElementById("trainingExPreviewDescrizione").textContent = ex.descrizione || "Nessuna descrizione.";
+  document.getElementById("trainingExercisePreviewModal").style.display = "flex";
 };
 
 function escapeHtmlTraining(s) {

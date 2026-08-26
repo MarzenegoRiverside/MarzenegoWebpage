@@ -2068,6 +2068,25 @@ body[data-theme="light"] #sideMenu [style*="border:1px solid rgba(255,255,255,0.
   .tcal-day.selected { outline:2px solid var(--gold); outline-offset:1px; }
   .tcal-day .tcal-dot { width:5px; height:5px; border-radius:50%; background:var(--gold); margin-top:2px; }
   #trainingDayDetail { margin-top:18px; }
+
+  /* ── Badge "già in una sessione" nel picker esercizi ──── */
+  .training-badge-used {
+    display:inline-flex; align-items:center; gap:4px; font-size:10px; padding:3px 8px; margin-top:6px;
+    border-radius:10px; background:rgba(244,196,48,0.12); color:var(--gold);
+    font-family:'Barlow',sans-serif; font-style:italic; white-space:normal; line-height:1.3;
+  }
+
+  /* ── Anteprima sessione (popup) ───────────────────────── */
+  #trainingSessPreviewMeta { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 4px; }
+  .sess-preview-total { font-family:'Oswald',sans-serif; font-weight:700; color:var(--gold); font-size:12px; letter-spacing:0.5px; margin-bottom:12px; text-transform:uppercase; }
+  .sess-preview-block { padding:12px 0; }
+  .sess-preview-block:first-of-type { padding-top:4px; }
+  .sess-preview-divider { height:2px; background:#000; border:none; margin:2px 0; opacity:0.8; }
+  .sess-preview-title { font-family:'Oswald',sans-serif; font-weight:700; font-size:14px; color:white; }
+  .sess-preview-desc { font-family:'Barlow',sans-serif; font-size:12.5px; line-height:1.5; color:rgba(255,255,255,0.85); white-space:pre-wrap; margin-top:6px; }
+  .sess-preview-thumb { width:100%; height:150px; border-radius:8px; margin-top:8px; overflow:hidden; background:linear-gradient(180deg,#1e7a3a,#145a2a); border:1px solid rgba(255,255,255,0.25); }
+  .sess-preview-thumb svg { width:100%; height:100%; display:block; }
+  .sess-preview-duration { font-family:'Barlow',sans-serif; font-size:12px; color:var(--gold); font-weight:600; margin-top:6px; }
   .training-presenze-badge {
     display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:14px;
     background:rgba(34,197,94,0.15); color:#22c55e; font-family:'Oswald',sans-serif;
@@ -3021,6 +3040,21 @@ body[data-theme="light"] #sideMenu [style*="border:1px solid rgba(255,255,255,0.
     <h3 id="trainingExPreviewTitle">Esercizio</h3>
     <div id="trainingExPreviewThumb" class="training-thumb" style="width:100%;height:200px;margin-bottom:12px;"></div>
     <div id="trainingExPreviewDescrizione" style="font-family:'Barlow',sans-serif;font-size:13px;line-height:1.5;color:rgba(255,255,255,0.85);white-space:pre-wrap;"></div>
+  </div>
+</div>
+
+<!-- MODAL: anteprima sessione (elenco esercizi abbinati + esportazione PNG) -->
+<div id="trainingSessionPreviewModal" class="modal training-modal-wide">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('trainingSessionPreviewModal')">✖</span>
+    <h3 id="trainingSessPreviewTitle">Sessione</h3>
+    <div id="trainingSessPreviewMeta"></div>
+    <div id="trainingSessPreviewTotal" class="sess-preview-total"></div>
+    <div id="trainingSessPreviewBody"></div>
+    <div class="training-modal-actions">
+      <button class="training-btn-secondary" onclick="closeModal('trainingSessionPreviewModal')">Chiudi</button>
+      <button class="training-btn-primary" onclick="exportSessionPreviewPng(event)">📸 Esporta PNG</button>
+    </div>
   </div>
 </div>
 
@@ -6657,6 +6691,7 @@ function renderTrainingSessions() {
             <div class="training-card-meta">${nEx} esercizi · durata totale ${sess.durataTotale || 0} min</div>
           </div>
           <div class="training-card-actions">
+            <span title="Anteprima" onclick="openSessionPreview('${sess.id}')">👁️</span>
             <span title="Modifica" onclick="openSessionEditor('${sess.id}')">✏️</span>
             <span title="Elimina" onclick="deleteTrainingSession('${sess.id}')">🗑</span>
           </div>
@@ -6683,8 +6718,11 @@ function renderSessionExerciseList() {
   if (!currentSessionExercises.length) {
     box.innerHTML = '<div class="training-empty" style="padding:14px 0;">Nessun esercizio aggiunto</div>';
   } else {
-    box.innerHTML = currentSessionExercises.map((se, idx) => `
-      <div class="sess-ex-row">
+    box.innerHTML = currentSessionExercises.map((se, idx) => {
+      const ex = trainingExercisesCache?.find(e => e.id === se.exerciseId);
+      const tags = (ex?.categorie || []).map(c => `<span class="training-tag">${escapeHtmlTraining(c)}</span>`).join("");
+      return `
+      <div class="sess-ex-row" style="flex-wrap:wrap;">
         <span class="sess-ex-order">${String(idx + 1).padStart(2, "0")}</span>
         <span class="sess-ex-name">${escapeHtmlTraining(exerciseNameById(se.exerciseId))}</span>
         <input type="number" min="0" value="${se.duration ?? 0}" onchange="updateSessionExerciseDuration(${idx}, this.value)"> min
@@ -6693,7 +6731,9 @@ function renderSessionExerciseList() {
           <span onclick="moveExerciseInSession(${idx}, 1)" title="Sposta giù">⬇️</span>
           <span onclick="removeExerciseFromSession(${idx})" title="Rimuovi">✖</span>
         </div>
-      </div>`).join("");
+        ${tags ? `<div class="training-card-tags" style="width:100%;margin-top:2px;padding-left:28px;box-sizing:border-box;">${tags}</div>` : ""}
+      </div>`;
+    }).join("");
   }
   const total = currentSessionExercises.reduce((sum, se) => sum + (parseInt(se.duration) || 0), 0);
   document.getElementById("trainingSessionTotalDuration").textContent = `Durata totale: ${total} min`;
@@ -6719,17 +6759,34 @@ window.openExercisePicker = function() {
   renderExercisePickerList();
   document.getElementById("trainingExercisePickerModal").style.display = "flex";
 };
+// Sessioni (diverse da quella eventualmente in modifica) che contengono già l'esercizio dato
+function sessionsUsingExercise(exerciseId, excludeSessionId) {
+  return (trainingSessionsCache || [])
+    .filter(s => s.id !== excludeSessionId && (s.esercizi || []).some(se => se.exerciseId === exerciseId))
+    .map(s => s.nome || "—");
+}
+
 window.renderExercisePickerList = function() {
   const box = document.getElementById("trainingExercisePickerList");
   if (!box) return;
   const search = (document.getElementById("trainingPickerSearch").value || "").trim().toLowerCase();
   const items = (trainingExercisesCache || []).filter(ex => !search || (ex.nome || "").toLowerCase().includes(search));
   if (!items.length) { box.innerHTML = '<div class="training-empty">Nessun esercizio trovato</div>'; return; }
-  box.innerHTML = items.map(ex => `
+  const editingSessionId = document.getElementById("trainingSessId").value || null;
+  box.innerHTML = items.map(ex => {
+    const tags = (ex.categorie || []).map(c => `<span class="training-tag">${escapeHtmlTraining(c)}</span>`).join("");
+    const usedIn = sessionsUsingExercise(ex.id, editingSessionId);
+    const usedBadge = usedIn.length
+      ? `<div class="training-badge-used">🔁 Già in: ${usedIn.map(escapeHtmlTraining).join(", ")}</div>`
+      : "";
+    return `
     <div class="training-card" style="cursor:pointer;" onclick="addExerciseToSession('${ex.id}')">
       <div class="training-card-title" style="font-size:14px;">${escapeHtmlTraining(ex.nome)}</div>
       <div class="training-card-meta">${ex.recommendedDuration ? ex.recommendedDuration + "' consigliati" : ""}</div>
-    </div>`).join("");
+      <div class="training-card-tags">${tags}</div>
+      ${usedBadge}
+    </div>`;
+  }).join("");
 };
 window.addExerciseToSession = function(exerciseId) {
   const ex = trainingExercisesCache.find(e => e.id === exerciseId);
@@ -6781,6 +6838,220 @@ async function ensureExercisesAndSessionsLoaded() {
   await loadTrainingExercises();
   await loadTrainingSessions();
 }
+
+// ══════════════════════════════════════════════════════════
+// ANTEPRIMA SESSIONE (popup con elenco esercizi abbinati) + export PNG
+// ══════════════════════════════════════════════════════════
+let trainingPreviewSessionId = null;
+
+window.openSessionPreview = async function(sessionId) {
+  await ensureExercisesAndSessionsLoaded();
+  const sess = trainingSessionsCache?.find(s => s.id === sessionId);
+  if (!sess) return alert("Sessione non trovata");
+  trainingPreviewSessionId = sessionId;
+
+  document.getElementById("trainingSessPreviewTitle").textContent = sess.nome || "Sessione";
+
+  // categorie aggregate di tutti gli esercizi della sessione
+  const catSet = new Set();
+  (sess.esercizi || []).forEach(se => {
+    const ex = trainingExercisesCache?.find(e => e.id === se.exerciseId);
+    (ex?.categorie || []).forEach(c => catSet.add(c));
+  });
+  document.getElementById("trainingSessPreviewMeta").innerHTML =
+    [...catSet].map(c => `<span class="training-tag">${escapeHtmlTraining(c)}</span>`).join("")
+    || '<span class="training-tag" style="opacity:0.5;">Nessuna categoria</span>';
+
+  document.getElementById("trainingSessPreviewTotal").textContent = `Durata totale: ${sess.durataTotale || 0} min`;
+
+  const body = document.getElementById("trainingSessPreviewBody");
+  if (!(sess.esercizi || []).length) {
+    body.innerHTML = '<div class="training-empty">Nessun esercizio abbinato a questa sessione</div>';
+  } else {
+    body.innerHTML = sess.esercizi.map((se, idx) => {
+      const ex = trainingExercisesCache?.find(e => e.id === se.exerciseId);
+      const tags = (ex?.categorie || []).map(c => `<span class="training-tag">${escapeHtmlTraining(c)}</span>`).join("");
+      const thumb = trainingDiagramThumbSvg(ex?.diagramData);
+      const divider = idx > 0 ? '<hr class="sess-preview-divider">' : "";
+      return `
+        ${divider}
+        <div class="sess-preview-block">
+          <div class="sess-preview-title">${escapeHtmlTraining(ex?.nome || "(esercizio rimosso)")}</div>
+          <div class="training-card-tags">${tags}</div>
+          <div class="sess-preview-desc">${escapeHtmlTraining(ex?.descrizione || "Nessuna descrizione.")}</div>
+          <div class="sess-preview-thumb">${thumb}</div>
+          <div class="sess-preview-duration">⏱ ${se.duration ?? 0} min</div>
+        </div>`;
+    }).join("");
+  }
+
+  document.getElementById("trainingSessionPreviewModal").style.display = "flex";
+};
+
+// A capo semplice per canvas: spezza `text` in righe che stanno entro maxWidth
+function trainingWrapCanvasText(ctx, text, maxWidth) {
+  const paragraphs = String(text || "").split("\n");
+  const lines = [];
+  paragraphs.forEach(par => {
+    const words = par.split(/\s+/).filter(Boolean);
+    if (!words.length) { lines.push(""); return; }
+    let line = "";
+    words.forEach(word => {
+      const test = line ? line + " " + word : word;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = test;
+      }
+    });
+    if (line) lines.push(line);
+  });
+  return lines;
+}
+
+// Converte lo schema (dati SVG) di un esercizio in una Image caricabile su canvas
+function trainingDiagramToImage(diagramData) {
+  const inner = (!diagramData || !diagramData.elements || !diagramData.elements.length)
+    ? `<rect width="100" height="100" fill="#145a2a"/>`
+    : trainingFieldMarkingsSvg() + diagramData.elements.map(el => diagramElementSvg(el, true)).join("");
+  const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="600" height="600">${inner}</svg>`;
+  const dataUrl = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgStr)));
+  return loadImageFromSrc(dataUrl);
+}
+
+// Disegna l'intera sessione (titolo + ogni esercizio separato da riga nera) su un canvas.
+// Se draw=false non disegna nulla: serve solo a calcolare l'altezza totale necessaria (stessa
+// identica sequenza di font/misure del passaggio di disegno reale, per evitare disallineamenti).
+function drawSessionPngContent(ctx, sess, exObjs, diagramImages, draw) {
+  const W = 1000, PAD = 40, CONTENT_W = W - PAD * 2, THUMB_H = 260;
+  const esercizi = sess.esercizi || [];
+  const catSet = new Set();
+  exObjs.forEach(ex => (ex?.categorie || []).forEach(c => catSet.add(c)));
+
+  if (draw) {
+    ctx.fillStyle = "#0e2414";
+    ctx.fillRect(0, 0, W, ctx.canvas.height);
+  }
+
+  let y = PAD;
+  ctx.textBaseline = "top";
+
+  ctx.font = "700 34px Oswald, Arial, sans-serif";
+  if (draw) { ctx.fillStyle = "#f4c430"; ctx.fillText(sess.nome || "Sessione", PAD, y); }
+  y += 46;
+
+  ctx.font = "700 14px Oswald, Arial, sans-serif";
+  let cx = PAD;
+  [...catSet].forEach(c => {
+    const label = c.toUpperCase();
+    const w = ctx.measureText(label).width + 20;
+    if (draw) {
+      ctx.fillStyle = "rgba(244,196,48,0.18)";
+      drawRoundedRect(ctx, cx, y, w, 26, 13);
+      ctx.fill();
+      ctx.fillStyle = "#f4c430";
+      ctx.fillText(label, cx + 10, y + 6);
+    }
+    cx += w + 8;
+  });
+  y += 40;
+
+  ctx.font = "700 16px Oswald, Arial, sans-serif";
+  if (draw) { ctx.fillStyle = "#f4c430"; ctx.fillText(`DURATA TOTALE: ${sess.durataTotale || 0} MIN`, PAD, y); }
+  y += 40;
+
+  for (let idx = 0; idx < esercizi.length; idx++) {
+    const se = esercizi[idx];
+    const ex = exObjs[idx];
+
+    if (idx > 0) {
+      y += 10;
+      if (draw) {
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(PAD, y);
+        ctx.lineTo(W - PAD, y);
+        ctx.stroke();
+      }
+      y += 20;
+    }
+
+    ctx.font = "700 24px Oswald, Arial, sans-serif";
+    if (draw) { ctx.fillStyle = "#ffffff"; ctx.fillText(ex?.nome || "(esercizio rimosso)", PAD, y); }
+    y += 36;
+
+    ctx.font = "700 12px Oswald, Arial, sans-serif";
+    let tx = PAD;
+    (ex?.categorie || []).forEach(c => {
+      const label = c.toUpperCase();
+      const w = ctx.measureText(label).width + 16;
+      if (draw) {
+        ctx.fillStyle = "rgba(244,196,48,0.18)";
+        drawRoundedRect(ctx, tx, y, w, 22, 11);
+        ctx.fill();
+        ctx.fillStyle = "#f4c430";
+        ctx.fillText(label, tx + 8, y + 5);
+      }
+      tx += w + 6;
+    });
+    y += 34;
+
+    ctx.font = "400 15px Barlow, Arial, sans-serif";
+    const descLines = trainingWrapCanvasText(ctx, ex?.descrizione || "Nessuna descrizione.", CONTENT_W);
+    if (draw) ctx.fillStyle = "rgba(255,255,255,0.85)";
+    descLines.forEach(line => {
+      if (draw) ctx.fillText(line, PAD, y);
+      y += 22;
+    });
+    y += 10;
+
+    if (draw && diagramImages[idx]) ctx.drawImage(diagramImages[idx], PAD, y, THUMB_H, THUMB_H);
+    y += THUMB_H + 16;
+
+    ctx.font = "700 15px Barlow, Arial, sans-serif";
+    if (draw) { ctx.fillStyle = "#f4c430"; ctx.fillText(`⏱ ${se.duration ?? 0} min`, PAD, y); }
+    y += 30;
+  }
+
+  return y + PAD;
+}
+
+window.exportSessionPreviewPng = async function(ev) {
+  const sess = trainingSessionsCache?.find(s => s.id === trainingPreviewSessionId);
+  if (!sess) return;
+  const btn = ev?.target || document.querySelector('#trainingSessionPreviewModal .training-btn-primary');
+  const originalLabel = btn ? btn.textContent : "";
+  if (btn) { btn.disabled = true; btn.textContent = "Generazione..."; }
+
+  try {
+    const exObjs = (sess.esercizi || []).map(se => trainingExercisesCache?.find(e => e.id === se.exerciseId));
+    const diagramImages = await Promise.all(exObjs.map(ex => trainingDiagramToImage(ex?.diagramData)));
+
+    // passaggio 1: solo misurazione, per calcolare l'altezza esatta del canvas
+    const measureCanvas = document.createElement("canvas");
+    measureCanvas.width = 1000;
+    const totalHeight = drawSessionPngContent(measureCanvas.getContext("2d"), sess, exObjs, diagramImages, false);
+
+    // passaggio 2: disegno reale sul canvas dimensionato correttamente
+    const canvas = document.createElement("canvas");
+    canvas.width = 1000;
+    canvas.height = Math.max(totalHeight, 400);
+    drawSessionPngContent(canvas.getContext("2d"), sess, exObjs, diagramImages, true);
+
+    const link = document.createElement("a");
+    link.href = canvas.toDataURL("image/png");
+    link.download = `sessione-${(sess.nome || "allenamento").toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (e) {
+    alert("Errore nell'esportazione PNG: " + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = originalLabel; }
+  }
+};
 
 // ══════════════════════════════════════════════════════════
 // ABBINA SESSIONE — calendario dedicato (trainingSchedules)
@@ -6866,6 +7137,7 @@ async function renderTrainingDayDetail(dateStr) {
           ${sched.orario ? "Orario: " + sched.orario + " · " : ""}Durata: ${sess?.durataTotale || 0} minuti
         </div>
         <div class="training-card-actions" style="margin-top:10px;">
+          <span onclick="openSessionPreview('${sched.sessionId}')">👁️ Anteprima</span>
           <span onclick="openTrainingScheduleModal('${dateStr}')">✏️ Modifica</span>
           <span onclick="quickRemoveTrainingSchedule('${dateStr}')">🗑 Rimuovi</span>
         </div>

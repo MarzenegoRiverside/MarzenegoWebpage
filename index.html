@@ -5764,16 +5764,21 @@ window.loadUtenti = async function() {
   utenti.forEach((d, idx) => {
     const disabilitato = !!d.votoDisabilitato;
     const haAllenamenti = !!(d.permissions && d.permissions.specialFeatures && d.permissions.specialFeatures.manage_training);
+    const haGrafiche = !!(d.permissions && d.permissions.specialFeatures && d.permissions.specialFeatures.view_graphics);
     const row = document.createElement("div");
     row.style.cssText = `background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;${disabilitato ? "opacity:0.55;" : ""}`;
     row.innerHTML = `
       <div style="text-align:left;">
-        <div style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;color:white;">${idx + 1}. ${d.nome || "—"}${disabilitato ? ' <span style="font-size:10px;color:#f4c430;font-weight:400;">(voto disabilitato)</span>' : ""}${haAllenamenti ? ' <span style="font-size:10px;color:#7ee787;font-weight:400;">(Gestione Allenamenti)</span>' : ""}</div>
+        <div style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;color:white;">${idx + 1}. ${d.nome || "—"}${disabilitato ? ' <span style="font-size:10px;color:#f4c430;font-weight:400;">(voto disabilitato)</span>' : ""}${haAllenamenti ? ' <span style="font-size:10px;color:#7ee787;font-weight:400;">(Gestione Allenamenti)</span>' : ""}${haGrafiche ? ' <span style="font-size:10px;color:#7ee787;font-weight:400;">(Grafiche)</span>' : ""}</div>
         <div style="font-family:'Barlow',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">@${d.username} · psw: ${d.password}</div>
-        <div style="margin-top:6px;">
+        <div style="margin-top:6px;display:flex;flex-direction:column;gap:4px;">
           <label style="display:flex;align-items:center;gap:6px;font-family:'Barlow',sans-serif;font-size:12px;color:rgba(255,255,255,0.75);cursor:pointer;">
             <input type="checkbox" onchange="togglePermessoAllenamenti('${d.id}', this.checked)" ${haAllenamenti ? "checked" : ""} style="width:15px;height:15px;cursor:pointer;">
             Gestione Allenamenti
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-family:'Barlow',sans-serif;font-size:12px;color:rgba(255,255,255,0.75);cursor:pointer;">
+            <input type="checkbox" onchange="togglePermessoGrafiche('${d.id}', this.checked)" ${haGrafiche ? "checked" : ""} style="width:15px;height:15px;cursor:pointer;">
+            Grafiche
           </label>
         </div>
       </div>
@@ -5796,6 +5801,19 @@ window.togglePermessoAllenamenti = async function(id, nuovoStato) {
   if (!isAdmin) return;
   try {
     await updateDoc(doc(db, "utenti", id), { "permissions.specialFeatures.manage_training": !!nuovoStato });
+    loadUtenti();
+  } catch (e) {
+    alert("Errore nel salvataggio del permesso: " + e.message);
+    loadUtenti();
+  }
+};
+
+// Attiva/disattiva la funzionalità speciale "Grafiche" per un utente
+// (stesso schema di togglePermessoAllenamenti, chiave "view_graphics").
+window.togglePermessoGrafiche = async function(id, nuovoStato) {
+  if (!isAdmin) return;
+  try {
+    await updateDoc(doc(db, "utenti", id), { "permissions.specialFeatures.view_graphics": !!nuovoStato });
     loadUtenti();
   } catch (e) {
     alert("Errore nel salvataggio del permesso: " + e.message);
@@ -6263,6 +6281,34 @@ const _origDoPlayerLogout = window.doPlayerLogout;
 window.doPlayerLogout = function() { _origDoPlayerLogout(); updateTrainingTabVisibility(); };
 // stato iniziale (utente non loggato)
 updateTrainingTabVisibility();
+
+// ══════════════════════════════════════════════════════════
+// TAB GRAFICHE — visibile ad Admin oppure a chi ha il permesso
+// speciale "view_graphics" (stesso schema di manage_training,
+// impostabile per singolo utente dal pannello UTENTI).
+// ══════════════════════════════════════════════════════════
+function updateGraficheTabVisibility() {
+  const btn = document.getElementById("grafichePillBtn");
+  const menuBtn = document.getElementById("graficheMenuBtn");
+  const canSee = isAdmin || window.hasPermission("view_graphics");
+  if (btn) btn.style.display = canSee ? "inline-flex" : "none";
+  if (menuBtn) menuBtn.style.display = canSee ? "block" : "none";
+  // Se l'utente perde l'accesso mentre è sulla pagina Grafiche, torna alla Home
+  if (!canSee && document.getElementById("grafichePage")?.classList.contains("active")) {
+    showPage("homePage");
+  }
+}
+// Aggancio ai punti in cui cambia lo stato di login (senza toccare login/logout esistenti)
+const _origApplyAdminLoggedInUI2 = applyAdminLoggedInUI;
+applyAdminLoggedInUI = function() { _origApplyAdminLoggedInUI2(); updateGraficheTabVisibility(); };
+const _origApplyPlayerLoggedInUIRef2 = applyPlayerLoggedInUI;
+applyPlayerLoggedInUI = function(data) { _origApplyPlayerLoggedInUIRef2(data); updateGraficheTabVisibility(); };
+const _origDoLogout2 = window.doLogout;
+window.doLogout = function() { _origDoLogout2(); updateGraficheTabVisibility(); };
+const _origDoPlayerLogout2 = window.doPlayerLogout;
+window.doPlayerLogout = function() { _origDoPlayerLogout2(); updateGraficheTabVisibility(); };
+// stato iniziale (utente non loggato)
+updateGraficheTabVisibility();
 
 // ── SWITCH SOTTO-TAB ────────────────────────────────────────
 let trainingCurrentTab = "esercizi";

@@ -137,7 +137,7 @@ nav button.on{opacity:1;font-weight:600;background:linear-gradient(150deg,rgba(2
 .ar{text-align:left}
 @media(min-width:700px){#app{padding-top:30px}}
 /* iOS/Safari: lo sfondo fisso non copre l'area sotto la barra del browser -> lo estendo (Android non coinvolto) */
-@supports (-webkit-touch-callout:none){:root{--ex:160px}html,body{background-color:#000}}
+@supports (-webkit-touch-callout:none){:root{--ex:160px}html{background-color:#000}body{background:transparent!important;min-height:100vh;min-height:-webkit-fill-available}}
 @media (display-mode:browser){@supports (-webkit-touch-callout:none){#app{padding-bottom:calc(max(24px,env(safe-area-inset-bottom)) + 80px)}}}
 /* lista scorrevole interna (Shop) */
 .pl{max-height:272px;overflow-y:auto;overscroll-behavior:contain;padding-right:12px;margin-right:-4px;-webkit-overflow-scrolling:touch}
@@ -323,7 +323,7 @@ function vArea(){
  const s3=head('La tua area','Link to',0)+`<div class="row" style="margin-top:24px"><div class="li" style="margin:0">Gruppo Whatsapp</div><a href="https://chat.whatsapp.com/BMPFyLqQS4kBQSHLi0UUju" target="_blank" rel="noopener">${ic('#2fa84f','💬')}</a></div><div class="row" style="margin-top:30px"><div class="li" style="margin:0">Pagina Instagram</div><a href="https://www.instagram.com/marzenego_riverside/" target="_blank" rel="noopener">${ic('linear-gradient(45deg,#f9a13b,#d6249f,#5851db)','📷')}</a></div><div class="s" style="margin-top:34px">Email:</div><div class="li">marzenegoriverside@gmail.com</div>`;
  const c=(k,t)=>`<label class="ck" style="margin:2px 4px"><input type="checkbox" data-k="${k}" ${A[k]?'checked':''}>${t}</label>`;
  const s4=head('La tua area','Assets e visita medica',0)+c('kit','Ho il kit Prima Maglia')+c('borsone','Ho il Borsone')+c('felpa','Ho la felpa Warm Up')+c('casacca','Ho una casacca')+`<div class="row" style="margin:10px 4px 6px"><b style="font-size:14px;flex:none">Numero maglia:</b><input class="in" id="nm" placeholder="#" value="${E(S.ud.numeroMaglia||'')}" style="width:56px;padding:2px 8px;margin:0;border-radius:14px;font-size:14px;text-align:center"></div><div class="s">Scadenza visita medica:</div><input class="in" id="vm" type="text" placeholder="inserisci data..." value="${E(S.ud.scadenzaVisita||'')}" onfocus="this.type='date'" style="padding:6px 12px;font-size:14px;border-radius:14px;margin:4px 0 8px"><button class="btn" data-a="salva" style="padding:8px;font-size:15px;font-weight:500">Salva</button>`;
- const s5=head('La tua area','Impostazioni',0)+`<div class="s" style="margin-top:10px">Settings</div><div class="row" style="margin-bottom:6px"><span>Notifiche</span><div class="tg"><i></i></div></div><div class="row" style="margin-bottom:6px"><span>Cambia tema app</span><button class="tc" data-a="tema"></button></div><button class="lnk" data-a="fotoBtn" style="margin-top:14px">Imposta foto profilo</button><button class="lnk" data-a="fotoDel" style="color:#e5533d">Rimuovi foto profilo</button><button class="lnk" data-a="contratto" style="margin-top:22px">Leggi il contratto</button><button class="btn" data-a="pwa" style="margin-top:18px">Download PWA</button>`;
+ const s5=head('La tua area','Impostazioni',0)+`<div class="s" style="margin-top:10px">Settings</div><div class="row" style="margin-bottom:6px"><span>Notifiche</span><div class="tg"><i></i></div></div><div class="row" style="margin-bottom:6px"><span>Cambia tema app</span><button class="tc" data-a="tema"></button></div><button class="lnk" data-a="fotoBtn" style="margin-top:14px">Imposta foto profilo</button><button class="lnk" data-a="fotoDel" style="color:#e5533d">Rimuovi foto profilo</button><button class="lnk" data-a="contratto" style="margin-top:22px">Leggi il contratto</button><button class="btn" data-a="pwa" style="margin-top:18px">Download PWA</button><button class="lnk" data-a="logout" style="margin-top:22px;color:#e5533d">Esci (logout)</button>`;
  return stack([['',s1],['',s2],['',s3],['',s4],['',s5]],{nb:1})+sec();
 }
 /* ---------- RENDER ---------- */
@@ -351,6 +351,9 @@ const save=(f)=>S.uid&&updateDoc(doc(db,"utenti",S.uid),f).catch(e=>alert("Error
 let DP=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();DP=e});
 const A={
  go:v=>go(v),close:()=>closeM(),
+ logout:()=>{if(!confirm("Vuoi uscire dal tuo account?"))return;
+  try{localStorage.removeItem(SK);sessionStorage.removeItem(SK)}catch(e){}
+  S.u=null;S.uid=null;S.ud={};S.msgs=[];S.cand=[];S.ord=[];setTema(TEMA_DEF);go('home')},
  user:()=>{if(!S.u)return loginM();go(S.page==='area'?S.prev:'area')},
  mo:v=>{S.mo=new Date(S.mo.getFullYear(),S.mo.getMonth()+ +v,1);render();if(!RM)$('.cg')?.animate([{opacity:0,transform:`translateX(${+v>0?16:-16}px)`},{opacity:1,transform:'none'}],{duration:340,easing:EZ})},
  news:v=>{const x=S.D.news.find(n=>n.id===v);if(!x)return;

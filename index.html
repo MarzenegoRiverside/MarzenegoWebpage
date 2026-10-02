@@ -130,6 +130,21 @@ nav button.on{opacity:1;font-weight:600;background:linear-gradient(150deg,rgba(2
 .c.o{opacity:.4}.c span{font-weight:400}.c small{font-size:8px;font-weight:600;margin-top:auto;color:var(--on,#fff)}
 .c.ev{background:var(--ac);border-color:var(--ac);cursor:pointer;color:var(--on,#fff)}.c.ev span{font-weight:700}
 .c.td{box-shadow:inset 0 0 0 2px rgba(255,255,255,.55);background:rgba(255,255,255,.22)}
+.hr{display:flex;align-items:center;border-radius:30px}
+.hr.glass{margin:-1px 0}
+.alr{display:none;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:34px;height:56px;margin:0 12px 0 14px;background:none;border:0;color:var(--tx);font:600 14px/1 'Manrope';cursor:pointer}
+.alr svg{display:block;overflow:visible;transform-origin:50% 85%}
+.tri .tp{fill:none;stroke:rgba(238,243,232,.9);stroke-width:1.5;stroke-linejoin:round;transition:fill .4s,stroke .4s}
+.tri .ex{fill:none;stroke:rgba(238,243,232,.9);stroke-width:1.7;stroke-linecap:round;transition:stroke .4s}
+.tri.on .tp{fill:var(--ac);stroke:var(--ac);stroke-width:2.6}
+.tri.on .ex{stroke:var(--on,#fff)}
+.alr.on svg{animation:shk 3.6s ease-in-out infinite}
+@keyframes shk{0%,26%,100%{transform:rotate(0)}3%{transform:rotate(-10deg)}7%{transform:rotate(9deg)}11%{transform:rotate(-8deg)}15%{transform:rotate(6deg)}19%{transform:rotate(-3deg)}22%{transform:rotate(1.5deg)}}
+.ct{display:flex;align-items:center;gap:5px;font:600 17px 'Manrope'}
+.row .cap{display:inline-block;min-width:38px;text-align:center;border-radius:14px;border:1px solid rgba(255,255,255,.3);background:color-mix(in srgb,var(--ac) 38%,transparent);font:600 14px 'Manrope';opacity:1;padding:2px 12px}
+.row .cap.gn{background:rgba(30,122,58,.8)}
+.btn.gn{background:rgba(30,122,58,.92)}
+.btn.gh{background:rgba(255,255,255,.06);font-weight:500;font-size:16px;padding:10px}
 .ov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);will-change:opacity;display:flex;align-items:center;justify-content:center;padding:18px}
 .mc{width:100%;max-width:394px}.mc .front{padding:22px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
@@ -159,21 +174,21 @@ nav button.on{opacity:1;font-weight:600;background:linear-gradient(150deg,rgba(2
 .mout .ov{animation:ovOut .2s ease forwards;pointer-events:none}
 .mout .mc{animation:mcOut .2s ease forwards}
 .re .ov,.re .mc{animation:none}
-nav button,.btn,.pill,.usr,.lnk,.c.ev,.rw{transition:transform .4s cubic-bezier(.2,.9,.3,1.25),opacity .25s,background-color .35s,border-color .35s}
-nav button:active,.btn:active,.pill:active,.usr:active,.lnk:active,.c.ev:active,.rw:active{transform:scale(.95);transition-duration:.12s}
+nav button,.btn,.pill,.usr,.alr,.lnk,.c.ev,.rw{transition:transform .4s cubic-bezier(.2,.9,.3,1.25),opacity .25s,background-color .35s,border-color .35s}
+nav button:active,.btn:active,.pill:active,.usr:active,.alr:active,.lnk:active,.c.ev:active,.rw:active{transform:scale(.95);transition-duration:.12s}
 .dots i{transition:background-color .3s,border-color .3s,transform .35s cubic-bezier(.2,.9,.3,1.4)}.dots i.on{transform:scale(1.18)}
 .dy,.c{transition:background-color .35s,border-color .35s}
 .rw{cursor:pointer}
 /* articolo news espanso */
 .nbody{font-size:17px;font-weight:400;line-height:1.5;opacity:.92;white-space:pre-line;overflow-wrap:anywhere;max-height:min(55vh,460px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-right:4px}
 .nbody::-webkit-scrollbar{width:0}
-@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}}
+@media (prefers-reduced-motion:reduce){.alr.on svg{animation:none!important}*{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
 <div class="bg"></div>
 <div id="app">
- <header><div class="brand"><b>Marzenego</b><i>Riverside</i></div><button class="usr glass" id="usr" data-a="user"></button></header>
+ <header><div class="brand"><b>Marzenego</b><i>Riverside</i></div><div class="hr" id="hr"><button class="alr" id="alr" data-a="voti" aria-label="Voti mancanti"></button><button class="usr glass" id="usr" data-a="user"></button></div></header>
  <nav id="nav"></nav>
  <main id="main"></main>
 </div>
@@ -212,10 +227,11 @@ async function loadAll(){
 }
 async function loadUser(){
  if(!S.u)return;
- const[m,c,o]=await Promise.all([
+ const[m,c,o,vt]=await Promise.all([
   getDocs(query(collection(db,"messaggi"),where("destinatario","==",S.u.username))).then(s=>s.docs.map(d=>({id:d.id,...d.data()}))).catch(()=>[]),
-  col('candidature'),col('richieste_prodotti')]);
- S.msgs=m.sort((a,b)=>b.timestamp-a.timestamp);
+  col('candidature'),col('richieste_prodotti'),
+  getDocs(query(collection(db,"presenze"),where("username","==",S.u.username))).then(s=>new Set(s.docs.map(d=>d.data().eventoId))).catch(()=>null)]);
+ S.votes=vt;S.msgs=m.sort((a,b)=>b.timestamp-a.timestamp);
  S.cand=c.filter(x=>x.nome===S.u.nome);S.ord=o.filter(x=>x.nomeUtente===S.u.nome);
 }
 function setTema(c){const r=document.documentElement.style;r.setProperty('--ac',c);
@@ -228,7 +244,18 @@ async function applyUser(d,id){
  await loadUser();
 }
 function ini(){return(S.u.nome||S.u.username).split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase()}
+/* ---------- VOTI MANCANTI ---------- */
+function miss(){
+ if(!S.u||!S.votes||S.ud.votoDisabilitato)return{w:0,t:0};
+ const t=new Date(),mon=new Date(t.getFullYear(),t.getMonth(),t.getDate()-((t.getDay()+6)%7)),a=ymd(mon),z=ymd(new Date(mon.getFullYear(),mon.getMonth(),mon.getDate()+6));
+ const m=S.D.eventi.filter(e=>!S.votes.has(e.id));
+ return{w:m.filter(e=>e.data>=a&&e.data<=z).length,t:m.length};
+}
+const tri=(on,z=26)=>`<svg class="tri${on?' on':''}" viewBox="0 0 24 24" width="${z}" height="${z}"><path class="tp" d="M12 3.6 21.4 19.8H2.6Z"/><path class="ex" d="M12 9.6v4.4M12 16.9v.1"/></svg>`;
 function hdr(){
+ const hr=$('#hr'),al=$('#alr');
+ if(S.u){const m=miss(),on=m.w>0;hr.className='hr glass';al.style.display='flex';al.className='alr'+(on?' on':'');al.innerHTML=tri(on)+`<span>${m.w}</span>`}
+ else{hr.className='hr';al.style.display='none';al.innerHTML=''}
  const b=$('#usr'),was=b.classList.contains('lgd');
  if(S.u){b.className='usr lgd';b.innerHTML=S.ud.fotoProfilo?`<img src="${S.ud.fotoProfilo}">`:E(ini());if(!was&&!RM)b.animate([{transform:'scale(.7)',opacity:.4},{transform:'scale(1)',opacity:1}],{duration:480,easing:SPR})}
  else{b.className='usr glass';b.innerHTML=user}
@@ -352,9 +379,12 @@ const save=(f)=>S.uid&&updateDoc(doc(db,"utenti",S.uid),f).catch(e=>alert("Error
 let DP=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();DP=e});
 const A={
  go:v=>go(v),close:()=>closeM(),
+ voti:()=>{const m=miss(),on=m.w>0;
+  glassCard(`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div class="t" style="font-size:30px">Mancanza voti</div><div class="ct">${tri(on,22)}<span>${m.w}</span></div></div><div class="st" style="margin-bottom:18px">Attenzione:</div><div class="s">Per la settimana in corso:</div><div class="row" style="margin:6px 4px 16px"><span style="flex:1">Voti mancanti:</span><span class="cap${on?'':' gn'}">${m.w}</span></div><div class="s">In generale:</div><div class="row" style="margin:6px 4px 18px"><span style="flex:1">Voti mancanti:</span><span class="cap">${m.t}</span></div>${on?'<button class="btn" data-a="votiGo" style="margin-top:22px">Sana situazione</button>':'<button class="btn gn" data-a="close" style="margin-top:22px">Ottimo lavoro campione!</button>'}<button class="btn gh" data-a="close">Indietro</button>`)},
+ votiGo:()=>{closeM();go('cal')},
  logout:()=>{if(!confirm("Vuoi uscire dal tuo account?"))return;
   try{localStorage.removeItem(SK);sessionStorage.removeItem(SK)}catch(e){}
-  S.u=null;S.uid=null;S.ud={};S.msgs=[];S.cand=[];S.ord=[];setTema(TEMA_DEF);go('home')},
+  S.u=null;S.uid=null;S.ud={};S.votes=null;S.msgs=[];S.cand=[];S.ord=[];setTema(TEMA_DEF);go('home')},
  user:()=>{if(!S.u)return loginM();go(S.page==='area'?S.prev:'area')},
  mo:v=>{S.mo=new Date(S.mo.getFullYear(),S.mo.getMonth()+ +v,1);render();if(!RM)$('.cg')?.animate([{opacity:0,transform:`translateX(${+v>0?16:-16}px)`},{opacity:1,transform:'none'}],{duration:340,easing:EZ})},
  news:v=>{const x=S.D.news.find(n=>n.id===v);if(!x)return;
@@ -366,6 +396,7 @@ const A={
   paint(s);const n=S.vn=(S.vn||0)+1;
   try{await setDoc(doc(db,"presenze",i+"_"+S.u.username),{eventoId:i,username:S.u.username,nome:S.u.nome,stato:s,timestamp:Date.now()})}
   catch(e){if(n===S.vn)paint(prev);return alert("Errore salvataggio voto: "+e.message)}
+  if(S.votes){S.votes.add(i);hdr()}
   if(n!==S.vn)return;
   const t=$('.pill[data-a=tab]:not(.off)')?.dataset.v.split('|')[1]||'r';if(t==='p')evModal(i,t)},
  login:async()=>{const u=$('#lu').value.trim(),p=$('#lp').value.trim();if(!u||!p)return alert("Inserisci username e password");

@@ -67,14 +67,15 @@ var APP_ICON_MASKABLE = true;
 })();
 </script>
 <style>
-:root{--ac:#F4C430;--on:#fff;--tx:#EEF3E8;--g:#1E7A3A;--ex:0px}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{background:#000;min-height:100%}body{min-height:100vh;background:transparent;color:var(--tx);font-family:'Manrope',sans-serif}
-.bg{position:fixed;top:0;left:0;right:0;bottom:calc(-1*var(--ex));z-index:-1;background:
+:root{--ac:#F4C430;--on:#fff;--tx:#EEF3E8;--g:#1E7A3A;--ex:0px;--bgimg:
  radial-gradient(circle at 50% calc((100% - var(--ex))*-.08),#1E7A3A 0,transparent 52%),
  radial-gradient(circle at 105% calc((100% - var(--ex))*.28),rgba(46,140,60,.85) 0,transparent 45%),
  radial-gradient(circle at -5% calc((100% - var(--ex))*.38),color-mix(in srgb,var(--ac) 70%,transparent) 0,transparent 48%),
- radial-gradient(circle at 10% calc((100% - var(--ex))*.82),rgba(30,122,58,.75) 0,transparent 50%),#000;transition:background .4s}
+ radial-gradient(circle at 10% calc((100% - var(--ex))*.82),rgba(30,122,58,.75) 0,transparent 50%)}
+*{touch-action:manipulation}[data-a]{cursor:pointer}button,.pill,.btn,.lnk,.usr,nav button,.c.ev,.rw{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:#000;min-height:100%}body{min-height:100vh;background:transparent;color:var(--tx);font-family:'Manrope',sans-serif}
+.bg{position:fixed;top:0;left:0;right:0;bottom:calc(-1*var(--ex));min-height:calc(100lvh + var(--ex));z-index:-1;background:var(--bgimg),#000;transition:background .4s;transform:translateZ(0)}
 #app{max-width:430px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 18px max(24px,env(safe-area-inset-bottom))}
 header{display:flex;justify-content:space-between;align-items:center;padding:0 6px}
 .brand{line-height:.8}.brand b{display:block;font-size:36px;font-weight:700;color:var(--tx)}
@@ -129,7 +130,7 @@ nav button.on{opacity:1;font-weight:600;background:linear-gradient(150deg,rgba(2
 .c.o{opacity:.4}.c span{font-weight:400}.c small{font-size:8px;font-weight:600;margin-top:auto;color:var(--on,#fff)}
 .c.ev{background:var(--ac);border-color:var(--ac);cursor:pointer;color:var(--on,#fff)}.c.ev span{font-weight:700}
 .c.td{box-shadow:inset 0 0 0 2px rgba(255,255,255,.55);background:rgba(255,255,255,.22)}
-.ov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;padding:18px}
+.ov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);will-change:opacity;display:flex;align-items:center;justify-content:center;padding:18px}
 .mc{width:100%;max-width:394px}.mc .front{padding:22px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
 .vt{display:flex;gap:10px;padding:10px 14px}.vt .pill{flex:1;padding:8px;font-size:15px}
@@ -137,7 +138,7 @@ nav button.on{opacity:1;font-weight:600;background:linear-gradient(150deg,rgba(2
 .ar{text-align:left}
 @media(min-width:700px){#app{padding-top:30px}}
 /* iOS/Safari: lo sfondo fisso non copre l'area sotto la barra del browser -> lo estendo (Android non coinvolto) */
-@supports (-webkit-touch-callout:none){:root{--ex:160px}html{background-color:#000}body{background:transparent!important;min-height:100vh;min-height:-webkit-fill-available}}
+@supports (-webkit-touch-callout:none){:root{--ex:160px}html{background-color:#000;background-image:var(--bgimg);background-repeat:no-repeat;background-position:0 0;background-size:100% calc(100vh + var(--ex))}body{background:transparent!important;min-height:100vh}}
 @media (display-mode:browser){@supports (-webkit-touch-callout:none){#app{padding-bottom:calc(max(24px,env(safe-area-inset-bottom)) + 80px)}}}
 /* lista scorrevole interna (Shop) */
 .pl{max-height:272px;overflow-y:auto;overscroll-behavior:contain;padding-right:12px;margin-right:-4px;-webkit-overflow-scrolling:touch}
@@ -149,12 +150,12 @@ nav button.on{opacity:1;font-weight:600;background:linear-gradient(150deg,rgba(2
 .tgr{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 8px;margin:10px 4px 0}
 
 /* ---------- ANIMAZIONI (stile iOS, discrete) ---------- */
-@keyframes ovIn{from{background:rgba(0,0,0,0);-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0)}}
-@keyframes ovOut{to{background:rgba(0,0,0,0);-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0)}}
+@keyframes ovIn{from{opacity:0}}
+@keyframes ovOut{to{opacity:0}}
 @keyframes mcIn{from{transform:translateY(18px) scale(.94)}to{transform:none}}
 @keyframes mcOut{to{transform:translateY(8px) scale(.97)}}
 .ov{animation:ovIn .3s ease backwards}
-.mc{animation:mcIn .5s cubic-bezier(.22,1.15,.36,1) backwards}
+.mc{animation:mcIn .45s cubic-bezier(.22,1.15,.36,1) backwards;will-change:transform}
 .mout .ov{animation:ovOut .2s ease forwards;pointer-events:none}
 .mout .mc{animation:mcOut .2s ease forwards}
 .re .ov,.re .mc{animation:none}
@@ -358,10 +359,15 @@ const A={
  mo:v=>{S.mo=new Date(S.mo.getFullYear(),S.mo.getMonth()+ +v,1);render();if(!RM)$('.cg')?.animate([{opacity:0,transform:`translateX(${+v>0?16:-16}px)`},{opacity:1,transform:'none'}],{duration:340,easing:EZ})},
  news:v=>{const x=S.D.news.find(n=>n.id===v);if(!x)return;
   glassCard(`<div class="t" style="font-size:30px;margin-bottom:4px">${E(x.titolo)}</div><div class="st" style="font-size:18px;margin-bottom:18px">${E(x.data||'')}</div><div class="nbody">${E(x.testo||'')}</div><button class="btn" data-a="close" style="margin-top:22px">Torna indietro</button>`)},
- openEv:v=>evModal(v),tab:v=>{const[i,t]=v.split('|');evModal(i,t)},
+ openEv:v=>{if(S.busy)return;S.busy=1;Promise.resolve(evModal(v)).finally(()=>S.busy=0)},tab:v=>{if(S.busy)return;const[i,t]=v.split('|');S.busy=1;Promise.resolve(evModal(i,t)).finally(()=>S.busy=0)},
  vota:async v=>{const[i,s]=v.split('|');if(!S.u){closeM();return loginM()}
-  await setDoc(doc(db,"presenze",i+"_"+S.u.username),{eventoId:i,username:S.u.username,nome:S.u.nome,stato:s,timestamp:Date.now()});
-  evModal(i,$('.pill[data-a=tab]:not(.off)')?.dataset.v.split('|')[1]||'r')},
+  const ok=$('.vt .ok'),ko=$('.vt .ko'),prev=ok&&ok.classList.contains('sel')?'presente':ko&&ko.classList.contains('sel')?'assente':null;
+  const paint=st=>{if(!ok||!ko)return;ok.classList.toggle('sel',st==='presente');ko.classList.toggle('sel',st==='assente');ok.style.background=st==='presente'?'':'rgba(255,255,255,.08)';ko.style.background=st==='assente'?'':'rgba(255,255,255,.08)'};
+  paint(s);const n=S.vn=(S.vn||0)+1;
+  try{await setDoc(doc(db,"presenze",i+"_"+S.u.username),{eventoId:i,username:S.u.username,nome:S.u.nome,stato:s,timestamp:Date.now()})}
+  catch(e){if(n===S.vn)paint(prev);return alert("Errore salvataggio voto: "+e.message)}
+  if(n!==S.vn)return;
+  const t=$('.pill[data-a=tab]:not(.off)')?.dataset.v.split('|')[1]||'r';if(t==='p')evModal(i,t)},
  login:async()=>{const u=$('#lu').value.trim(),p=$('#lp').value.trim();if(!u||!p)return alert("Inserisci username e password");
   try{const s=await getDocs(query(collection(db,"utenti"),where("username","==",u),where("password","==",p)));
    if(s.empty)return alert("Credenziali errate");

@@ -60,6 +60,8 @@ var APP_ICON_MASKABLE = true;
     if(!fav){ fav = document.createElement('link'); fav.rel = 'icon'; document.head.appendChild(fav); }
     fav.href = icon;
   }catch(e){ console.warn('Manifest dinamico non creato', e); }
+  /* iPhone: la barra in alto prende il colore da qui (solo iOS, Android invariato) */
+  try{ if(window.CSS&&CSS.supports('-webkit-touch-callout','none')){ var tc=document.querySelector('meta[name="theme-color"]'); if(tc) tc.setAttribute('content','#1b6b34'); } }catch(e){}
   /* Service worker minimale (file sw.js nella stessa cartella): richiesto da Chrome per "Installa app" */
   if('serviceWorker' in navigator){
     addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
@@ -82,6 +84,9 @@ header{display:flex;justify-content:space-between;align-items:center;padding:0 6
 .brand i{display:block;font-family:'Alex Brush',cursive;font-style:normal;font-size:36px;color:var(--ac);margin-top:-4px}
 .glass{background:linear-gradient(150deg,rgba(255,255,255,.2),rgba(255,255,255,.05));backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);border:1px solid rgba(255,255,255,.26);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 8px 24px rgba(0,0,0,.25)}
 .usr{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;border:0;cursor:pointer;color:#fff;overflow:hidden;font:600 20px 'Manrope'}
+.usr{position:relative}.usr .uph{display:grid;place-items:center;width:100%;height:100%}
+.usr.cls .uph{filter:blur(1.5px)}
+.usr.cls .x{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.4);color:#fff;font:600 30px/1 'Manrope'}
 .usr svg{width:28px;height:28px}.usr.lgd{background:var(--ac);color:var(--on,#fff)}.usr img{width:100%;height:100%;object-fit:cover}
 nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:12px 0 14px;padding:2px}
 nav::-webkit-scrollbar{display:none}
@@ -130,6 +135,9 @@ nav button.on{opacity:1;font-weight:600;background:linear-gradient(150deg,rgba(2
 .c.o{opacity:.4}.c span{font-weight:400}.c small{font-size:8px;font-weight:600;margin-top:auto;color:var(--on,#fff)}
 .c.ev{background:var(--ac);border-color:var(--ac);cursor:pointer;color:var(--on,#fff)}.c.ev span{font-weight:700}
 .c.td{box-shadow:inset 0 0 0 2px rgba(255,255,255,.55);background:rgba(255,255,255,.22)}
+.wr{display:flex;align-items:center;gap:9px;font-size:14px;line-height:1.55}
+.wr .wd{font-weight:300}.wr.ps{opacity:.5}.wr.ps .wt{text-decoration:line-through}
+.dt{width:10px;height:10px;border-radius:50%;flex:none}.dt.on{background:var(--ac)}
 .hr{display:flex;align-items:center;border-radius:30px}
 .hr.glass{margin:-1px 0}
 .alr{display:none;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:34px;height:56px;margin:0 12px 0 14px;background:none;border:0;color:var(--tx);font:600 14px/1 'Manrope';cursor:pointer}
@@ -144,6 +152,8 @@ nav button.on{opacity:1;font-weight:600;background:linear-gradient(150deg,rgba(2
 .row .cap{display:inline-block;min-width:38px;text-align:center;border-radius:14px;border:1px solid rgba(255,255,255,.3);background:color-mix(in srgb,var(--ac) 38%,transparent);font:600 14px 'Manrope';opacity:1;padding:2px 12px}
 .row .cap.gn{background:rgba(30,122,58,.8)}
 .btn.gn{background:rgba(30,122,58,.92)}
+.btn.rd{background:rgba(150,30,30,.8)}
+.two2{display:flex;gap:10px}.two2 .btn{flex:1;width:auto;margin:6px 0;padding:10px;font-size:16px;font-weight:500}
 .btn.gh{background:rgba(255,255,255,.06);font-weight:500;font-size:16px;padding:10px}
 .ov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);will-change:opacity;display:flex;align-items:center;justify-content:center;padding:18px}
 .mc{width:100%;max-width:394px}.mc .front{padding:22px}
@@ -154,6 +164,13 @@ nav button.on{opacity:1;font-weight:600;background:linear-gradient(150deg,rgba(2
 @media(min-width:700px){#app{padding-top:30px}}
 /* iOS/Safari: lo sfondo fisso non copre l'area sotto la barra del browser -> lo estendo (Android non coinvolto) */
 @supports (-webkit-touch-callout:none){:root{--ex:160px}html{background-color:#000;background-image:var(--bgimg);background-repeat:no-repeat;background-position:0 0;background-size:100% calc(100vh + var(--ex))}body{background:transparent!important;min-height:100vh}}
+/* iPhone (Pro / Pro Max): colore di riempimento per la zona sotto la barra di stato / Dynamic Island.
+   Il colore di sfondo di .bg e di .tf e' quello che Safari legge per colorare la fascia in alto; la parte disegnata resta identica (strato nero opaco sopra). */
+.tf{display:none}
+@supports (-webkit-touch-callout:none){
+ .bg{background:var(--bgimg),linear-gradient(#000,#000);background-color:#1b6b34}
+ .tf{display:block;position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,0px) + 24px);z-index:-1;pointer-events:none;background-color:#1b6b34;-webkit-mask-image:linear-gradient(#000 0,#000 calc(100% - 24px),transparent 100%);mask-image:linear-gradient(#000 0,#000 calc(100% - 24px),transparent 100%)}
+}
 @media (display-mode:browser){@supports (-webkit-touch-callout:none){#app{padding-bottom:calc(max(24px,env(safe-area-inset-bottom)) + 80px)}}}
 /* lista scorrevole interna (Shop) */
 .pl{max-height:272px;overflow-y:auto;overscroll-behavior:contain;padding-right:12px;margin-right:-4px;-webkit-overflow-scrolling:touch}
@@ -186,7 +203,7 @@ nav button:active,.btn:active,.pill:active,.usr:active,.alr:active,.lnk:active,.
 </style>
 </head>
 <body>
-<div class="bg"></div>
+<div class="bg"></div><div class="tf"></div>
 <div id="app">
  <header><div class="brand"><b>Marzenego</b><i>Riverside</i></div><div class="hr" id="hr"><button class="alr" id="alr" data-a="voti" aria-label="Voti mancanti"></button><button class="usr glass" id="usr" data-a="user"></button></div></header>
  <nav id="nav"></nav>
@@ -206,7 +223,8 @@ const TEAM="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpag
 const LOGOLAB="MZ LAB-Photoroom (1).png";            // <-- logo MZ LAB: nome del file nella repo (stessa cartella di index.html)
 const LOGOLABF="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/main/MZ%20LAB-Photoroom%20(1).png";                    // <-- INCOLLA QUI il raw link GitHub del logo MZ LAB (usato se il file locale non si trova)
 const logo=`<img class="lg" src="${LOGO}" onerror="this.onerror=null;this.src='${LOGOF}'">`;
-const logoLab=`<img class="lg" style="width:54px" src="${LOGOLAB}" onerror="${LOGOLABF?`this.onerror=null;this.src='${LOGOLABF}'`:`this.style.display='none'`}">`;
+const labImg=w=>`<img class="lg" style="width:${w}px" src="${LOGOLAB}" onerror="${LOGOLABF?`this.onerror=null;this.src='${LOGOLABF}'`:`this.style.display='none'`}">`;
+const logoLab=labImg(54);
 const PAGES=[['home','Home'],['cal','Calendario'],['ev','Prossimi eventi'],['job','Lavora con noi'],['shop','Shop'],['chi','Chi siamo']];
 const MESI=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
 const GG=['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
@@ -257,8 +275,8 @@ function hdr(){
  if(S.u){const m=miss(),on=m.w>0;hr.className='hr glass';al.style.display='flex';al.className='alr'+(on?' on':'');al.innerHTML=tri(on)+`<span>${m.w}</span>`}
  else{hr.className='hr';al.style.display='none';al.innerHTML=''}
  const b=$('#usr'),was=b.classList.contains('lgd');
- if(S.u){b.className='usr lgd';b.innerHTML=S.ud.fotoProfilo?`<img src="${S.ud.fotoProfilo}">`:E(ini());if(!was&&!RM)b.animate([{transform:'scale(.7)',opacity:.4},{transform:'scale(1)',opacity:1}],{duration:480,easing:SPR})}
- else{b.className='usr glass';b.innerHTML=user}
+ if(S.u){const ar=S.page==='area';b.className='usr lgd'+(ar?' cls':'');b.setAttribute('aria-label',ar?'Chiudi La tua area':'La tua area');b.innerHTML=`<span class="uph">${S.ud.fotoProfilo?`<img src="${S.ud.fotoProfilo}">`:E(ini())}</span>`+(ar?'<span class="x" aria-hidden="true">X</span>':'');if(!was&&!RM)b.animate([{transform:'scale(.7)',opacity:.4},{transform:'scale(1)',opacity:1}],{duration:480,easing:SPR})}
+ else{b.className='usr glass';b.removeAttribute('aria-label');b.innerHTML=user}
 }
 function nextEv(){
  const n=new Date(),k=ymd(n)+p2(n.getHours())+':'+p2(n.getMinutes());
@@ -293,9 +311,10 @@ function vCal(){
  for(let i=0;i<42;i++){const d=new Date(y,m,1-off+i),k=ymd(d),e=S.D.eventi.find(x=>x.data===k);
   c+=`<div class="c${d.getMonth()!==m?' o':''}${e?' ev':''}${k===td?' td':''}" ${e?`data-a="openEv" data-v="${e.id}"`:''}><span>${p2(d.getDate())}</span>${e?`<small>${E(e.ora)}<br>${LAB(e.tipo)}</small>`:''}</div>`}
  const t=new Date(),mon=new Date(t.getFullYear(),t.getMonth(),t.getDate()-((t.getDay()+6)%7)),a=ymd(mon),z=ymd(new Date(mon.getFullYear(),mon.getMonth(),mon.getDate()+6));
- const wk=tp=>{const e=S.D.eventi.find(x=>x.tipo===tp&&x.data>=a&&x.data<=z);return e?`${GG[new Date(e.data+'T12:00').getDay()]} ${e.data.slice(8)}/${e.data.slice(5,7)}`:'–'};
+ const kn=ymd(t)+p2(t.getHours())+':'+p2(t.getMinutes()),we=S.D.eventi.filter(x=>x.data>=a&&x.data<=z),wn=we.find(x=>(x.data+x.ora)>=kn);
+ const wr=we.length?we.map(x=>`<div class="wr${(x.data+x.ora)<kn?' ps':''}"><i class="dt${x===wn?' on':''}"></i><span class="wt"><b>${E(x.tipo)}:</b> <span class="wd">${GG[new Date(x.data+'T12:00').getDay()]} ${x.data.slice(8)}/${x.data.slice(5,7)}</span></span></div>`).join(''):'<div class="wr"><i class="dt"></i><span class="wt wd">–</span></div>';
  return `<div class="front glass" style="padding:16px 14px;margin-bottom:12px"><div class="cm"><b>${MESI[m]} ${y}</b><span class="pill" data-a="mo" data-v="-1">−</span><span class="pill" data-a="mo" data-v="1">+</span></div><div class="cg">${c}</div></div>
- <div class="stack tp"><div class="back"><span class="lab">Coming this week…</span></div><div class="front glass" style="padding:12px 18px;font-size:14px"><b>Allenamento:</b> <span style="font-weight:300">${wk('Allenamento')}</span><br><b>Partita:</b> <span style="font-weight:300">${wk('Partita')}</span></div></div>`;
+ <div class="stack tp"><div class="back"><span class="lab">Coming this week…</span></div><div class="front glass" style="padding:12px 18px;font-size:14px">${wr}</div></div>`;
 }
 async function evModal(id,tab='r'){
  const e=S.D.eventi.find(x=>x.id===id);if(!e)return;
@@ -305,7 +324,8 @@ async function evModal(id,tab='r'){
   const ps=(await getDocs(query(collection(db,"presenze"),where("eventoId","==",id)))).docs.map(d=>d.data()),v=new Set(ps.map(p=>p.username));
   let nv=[];try{nv=(await getDocs(collection(db,"utenti"))).docs.map(d=>d.data()).filter(u=>u.username&&!u.votoDisabilitato&&!v.has(u.username)).map(u=>u.nome||u.username)}catch(x){}
   const L=a=>a.length?a.map(n=>`<div class="li" style="margin:0 0 3px">${E(n)}</div>`).join(''):'<div class="li">—</div>';
-  body=`<div class="two"><div><div class="s" style="margin:0 0 4px">Presenti</div>${L(ps.filter(p=>p.stato==='presente').map(p=>p.nome||p.username))}</div><div><div class="s" style="margin:0 0 4px">Assenti</div>${L(ps.filter(p=>p.stato!=='presente').map(p=>p.nome||p.username))}</div></div><div class="s">Chi non ha ancora votato:</div>${L(nv)}`;
+  const pr=ps.filter(p=>p.stato==='presente').map(p=>p.nome||p.username),as=ps.filter(p=>p.stato!=='presente').map(p=>p.nome||p.username);
+  body=`<div class="two"><div><div class="s" style="margin:0 0 4px">Presenti (${pr.length})</div>${L(pr)}</div><div><div class="s" style="margin:0 0 4px">Assenti (${as.length})</div>${L(as)}</div></div><div class="s">Chi non ha ancora votato (${nv.length}):</div>${L(nv)}`;
  }
  let st=null;if(S.u){const g=await getDoc(doc(db,"presenze",id+"_"+S.u.username));if(g.exists())st=g.data().stato}
  const h=`<div class="ov" data-a="close"><div class="mc"><div class="front glass" style="margin-bottom:12px"><div class="t" style="font-size:26px;margin-bottom:10px">${E(e.tipo)}</div><div style="display:flex;gap:8px;margin-bottom:12px"><span class="pill${tab==='r'?'':' off'}" data-a="tab" data-v="${id}|r">Riepilogo</span><span class="pill${tab==='p'?'':' off'}" data-a="tab" data-v="${id}|p">Presenze</span></div><div style="min-height:230px">${body}</div></div>
@@ -324,7 +344,7 @@ function vJob(){
  const dir=['presidente','tesoreria','manutenzione','dirigenti'].flatMap(r=>(O[r]||[]).map(n=>[n,RL[r]]));
  const s2=head('Organigramma','Dirigenti',0)+dir.map(([n,r])=>`<div class="row" style="margin-bottom:8px"><div class="li" style="margin:0">“${E(n)}”</div><span class="pill">${r}</span></div>`).join('');
  const L=a=>(a||[]).map(n=>`<div class="li" style="margin:0 0 3px">“${E(n)}”</div>`).join('')||'<div class="li">—</div>';
- const s3=head('Organigramma','Altre figure',0)+`<div class="glass" style="border-radius:14px;padding:10px 12px;margin-bottom:16px">${L(O.social)}</div><div class="s">MZ PARTY LAB:</div>${L(O.planning)}<div class="s" style="margin-top:12px">ALTRO:</div>${L(O.marketing)}`;
+ const s3=head('Organigramma','Altre figure',0)+`<div class="glass" style="border-radius:14px;padding:8px 12px;margin-bottom:16px;display:flex;align-items:center;gap:12px">${labImg(46)}<div style="min-width:0">${L(O.social)}</div></div><div class="s">MZ PARTY LAB:</div>${L(O.planning)}<div class="s" style="margin-top:12px">ALTRO:</div>${L(O.marketing)}`;
  const cd=S.u?S.cand.map(c=>{const k=c.stato==='accettata'?['ok','Accettata']:c.stato==='bocciata'?['ko','Bocciata']:['wt','In valutaz.'];return `<div class="row" style="margin:0 0 4px"><div class="li" style="margin:0">“${E(c.posizione)}”</div><span class="pill ${k[0]}" style="cursor:default;font-size:11px;padding:2px 12px">${k[1]}</span></div>`}).join('')||'<div class="li">Altro…</div>':'<div class="li">Accedi per vedere le tue candidature</div>';
  return stack([['Posizioni aperte e candidati',s1],['Organigramma dirigenti',s2],['Altri ruoli',s3]],{})+`<div class="stack tp"><div class="back"><span class="lab">Le tue candidature:</span></div><div class="front glass" style="padding:12px 16px">${cd}</div></div>`;
 }
@@ -351,7 +371,7 @@ function vArea(){
  const s3=head('La tua area','Link to',0)+`<div class="row" style="margin-top:24px"><div class="li" style="margin:0">Gruppo Whatsapp</div><a href="https://chat.whatsapp.com/BMPFyLqQS4kBQSHLi0UUju" target="_blank" rel="noopener">${ic('#2fa84f','💬')}</a></div><div class="row" style="margin-top:30px"><div class="li" style="margin:0">Pagina Instagram</div><a href="https://www.instagram.com/marzenego_riverside/" target="_blank" rel="noopener">${ic('linear-gradient(45deg,#f9a13b,#d6249f,#5851db)','📷')}</a></div><div class="s" style="margin-top:34px">Email:</div><div class="li">marzenegoriverside@gmail.com</div>`;
  const c=(k,t)=>`<label class="ck" style="margin:2px 4px"><input type="checkbox" data-k="${k}" ${A[k]?'checked':''}>${t}</label>`;
  const s4=head('La tua area','Assets e visita medica',0)+c('kit','Ho il kit Prima Maglia')+c('borsone','Ho il Borsone')+c('felpa','Ho la felpa Warm Up')+c('casacca','Ho una casacca')+`<div class="row" style="margin:10px 4px 6px"><b style="font-size:14px;flex:none">Numero maglia:</b><input class="in" id="nm" placeholder="#" value="${E(S.ud.numeroMaglia||'')}" style="width:56px;padding:2px 8px;margin:0;border-radius:14px;font-size:14px;text-align:center"></div><div class="s">Scadenza visita medica:</div><input class="in" id="vm" type="text" placeholder="inserisci data..." value="${E(S.ud.scadenzaVisita||'')}" onfocus="this.type='date'" style="padding:6px 12px;font-size:14px;border-radius:14px;margin:4px 0 8px"><button class="btn" data-a="salva" style="padding:8px;font-size:15px;font-weight:500">Salva</button>`;
- const s5=head('La tua area','Impostazioni',0)+`<div class="s" style="margin-top:10px">Settings</div><div class="row" style="margin-bottom:6px"><span>Notifiche</span><div class="tg"><i></i></div></div><div class="row" style="margin-bottom:6px"><span>Cambia tema app</span><button class="tc" data-a="tema"></button></div><button class="lnk" data-a="fotoBtn" style="margin-top:14px">Imposta foto profilo</button><button class="lnk" data-a="fotoDel" style="color:#e5533d">Rimuovi foto profilo</button><button class="lnk" data-a="contratto" style="margin-top:22px">Leggi il contratto</button><button class="btn" data-a="pwa" style="margin-top:18px">Download PWA</button><button class="lnk" data-a="logout" style="margin-top:22px;color:#e5533d">Esci (logout)</button>`;
+ const s5=head('La tua area','Impostazioni',0)+`<div class="s" style="margin-top:10px">Generali:</div><div class="row" style="margin-bottom:6px"><span>Notifiche</span><div class="tg"><i></i></div></div><div class="row" style="margin-bottom:6px"><span>Cambia tema app</span><button class="tc" data-a="tema"></button></div><button class="lnk" data-a="contratto" style="margin-top:12px">Leggi il contratto</button><div class="li" style="margin:10px 4px 0">Foto profilo:</div><div class="two2"><button class="btn gh" data-a="fotoBtn">Imposta</button><button class="btn rd" data-a="fotoDel">Rimuovi</button></div><div class="s" style="margin-top:14px">Altro:</div><button class="btn" data-a="pwa" style="margin:8px 0">Download PWA</button><button class="btn rd" data-a="logout" style="margin:8px 0">Logout</button>`;
  return stack([['',s1],['',s2],['',s3],['',s4],['',s5]],{nb:1})+sec();
 }
 /* ---------- RENDER ---------- */
@@ -364,7 +384,7 @@ function render(){
  if(S.anim&&on&&!RM&&S.page!=='area')on.animate([{transform:'scale(.88)'},{transform:'scale(1)'}],{duration:420,easing:SPR});
  $('#main').style.paddingTop=S.page==='area'?'20px':'';
  try{$('#main').innerHTML=view()}catch(e){console.error(e);$('#main').innerHTML=''}
- const sl=$('#main .sl');if(sl){const d=[...$('#main .dots')?.children||[]],nx=$('#main .nx');
+ const sl=$('#main .sl');if(sl){const d=[...$('#main .dots')?.children||[]],nx=sl.closest('.stack')?.querySelector('.back .nx');
   sl.addEventListener('scroll',()=>{const i=Math.round(sl.scrollLeft/sl.clientWidth);d.forEach((x,j)=>x.classList.toggle('on',j===i));if(nx&&S.names.length>1)nx.textContent='Next: '+S.names[(i+1)%S.names.length]},{passive:true})}
  $('.tc')&&($('.tc').style.background=getComputedStyle(document.documentElement).getPropertyValue('--ac'));
  if(S.anim){S.anim=false;enter()}

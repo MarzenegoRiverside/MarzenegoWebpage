@@ -208,11 +208,13 @@ nav button:active,.btn:active,.pill:active,.usr:active,.alr:active,.lnk:active,.
 .car{display:grid;margin:-14px -18px -8px;padding:14px 0 30px;overflow:hidden;touch-action:pan-y;-webkit-user-select:none;user-select:none;position:relative}
 .car input{-webkit-user-select:text;user-select:text}
 .cc{grid-area:1/1;width:calc(100% - 36px);justify-self:center;overflow:hidden;will-change:transform,opacity;backface-visibility:hidden;transform-origin:50% 50%}
-.cc>section{position:relative;z-index:1;padding:22px 22px 4px;min-height:430px;transition:opacity .45s;opacity:calc(1 - var(--f,0)*1.7)}
-.cc>.dots{position:relative;z-index:1;transition:opacity .45s;opacity:calc(1 - var(--f,0)*1.7)}
-.cc>.ph1{transition:opacity .45s;opacity:calc(1 - var(--f,0)*1.7)}
-.car.dg .cc>section,.car.dg .cc>.dots,.car.dg .cc>.ph1{transition:none}
-.cc.gh{pointer-events:none}
+.ci{will-change:opacity}
+.ci>section{position:relative;z-index:1;padding:22px 22px 4px;min-height:430px}
+.ci>.dots{position:relative;z-index:1}
+/* performance: le card laterali non hanno bisogno del blur (dietro hanno solo lo sfondo sfumato);
+   durante lo swipe si spegne anche il blur annidato negli elementi interni */
+.cc.sd{-webkit-backdrop-filter:none;backdrop-filter:none}
+.car.mv .cc .glass{-webkit-backdrop-filter:none;backdrop-filter:none}
 /* card secondaria: liquid glass pieno (calendario) */
 .lq{overflow:hidden;background:linear-gradient(155deg,rgba(255,255,255,.08),rgba(255,255,255,.02) 60%,rgba(255,255,255,.04));background-color:rgba(0,0,0,.10);backdrop-filter:blur(14px) saturate(115%);-webkit-backdrop-filter:blur(14px) saturate(115%);box-shadow:0 10px 24px rgba(0,0,0,.18)}
 .lq::before{background:radial-gradient(110% 55% at 15% -8%,rgba(255,255,255,.06),transparent 60%)}
@@ -266,7 +268,11 @@ import {getFirestore,collection,getDocs,addDoc,doc,setDoc,getDoc,updateDoc,query
 const db=getFirestore(initializeApp({apiKey:"AIzaSyCvqU28XLWRsfJUso0MuS72O2Qxks-MFP0",authDomain:"marzenego-2e266.firebaseapp.com",projectId:"marzenego-2e266",storageBucket:"marzenego-2e266.appspot.com"}));
 const $=(s,r=document)=>r.querySelector(s);
 const RM=matchMedia('(prefers-reduced-motion:reduce)').matches,EZ='cubic-bezier(.22,1,.36,1)',SPR='cubic-bezier(.3,1.5,.5,1)';
-const enter=()=>{if(RM)return;const top=[...$('#main').children];document.querySelectorAll('#main section,#main .front>:not(.sl),#main .back>*').forEach(el=>{const i=Math.max(0,top.findIndex(t=>t.contains(el)));el.animate([{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:420,delay:i*60,easing:EZ,fill:'backwards'})})};
+const enter=()=>{if(RM)return;const top=[...$('#main').children];document.querySelectorAll('#main section,#main .front>:not(.sl),#main .back>*').forEach(el=>{
+ /* nel carosello si anima SOLO la card davanti: prima si animavano anche i contenuti delle card laterali (da qui le scritte rosse/gialle sotto il vetro) */
+ const c=el.closest('.cc');if(c&&!c.classList.contains('act'))return;
+ if(el.tagName==='SECTION'&&el.parentElement.classList.contains('ci'))return;
+ const i=Math.max(0,top.findIndex(t=>t.contains(el)));el.animate([{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:420,delay:i*60,easing:EZ,fill:'backwards'})})};
 const E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const SK="mzr_session",LOGO="Marzenego.png",LOGOF="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png";
 const TEAM="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/IMG-20251117-WA0030(1).jpg";
@@ -343,9 +349,8 @@ function sec(){
  return `<div class="stack" id="secw"><div class="back"><span class="nx" style="text-decoration:none">Next: ${nt}</span></div><div class="front glass lq"><div class="wm"><button class="wa" data-a="wk" data-v="-1" aria-label="Settimana precedente">‹</button><b>${lab}</b><button class="wa" data-a="wk" data-v="1" aria-label="Settimana successiva">›</button></div><div class="wk">${h}</div></div></div>`;
 }
 function stack(sl,o={}){
- S.names=sl.map(s=>s[0]);
  const dots=sl.length>1?`<div class="dots">${sl.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>`:'<div style="height:14px"></div>';
- return `<div class="stack${o.nb?' nb':''}">${o.nb?'':`<div class="back"><span class="nx">Next: ${E(o.nx||sl[1%sl.length][0])}</span></div>`}<div class="front glass"><div class="sl">${sl.map(s=>`<section>${s[1]}</section>`).join('')}</div>${dots}</div></div>`;
+ return `<div class="stack${o.nb?' nb':''}"><div class="front glass"><div class="sl">${sl.map(s=>`<section>${s[1]}</section>`).join('')}</div>${dots}</div></div>`;
 }
 const head=(t,s,l=1)=>`<div class="h">${l===2?logoLab:l?logo:''}<div><div class="t">${t}</div>${s?`<div class="st">${s}</div>`:''}</div></div>`;
 
@@ -430,40 +435,56 @@ function betText(e,b){
  return '⚽ Il mio pronostico per Marzenego vs '+oppName(e)+' ('+dmy(e.data)+'):\n'+L.join('\n')+'\n\nSfidami su Marzenego Riverside: '+location.href.split('#')[0];
 }
 const CAMPI=[['Mestre','Via Aleardo Aleardi, 71, 30171 Venezia VE'],['Porcellengo','Via F. Baracca, 5, 31038 Porcellengo TV'],['Saletto/Breda di Piave','Via Villa del Bosco, 4, 31030 San Bartolomeo di Piave TV'],['Arino','Via Monte Ortigara, 1, 30031 Dolo VE'],['Zero Branco','Via Alvaro Corrado, 1, 31059 Zero Branco TV']];
-/* ---------- CAROSELLO INFINITO (card principale Home + La tua area) ---------- */
+/* ---------- CAROSELLO INFINITO (3D, a livelli) ---------- */
 function car(sl,o={}){
- const it=sl.map(s=>typeof s==='string'?{h:s,x:''}:s);
- return `<div class="car" data-p="${o.key}">${it.map((s,i)=>`<div class="cc front glass">${s.x}<section>${s.h}</section><div class="dots">${it.map((_,j)=>`<i class="${j===i?'on':''}"></i>`).join('')}</div></div>`).join('')}</div>`;
+ const it=sl.map(s=>typeof s==='string'?{h:s,x:''}:s),k=it.length,L=k>1&&k<4?it.concat(it):it;
+ return `<div class="car" data-p="${o.key}">${L.map((s,i)=>`<div class="cc front glass"><div class="ci">${s.x}<section>${s.h}</section><div class="dots">${it.map((_,j)=>`<i class="${j===i%k?'on':''}"></i>`).join('')}</div></div></div>`).join('')}</div>`;
 }
 let CARS=[];
 function initCar(el){
- const cs=[...el.children],n=cs.length,key=el.dataset.p,GAP=5;
- let cur=S.ci[key]||0,pitch=0,dx=0,busy=0,act=0,dragged=0,sx=0,sy=0,st=0,last=0,pid=null;
+ const cs=[...el.children],n=cs.length,key=el.dataset.p,GAP=5,SL=14,SC=.1,DY=12,
+  TR=`transform .5s ${EZ},opacity .5s,z-index .5s,visibility .5s`,CT='opacity .38s ease';
+ const cis=cs.map(c=>c.firstElementChild);
+ let cur=(S.ci[key]||0)%n,pitch=0,W=0,dx=0,busy=0,act=0,dragged=0,sx=0,sy=0,st=0,last=0,pid=null,raf=0;
  const off=(i,c)=>{let d=((i-c)%n+n)%n;if(d>n/2)d-=n;return d};
+ const wr=p=>{const h=n/2;while(p>h)p-=n;while(p<-h)p+=n;return p};
  let o=cs.map((_,i)=>off(i,cur));
- const SL=14,SC=.1,DY=12;
- const pos=(c,p,a)=>{const ap=Math.abs(p),sg=p<0?-1:1,t=Math.min(1,ap),w=c.offsetWidth||cs[0].offsetWidth,off=w*SC/2+SL,tx=sg*(t*off+(ap>1?(ap-1)*w*.35:0));
-  c.style.transition=a?`transform .5s ${EZ},opacity .5s,z-index .5s`:'none';
+ /* posizione di una card: p = distanza dal centro in "card" (0 = davanti, ±1 = laterali) */
+ const pos=(i,p,a)=>{const c=cs[i],ci=cis[i],ap=Math.abs(p),t=Math.min(1,ap),sg=p<0?-1:1,
+   tx=sg*(t*(W*SC/2+SL)+(ap>1?(ap-1)*W*.35:0));
+  if(c._a!==a){c._a=a;c.style.transition=a?TR:'none';ci.style.transition=a?CT:'none'}
   c.style.transform=`translate3d(${tx.toFixed(1)}px,${(t*DY).toFixed(1)}px,0) scale(${(1-SC*t).toFixed(4)})`;
-  c.style.setProperty('--f',t.toFixed(3));
   c.style.opacity=Math.max(0,Math.min(1,(1.6-ap)/.6)).toFixed(2);
+  c.style.visibility=ap>=1.6?'hidden':'visible';
   c.style.zIndex=Math.round(30-Math.min(2,ap)*10);
-  c.style.pointerEvents=ap<.5?'':'none'};
- const re=()=>{pitch=cs[0].offsetWidth+GAP;cs.forEach((c,i)=>pos(c,o[i],0))};
- re();if(n<3)return{re};
+  c.style.pointerEvents=ap<.5?'':'none';
+  ci.style.opacity=Math.max(0,1-t*1.7).toFixed(2);
+  const sd=ap>=.999;if(c._sd!==sd){c._sd=sd;c.classList.toggle('sd',sd)}};
+ const mark=()=>cs.forEach((c,i)=>c.classList.toggle('act',o[i]===0));
+ const re=()=>{W=cs[0].offsetWidth;pitch=W+GAP;cs.forEach((_,i)=>pos(i,o[i],0));mark()};
+ re();if(n<4)return{re};
+ const frame=()=>{raf=0;const p=dx/pitch;cs.forEach((_,i)=>pos(i,wr(o[i]+p),0))};
  const settle=dir=>{
-  busy=1;const nc=(cur+dir+n)%n,o1=cs.map((_,i)=>off(i,nc)),gh=[];
-  cs.forEach((c,i)=>{const ex=o[i]-dir;pos(c,ex,1);
-   if(o1[i]!==ex&&Math.abs(o1[i])<=1){const g=c.cloneNode(true);g.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id'));g.setAttribute('aria-hidden','true');g.classList.add('gh');el.appendChild(g);pos(g,o1[i]+dir,0);g.offsetWidth;pos(g,o1[i],1);gh.push(g)}});
-  setTimeout(()=>{gh.forEach(g=>g.remove());cs.forEach((c,i)=>{if(o1[i]!==o[i]-dir)pos(c,o1[i],0)});o=o1;cur=nc;S.ci[key]=nc;busy=0},RM?20:530);
+  busy=1;el.classList.add('mv');
+  const nc=(cur+dir+n)%n,o1=cs.map((_,i)=>off(i,nc)),p=dx/pitch;dx=0;
+  /* destinazione animata di ogni card; una card che "rientra" dal lato opposto parte da fuori scena (senza cloni) */
+  const tg=cs.map((_,i)=>{const t=o1[i];
+   if(Math.abs(t)>1.01)return o[i]-dir;
+   if(Math.abs(wr(o[i]+p)-t)>1.5){pos(i,t+dir,0);return t}
+   return t});
+  el.offsetWidth;
+  tg.forEach((t,i)=>pos(i,t,1));
+  setTimeout(()=>{tg.forEach((t,i)=>{if(t!==o1[i])pos(i,o1[i],0)});o=o1;cur=nc;S.ci[key]=nc;mark();el.classList.remove('mv');busy=0},RM?20:530);
  };
  el.addEventListener('pointerdown',e=>{if(busy||(e.pointerType==='mouse'&&e.button!==0))return;sx=e.clientX;sy=e.clientY;st=performance.now();act=1;dragged=0;dx=0;pid=e.pointerId});
  el.addEventListener('pointermove',e=>{if(!act)return;const mx=e.clientX-sx,my=e.clientY-sy;
-  if(!dragged){if(Math.abs(mx)>8&&Math.abs(mx)>Math.abs(my)*1.2){dragged=1;el.classList.add('dg');try{el.setPointerCapture(pid)}catch(x){}}else{if(Math.abs(my)>8)act=0;return}}
-  dx=mx;cs.forEach((c,i)=>pos(c,o[i]+dx/pitch,0))});
- const end=()=>{if(!act)return;act=0;if(!dragged)return;el.classList.remove('dg');last=performance.now();
-  const v=dx/Math.max(1,performance.now()-st);let dir=0;if(Math.abs(dx)>pitch*.2||Math.abs(v)>.5)dir=dx<0?1:-1;dx=0;
-  if(dir)settle(dir);else{busy=1;cs.forEach((c,i)=>pos(c,o[i],1));setTimeout(()=>busy=0,520)}};
+  if(!dragged){if(Math.abs(mx)>8&&Math.abs(mx)>Math.abs(my)*1.2){dragged=1;el.classList.add('mv');try{el.setPointerCapture(pid)}catch(x){}}else{if(Math.abs(my)>8)act=0;return}}
+  dx=mx;if(!raf)raf=requestAnimationFrame(frame)});
+ const end=()=>{if(!act)return;act=0;if(!dragged)return;
+  if(raf){cancelAnimationFrame(raf);raf=0}
+  const now=performance.now(),v=dx/Math.max(1,now-st);last=now;let dir=0;if(Math.abs(dx)>pitch*.2||Math.abs(v)>.5)dir=dx<0?1:-1;
+  if(dir)settle(dir);
+  else{busy=1;const p=dx/pitch;dx=0;cs.forEach((_,i)=>{const r=o[i]+p;pos(i,o[i],Math.abs(wr(r)-r)<.01?1:0)});setTimeout(()=>{busy=0;el.classList.remove('mv')},RM?20:520)}};
  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
  el.addEventListener('click',e=>{if(performance.now()-last<350){e.stopPropagation();e.preventDefault()}},true);
  el.addEventListener('click',e=>{if(busy||e.target!==el)return;const r=el.getBoundingClientRect();settle(e.clientX<r.left+r.width/2?-1:1)});
@@ -532,20 +553,20 @@ function vJob(){
  const L=a=>(a||[]).map(n=>`<div class="li" style="margin:0 0 3px">“${E(n)}”</div>`).join('')||'<div class="li">—</div>';
  const s3=head('Organigramma','Altre figure',0)+`<div class="glass" style="border-radius:14px;padding:8px 12px;margin-bottom:16px;display:flex;align-items:center;gap:12px">${labImg(46)}<div style="min-width:0">${L(O.social)}</div></div><div class="s">MZ PARTY LAB:</div>${L(O.planning)}<div class="s" style="margin-top:12px">ALTRO:</div>${L(O.marketing)}`;
  const cd=S.u?S.cand.map(c=>{const k=c.stato==='accettata'?['ok','Accettata']:c.stato==='bocciata'?['ko','Bocciata']:['wt','In valutaz.'];return `<div class="row" style="margin:0 0 4px"><div class="li" style="margin:0">“${E(c.posizione)}”</div><span class="pill ${k[0]}" style="cursor:default;font-size:11px;padding:2px 12px">${k[1]}</span></div>`}).join('')||'<div class="li">Altro…</div>':'<div class="li">Accedi per vedere le tue candidature</div>';
- return stack([['Posizioni aperte e candidati',s1],['Organigramma dirigenti',s2],['Altri ruoli',s3]],{})+`<div class="stack tp"><div class="back"><span class="lab">Le tue candidature:</span></div><div class="front glass" style="padding:12px 16px">${cd}</div></div>`;
+ return car([s1,s2,s3],{key:'job'})+`<div class="stack tp"><div class="back"><span class="lab">Le tue candidature:</span></div><div class="front glass" style="padding:12px 16px">${cd}</div></div>`;
 }
 /* ---------- SHOP ---------- */
 function vShop(){
  const pr=S.D.prodotti.filter(p=>(p.categoria||'Vestiti')===S.shopTab);
  const s1=head('Marze','Negozio',2)+`<div style="display:flex;gap:8px;margin-bottom:12px"><span class="pill${S.shopTab==='Vestiti'?'':' off'}" data-a="stab" data-v="Vestiti">Vestiti</span><span class="pill${S.shopTab==='Accessori'?'':' off'}" data-a="stab" data-v="Accessori">Accessori</span></div><div class="pl">`+pr.map(p=>`<div class="glass" style="border-radius:16px;padding:8px 10px;margin-bottom:10px;display:flex;gap:12px;align-items:center"><img src="${E(p.img)}" style="width:62px;height:62px;object-fit:cover;border-radius:10px"><div style="font-size:12px;font-weight:300"><div>“${E(p.nome)}”</div><u>“${E(p.prezzo)}€”</u><div style="font-weight:700;cursor:pointer" data-a="ottieni" data-v="${p.id}">Ottieni</div></div></div>`).join('')+'</div>';
  const s2=head('Marze','Negozio',2)+`<div class="li" style="font-size:12px">Elenco dei tuoi ordini in elaborazione</div><div class="pl">`+(S.u?S.ord:[]).map(o=>`<div class="glass" style="border-radius:16px;padding:10px 14px;margin-bottom:10px;font-size:13px">“${E(o.prodottoNome)}”<br><b>Q.tità: ${E(o.quantita||1)}</b> · Taglia: ${E(o.taglia)}</div>`).join('')+'</div>';
- return stack([['I tuoi ordini',s1],['Catalogo',s2]]);
+ return car([s1,s2],{key:'shop'});
 }
 /* ---------- CHI SIAMO ---------- */
 function vChi(){
  const s1=head('Come nasce','Il progetto')+`<p class="li" style="margin:26px 12px 26px;font-size:16px">Marzenego Riverside nasce nel mese di luglio 2025, dalle ceneri del progetto Aston Villa Salus. Il Marzenego, fonte d'ispirazione per il concept di squadra, è un fiume che attraversa molti dei paesi in cui siamo nati e cresciuti, ci congiunge e ci unisce come unica grande famiglia. Il nostro spirito, in campo e fuori, è quello di giocare sempre al massimo delle nostre possibilità, unendo passione a grande spirito di miglioramento. Tuttavia, una grande società, una grande squadra, non è niente senza un grande gruppo di uomini. #KeepFordingNutries!</p>`;
  const s2=head('Come nasce','Il gruppo')+`<img src="${TEAM}" style="width:100%;border-radius:22px;display:block;margin:34px 0 10px">`;
- return stack([['La storia',s1],['Gallery',s2]]);
+ return car([s1,s2],{key:'chi'});
 }
 /* ---------- LA TUA AREA ---------- */
 function vArea(){

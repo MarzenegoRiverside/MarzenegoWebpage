@@ -62,9 +62,15 @@ var APP_ICON_MASKABLE = true;
   }catch(e){ console.warn('Manifest dinamico non creato', e); }
   /* iPhone: la barra in alto prende il colore da qui (solo iOS, Android invariato) */
   try{ if(window.CSS&&CSS.supports('-webkit-touch-callout','none')){ var tc=document.querySelector('meta[name="theme-color"]'); if(tc) tc.setAttribute('content','#1b6b34'); } }catch(e){}
-  /* Service worker minimale (file sw.js nella stessa cartella): richiesto da Chrome per "Installa app" */
+  /* Service worker (file service-worker.js nella stessa cartella): serve a Chrome/Android per "Installa app".
+     iPhone: non serve per "Aggiungi alla schermata Home" e il vecchio service worker "passa-tutto" rallentava/bloccava
+     i caricamenti -> su iOS viene rimosso. */
   if('serviceWorker' in navigator){
-    addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+    addEventListener('load', function(){
+      var ios=false;try{ios=!!(window.CSS&&CSS.supports('-webkit-touch-callout','none'))}catch(e){}
+      if(ios){ navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})}).catch(function(){}); }
+      else navigator.serviceWorker.register('service-worker.js').catch(function(){});
+    });
   }
 })();
 </script>
@@ -252,6 +258,15 @@ nav button:active,.btn:active,.pill:active,.usr:active,.alr:active,.lnk:active,.
 .mph b{font-size:16px;font-weight:700}
 .mpa{margin:2px 0 0;font-size:14px;line-height:1.3}
 .cp{background:rgba(255,255,255,.04);font-weight:500;min-width:88px;padding:3px 18px;font-size:13px}
+/* ======== iPhone/iPad: alleggerimento grafica (Android invariato) ========
+   Safari soffre con tanti "blur" (backdrop-filter) attivi insieme, soprattutto annidati: memoria alta e scatti.
+   Dove dietro al vetro c'e' solo lo sfondo sfumato il blur non si vede, quindi lo spengo;
+   resta acceso sulla card centrale dei caroselli (dietro ha le card laterali) e sullo sfondo dei popup. */
+@supports (-webkit-touch-callout:none){
+ .glass,.back,.lq{-webkit-backdrop-filter:none;backdrop-filter:none}
+ .cc.act{-webkit-backdrop-filter:blur(12px) saturate(115%);backdrop-filter:blur(12px) saturate(115%)}
+ .cc.act.sd{-webkit-backdrop-filter:none;backdrop-filter:none}
+}
 </style>
 </head>
 <body>
@@ -263,9 +278,43 @@ nav button:active,.btn:active,.pill:active,.usr:active,.alr:active,.lnk:active,.
 </div>
 <input type="file" id="foto" accept="image/*" hidden>
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {getFirestore,collection,getDocs,addDoc,doc,setDoc,getDoc,updateDoc,query,where} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-const db=getFirestore(initializeApp({apiKey:"AIzaSyCvqU28XLWRsfJUso0MuS72O2Qxks-MFP0",authDomain:"marzenego-2e266.firebaseapp.com",projectId:"marzenego-2e266",storageBucket:"marzenego-2e266.appspot.com"}));
+/* ---------- FIREBASE (caricato in background) ----------
+   Prima Firebase era importato "in testa": finche' non arrivava (~400 KB da gstatic) l'app restava vuota,
+   e se la rete era lenta Home e Calendario non comparivano. Ora l'interfaccia parte subito (con i dati
+   salvati dall'ultima apertura) e Firebase si carica in parallelo. Su iPhone si usa il "long polling",
+   la modalita' di connessione piu' affidabile con Safari. */
+const FBU="https://www.gstatic.com/firebasejs/10.7.1/";
+const FCFG={apiKey:"AIzaSyCvqU28XLWRsfJUso0MuS72O2Qxks-MFP0",authDomain:"marzenego-2e266.firebaseapp.com",projectId:"marzenego-2e266",storageBucket:"marzenego-2e266.appspot.com"};
+const IOS=(()=>{try{return CSS.supports('-webkit-touch-callout','none')}catch(e){return false}})();
+let db=null,FS=null,FAPP=null,fbP=null;
+let collection,getDocs,addDoc,doc,setDoc,getDoc,updateDoc,query,where;
+const mkDb=()=>{try{return FS.initializeFirestore(FAPP,IOS?{experimentalForceLongPolling:true}:{})}catch(e){return FS.getFirestore(FAPP)}};
+function fbReady(){
+ if(db)return Promise.resolve();
+ if(!fbP)fbP=(async()=>{
+  const[A,F]=await Promise.all([import(FBU+'firebase-app.js'),import(FBU+'firebase-firestore.js')]);
+  FS=F;({collection,getDocs,addDoc,doc,setDoc,getDoc,updateDoc,query,where}=F);
+  FAPP=A.getApps().length?A.getApp():A.initializeApp(FCFG);
+  db=mkDb();FBX=0;
+ })().catch(e=>{fbP=null;FBX=1;throw e});
+ return fbP;
+}
+/* se il download di Firebase e' fallito il browser non lo riprova finche' la pagina non viene ricaricata:
+   appena la rete risponde di nuovo (e l'utente non sta facendo nulla) ricarico da solo, restando nella stessa sezione */
+let FBX=0;
+const netOk=()=>withTO(fetch(FBU+'firebase-app.js',{cache:'no-store'}).then(r=>r.ok),8000).catch(()=>false);
+const calm=()=>{const a=document.activeElement;return!$('#mod')&&!$('#main .car.mv')&&!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))};
+function healReload(){try{const t=+sessionStorage.getItem('mzr_rl')||0;if(Date.now()-t<60e3)return false;sessionStorage.setItem('mzr_rl',Date.now());sessionStorage.setItem('mzr_pg',S.page)}catch(e){return false}location.reload();return true}
+/* se la connessione resta "incastrata" (tipico dopo che l'app e' rimasta in background su iPhone) la ricreo */
+async function fbReset(){try{if(!db||!FS)return;const o=db;db=null;fbP=null;await FS.terminate(o).catch(()=>{});await fbReady()}catch(e){}}
+/* timeout: nessuna richiesta puo' bloccare l'app all'infinito */
+const withTO=(p,ms)=>new Promise((res,rej)=>{const t=setTimeout(()=>rej(new Error('timeout')),ms);Promise.resolve(p).then(v=>{clearTimeout(t);res(v)},e=>{clearTimeout(t);rej(e)})});
+/* lettura "vera" dal server: se Firestore risponde dalla cache (= offline) lo considero un errore e riprovo dopo */
+const rows=s=>{if(s.metadata&&s.metadata.fromCache)throw new Error('offline');return s.docs.map(d=>({id:d.id,...d.data()}))};
+/* errori "definitivi" (permessi, ecc.): lista vuota come prima, senza riprovare all'infinito */
+const soft=e=>{if(e&&/permission-denied|invalid-argument|failed-precondition|not-found/.test(e.code||''))return[];throw e};
+const fetchCol=async n=>{await fbReady();try{return rows(await withTO(getDocs(collection(db,n)),15000))}catch(e){return soft(e)}};
+const fetchEq=async(c,f,v)=>{if(v==null||v==='')return[];await fbReady();try{return rows(await withTO(getDocs(query(collection(db,c),where(f,"==",v))),15000))}catch(e){return soft(e)}};
 const $=(s,r=document)=>r.querySelector(s);
 const RM=matchMedia('(prefers-reduced-motion:reduce)').matches,EZ='cubic-bezier(.22,1,.36,1)',SPR='cubic-bezier(.3,1.5,.5,1)';
 const enter=()=>{if(RM)return;const top=[...$('#main').children];document.querySelectorAll('#main section,#main .front>:not(.sl),#main .back>*').forEach(el=>{
@@ -274,49 +323,118 @@ const enter=()=>{if(RM)return;const top=[...$('#main').children];document.queryS
  if(el.tagName==='SECTION'&&el.parentElement.classList.contains('ci'))return;
  const i=Math.max(0,top.findIndex(t=>t.contains(el)));el.animate([{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:420,delay:i*60,easing:EZ,fill:'backwards'})})};
 const E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const SK="mzr_session",LOGO="Marzenego.png",LOGOF="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png";
+/* LOGO: il file Marzenego.png della repo e' 5163x6845 px (2 MB, ~140 MB di memoria una volta aperto):
+   su iPhone bastava questo a far chiudere/ricaricare l'app. Qui c'e' una copia leggera (216 px, 11 KB)
+   dentro la pagina stessa; il file originale resta come riserva. */
+const LOGO_B64="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";
+const SK="mzr_session",LOGOF="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/Marzenego.png";
+const LOGO=(()=>{try{const b=atob(LOGO_B64),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return URL.createObjectURL(new Blob([u],{type:'image/png'}))}catch(e){return'data:image/png;base64,'+LOGO_B64}})();
 const TEAM="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/refs/heads/main/IMG-20251117-WA0030(1).jpg";
+const TEAMS="chi-siamo-gruppo.jpg";   // <-- versione leggera della foto di gruppo (stessa cartella di index.html); se manca si usa quella originale
 const LOGOLAB="MZ LAB-Photoroom (1).png";            // <-- logo MZ LAB: nome del file nella repo (stessa cartella di index.html)
 const LOGOLABF="https://raw.githubusercontent.com/MarzenegoRiverside/MarzenegoWebpage/main/MZ%20LAB-Photoroom%20(1).png";                    // <-- INCOLLA QUI il raw link GitHub del logo MZ LAB (usato se il file locale non si trova)
-const logo=`<img class="lg" src="${LOGO}" onerror="this.onerror=null;this.src='${LOGOF}'">`;
-const labImg=w=>`<img class="lg" style="width:${w}px" src="${LOGOLAB}" onerror="${LOGOLABF?`this.onerror=null;this.src='${LOGOLABF}'`:`this.style.display='none'`}">`;
+const logo=`<img class="lg" src="${LOGO}" decoding="async" onerror="this.onerror=null;this.src='${LOGOF}'">`;
+const labImg=w=>`<img class="lg" style="width:${w}px" src="${LOGOLAB}" decoding="async" onerror="${LOGOLABF?`this.onerror=null;this.src='${LOGOLABF}'`:`this.style.display='none'`}">`;
 const logoLab=labImg(54);
 const PAGES=[['home','Home'],['cal','Calendario'],['ev','Prossimi eventi'],['map','Mappa'],['job','Lavora con noi'],['shop','Shop'],['chi','Chi siamo']];
 const MESI=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
 const GG=['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
 const TEMA_DEF='#F4C430';
 const TEMI=['#5CBF7F','#7A3B0E','#D400FF','#1E6BFF','#1A1F1F','#1EC8E6','#22FF55','#FFFFFF','#7A7A7A','#FF3B3B','#7B4BDB','#FF8A00'];
-const S={u:null,uid:null,ud:{},page:'home',prev:'home',D:{eventi:[],novita:[],news:[],risultati:[],eventiExtra:[],posizioni:[],organigramma:[],prodotti:[]},mo:new Date(),shopTab:'Vestiti',names:[],msgs:[],cand:[],ord:[],wo:0,ci:{home:0,area:0},fl:{},fm:{},bw:''};
+const S={u:null,uid:null,ud:{},page:'home',prev:'home',D:{eventi:[],novita:[],news:[],risultati:[],eventiExtra:[],posizioni:[],organigramma:[],prodotti:[]},mo:new Date(),shopTab:'Vestiti',names:[],msgs:[],cand:[],ord:[],wo:0,ci:{home:0,area:0},fl:{},fm:{},bw:'',ss:null,vst:null};
 const p2=n=>String(n).padStart(2,'0'),ymd=d=>d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
 const dmy=s=>{const[a,b,c]=s.split('-');return c+'/'+b+'/'+a};
-const col=async n=>{try{return(await getDocs(collection(db,n))).docs.map(d=>({id:d.id,...d.data()}))}catch(e){return[]}};
 const byData=(a,b)=>String(b.data||'').localeCompare(String(a.data||''));
 const user=`<svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 21c0-4.6 3.8-7.2 8.5-7.2s8.5 2.6 8.5 7.2z"/></svg>`;
 
+/* ---------- DATI: copia locale + aggiornamento automatico ----------
+   All'apertura l'app mostra subito i dati dell'ultima volta (Home e Calendario compaiono anche con rete lenta),
+   poi li aggiorna da Firebase. Se il caricamento fallisce riprova da sola (2s, 4s, 8s... max 30s)
+   e ricarica i dati quando l'app torna in primo piano: non serve piu' chiuderla e riaprirla. */
+const DK='mzr_dati_v1',UK='mzr_utente_v1';
+const COLS=['eventi','novita','news','risultati','eventiExtra','posizioni','organigramma','prodotti'];
+const big=(k,v)=>typeof v==='string'&&v.length>20000?undefined:v;   /* niente immagini base64 enormi nella copia locale */
+function saveCache(){try{localStorage.setItem(DK,JSON.stringify({t:Date.now(),D:S.D},big))}catch(e){try{localStorage.removeItem(DK)}catch(x){}}}
+function loadCache(){try{const c=JSON.parse(localStorage.getItem(DK)||'null');if(c&&c.D)COLS.forEach(k=>{if(Array.isArray(c.D[k]))S.D[k]=c.D[k]})}catch(e){}}
+const uStore=()=>{try{return localStorage.getItem(SK)?localStorage:sessionStorage}catch(e){return null}};
+function cacheUser(){if(!S.u)return;try{const st=uStore();st&&st.setItem(UK,JSON.stringify({id:S.uid,d:S.ud}))}catch(e){}}
+function cachedUser(un){try{const st=uStore(),c=st&&JSON.parse(st.getItem(UK)||'null');return c&&c.d&&c.d.username===un?c:null}catch(e){return null}}
+function dropUserCache(){try{localStorage.removeItem(UK);sessionStorage.removeItem(UK)}catch(e){}}
 async function loadAll(){
- const n=['eventi','novita','news','risultati','eventiExtra','posizioni','organigramma','prodotti'];
- (await Promise.all(n.map(col))).forEach((r,i)=>S.D[n[i]]=r);
+ const r=await Promise.allSettled(COLS.map(fetchCol));
+ r.forEach((x,i)=>{if(x.status==='fulfilled')S.D[COLS[i]]=x.value});
  S.D.eventi.sort((a,b)=>(a.data+a.ora).localeCompare(b.data+b.ora));
- await loadUser();
+ if(r.some(x=>x.status==='fulfilled'))saveCache();
+ return r.every(x=>x.status==='fulfilled');
 }
 async function loadUser(){
- if(!S.u)return;
- const[m,c,o,vt]=await Promise.all([
-  getDocs(query(collection(db,"messaggi"),where("destinatario","==",S.u.username))).then(s=>s.docs.map(d=>({id:d.id,...d.data()}))).catch(()=>[]),
-  col('candidature'),col('richieste_prodotti'),
-  getDocs(query(collection(db,"presenze"),where("username","==",S.u.username))).then(s=>new Set(s.docs.map(d=>d.data().eventoId))).catch(()=>null)]);
- S.votes=vt;S.msgs=m.sort((a,b)=>b.timestamp-a.timestamp);
- S.cand=c.filter(x=>x.nome===S.u.nome);S.ord=o.filter(x=>x.nomeUtente===S.u.nome);
+ if(!S.u)return true;
+ const u=S.u;
+ const r=await Promise.allSettled([fetchEq("messaggi","destinatario",u.username),fetchEq('candidature','nome',u.nome),fetchEq('richieste_prodotti','nomeUtente',u.nome),fetchEq("presenze","username",u.username)]);
+ if(S.u!==u)return true;
+ const[m,c,o,vt]=r.map(x=>x.status==='fulfilled'?x.value:null);
+ if(m)S.msgs=m.sort((a,b)=>b.timestamp-a.timestamp);
+ if(c)S.cand=c;
+ if(o)S.ord=o;
+ if(vt){S.votes=new Set(vt.map(x=>x.eventoId));S.vst=new Map(vt.map(x=>[x.eventoId,x.stato]))}
+ return r.every(x=>x.status==='fulfilled');
 }
+/* rilegge il profilo dell'utente collegato (tema, foto, note...) */
+async function syncUser(){
+ if(!S.ss)return true;
+ const un=S.ss,s=await fetchEq("utenti","username",un);
+ if(S.ss!==un)return true;
+ if(!s.length){if(S.u){S.u=null;S.uid=null;S.ud={};S.fm={};S.votes=null;S.vst=null;S.msgs=[];S.cand=[];S.ord=[];setTema(TEMA_DEF)}return true}
+ const{id,...d}=s[0],was=S.u&&S.u.nome;
+ setUser(d,id);cacheUser();
+ if(was!==S.u.nome||!S.fm||!(S.fm.st===0||S.fm.st===1))resolveFoto().then(patchFoto).catch(()=>{});
+ return await loadUser();
+}
+let RF=null,RT=0,TRY=0,LAST=0;
+const sig=()=>{try{return JSON.stringify([S.D,S.u,S.ud,S.msgs,S.cand,S.ord,S.vst?[...S.vst]:0])}catch(e){return String(Math.random())}};
+function refresh(){
+ if(RF)return RF;
+ clearTimeout(RT);
+ RF=(async()=>{
+  const s0=sig();let ok=false;
+  try{
+   if(TRY>=2&&!S.pw&&navigator.onLine!==false)await fbReset();
+   try{await withTO(fbReady(),25000)}
+   catch(e){if(FBX&&calm()&&await netOk()&&calm()&&healReload())return;throw e}
+   const r=await Promise.allSettled([loadAll(),syncUser()]);
+   ok=r.every(x=>x.status==='fulfilled'&&x.value);
+  }catch(e){console.warn('Aggiornamento dati non riuscito',e)}
+  if(sig()!==s0)softRender();else hdr();
+  if(ok){TRY=0;LAST=Date.now()}
+  else{TRY++;RT=setTimeout(refresh,Math.min(30000,2000*2**(TRY-1)))}
+ })().finally(()=>{RF=null});
+ return RF;
+}
+/* ridisegna senza disturbare: se si sta scrivendo in un campo o trascinando una card, aspetta */
+function softRender(){
+ clearTimeout(S.srT);
+ const a=document.activeElement;
+ if((a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.closest('#main'))||$('#main .car.mv')){S.srT=setTimeout(softRender,1500);return}
+ render();
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-LAST>60e3)refresh()});
+addEventListener('pageshow',e=>{if(e.persisted)refresh()});
+addEventListener('online',()=>refresh());
+/* scritture: contate, cosi' la connessione non viene mai ricreata mentre un salvataggio e' in corso */
+const W=async f=>{S.pw=(S.pw||0)+1;try{await fbReady();return await f()}finally{S.pw--}};
 function setTema(c){const r=document.documentElement.style;r.setProperty('--ac',c);
  const m=/^#?([0-9a-f]{6})$/i.exec(String(c).trim());
  if(m){const l=[0,2,4].map(i=>{const v=parseInt(m[1].substr(i,2),16)/255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});
   r.setProperty('--on',(.2126*l[0]+.7152*l[1]+.0722*l[2])>.7?'#10230f':'#fff')}}
+function setUser(d,id){
+ const{password,...u}=d||{};   /* la password non resta in memoria ne' nella copia locale */
+ S.u={username:u.username,nome:u.nome,permissions:u.permissions||null};S.uid=id;S.ud=u;
+ if(u.tema)setTema(u.tema);
+}
 async function applyUser(d,id){
- S.u={username:d.username,nome:d.nome,permissions:d.permissions||null};S.uid=id;S.ud=d;
- if(d.tema)setTema(d.tema);
- const fp=resolveFoto().catch(()=>{});
- await loadUser();await fp;
+ setUser(d,id);
+ resolveFoto().then(patchFoto).catch(()=>{});   /* la foto arriva quando e' pronta, senza bloccare */
+ await loadUser().catch(()=>{});
 }
 function ini(){return(S.u.nome||S.u.username).split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase()}
 /* ---------- VOTI MANCANTI ---------- */
@@ -379,30 +497,46 @@ async function ghFiles(){
  try{c=JSON.parse(localStorage.getItem(K)||'null')}catch(e){}
  if(c&&c.f&&c.f.length&&Date.now()-c.t<TTL)return c.f;
  try{
-  const r=await fetch('https://api.github.com/repos/'+GH+'/git/trees/'+GBR+'?recursive=1');if(!r.ok)throw 0;
+  const ac=typeof AbortController==='function'?new AbortController():null,tm=setTimeout(()=>ac&&ac.abort(),8000);
+  let r;try{r=await fetch('https://api.github.com/repos/'+GH+'/git/trees/'+GBR+'?recursive=1',ac?{signal:ac.signal}:{})}finally{clearTimeout(tm)}
+  if(!r.ok)throw 0;
   const j=await r.json(),f=(j.tree||[]).filter(x=>x.type==='blob'&&FIMG.test(x.path)&&/^foto[\s_-]*giocatori\//i.test(x.path)).map(x=>{const p=x.path.split('/');
    return{k:p.length<3?'':/^esult/i.test(p[1])?'Esultanze':/^normal/i.test(p[1])?'normali':'',name:p[p.length-1],url:FBASE+p.map(encodeURIComponent).join('/')}}).filter(x=>x.k);
   try{localStorage.setItem('mzr_ft2',JSON.stringify({t:Date.now(),f}))}catch(e){}
   return f;
- }catch(e){return c&&c.f?c.f:[]}
+ }catch(e){return c&&c.f?c.f:null}
 }
+/* S.fm.st: 0 = elenco foto in arrivo, 1 = elenco letto da GitHub, 2 = elenco non disponibile (si va per tentativi) */
 async function resolveFoto(){
- S.fm={normali:'',Esultanze:''};if(!S.u||!S.u.nome)return;
- const fs=await ghFiles();['normali','Esultanze'].forEach(k=>{S.fm[k]=pickFoto(fs.filter(f=>f.k===k),S.u.nome)});
+ const fm={normali:'',Esultanze:'',st:0};S.fm=fm;if(!S.u||!S.u.nome){fm.st=1;return}
+ const nome=S.u.nome,fs=await ghFiles();if(S.fm!==fm)return;
+ if(fs){['normali','Esultanze'].forEach(k=>{fm[k]=pickFoto(fs.filter(f=>f.k===k),nome)});fm.st=1}else fm.st=2;
 }
+/* inserisce la foto appena e' stata trovata, senza ridisegnare la pagina */
+function patchFoto(){
+ if(!S.u)return;
+ if(S.page==='home'){const ci=$('#main .car[data-p=home]>.cc>.ci');if(ci&&!ci.querySelector('.ph1')){const h=fotoImg('normali','ph1');if(h)ci.insertAdjacentHTML('afterbegin',h)}}
+ if(S.page==='area'){const w=$('#main .wb');if(w&&!w.querySelector('.wph')){const h=fotoImg('Esultanze','wph');if(h)w.insertAdjacentHTML('beforeend',h)}}
+}
+const noFotoK=k=>'mzr_fx_'+k+'_'+(S.u?S.u.username:'');
 function fotoList(k){
  if(!S.u)return[];
  const f=k==='normali'?S.ud.fotoHome:S.ud.fotoEsultanza,ck='mzr_f_'+k+'_'+S.u.username;
- let c='';try{c=localStorage.getItem(ck)||''}catch(e){}
- const nm=String(S.u.nome||'').trim().replace(/\s+/g,' '),lo=nm.toLowerCase(),cap=lo.replace(/(^|\s)\S/g,m=>m.toUpperCase());
- const base=nm?[...new Set([nm,cap,lo,nm.replace(/ /g,'_'),lo.replace(/ /g,'_'),cap.replace(/ /g,'_'),cap.replace(/ /g,''),lo.replace(/ /g,''),lo.replace(/ /g,'-')])]:[];
+ let c='',nx=0;try{c=localStorage.getItem(ck)||'';nx=+localStorage.getItem(noFotoK(k))||0}catch(e){}
  const u=[];if(f)u.push(f);if(S.fm&&S.fm[k])u.push(S.fm[k]);if(c)u.push(c);
- base.forEach(b=>FEXT.forEach(x=>u.push(FBASE+'foto%20giocatori/'+(k==='normali'?'normali/':'Esultanze/')+encodeURIComponent(b)+'.'+x)));
+ /* i tentativi "alla cieca" (fino a 60 indirizzi) solo se l'elenco di GitHub non e' disponibile,
+    e non piu' di una volta ogni 6 ore se la foto non esiste */
+ if(S.fm&&S.fm.st===2&&Date.now()-nx>6*3600e3){
+  const nm=String(S.u.nome||'').trim().replace(/\s+/g,' '),lo=nm.toLowerCase(),cap=lo.replace(/(^|\s)\S/g,m=>m.toUpperCase());
+  const base=nm?[...new Set([nm,cap,lo,nm.replace(/ /g,'_'),lo.replace(/ /g,'_'),cap.replace(/ /g,'_'),cap.replace(/ /g,''),lo.replace(/ /g,''),lo.replace(/ /g,'-')])]:[];
+  base.forEach(b=>FEXT.forEach(x=>u.push(FBASE+'foto%20giocatori/'+(k==='normali'?'normali/':'Esultanze/')+encodeURIComponent(b)+'.'+x)));
+ }
  return[...new Set(u)];
 }
-window.fN=img=>{const k=img.dataset.k,l=S.fl[k]||[],i=(+img.dataset.i||0)+1;if(i<l.length){img.dataset.i=i;img.src=l[i]}else{img.onerror=null;img.remove()}};
-window.fO=img=>{try{localStorage.setItem('mzr_f_'+img.dataset.k+'_'+S.u.username,img.currentSrc||img.src)}catch(e){}};
-const fotoImg=(k,cls)=>{const l=fotoList(k);if(!l.length)return'';S.fl[k]=l;return `<img class="${cls}" data-k="${k}" data-i="0" src="${E(l[0])}" alt="" onerror="fN(this)" onload="fO(this)">`};
+window.fN=img=>{const k=img.dataset.k,l=S.fl[k]||[],i=(+img.dataset.i||0)+1;if(i<l.length){img.dataset.i=i;img.src=l[i]}else{img.onerror=null;img.remove();
+ try{if(S.u&&navigator.onLine!==false){if(S.fm&&S.fm.st===2)localStorage.setItem(noFotoK(k),Date.now());localStorage.removeItem('mzr_f_'+k+'_'+S.u.username)}}catch(e){}}};
+window.fO=img=>{try{localStorage.setItem('mzr_f_'+img.dataset.k+'_'+S.u.username,img.currentSrc||img.src);localStorage.removeItem(noFotoK(img.dataset.k))}catch(e){}};
+const fotoImg=(k,cls)=>{const l=fotoList(k);if(!l.length)return'';S.fl[k]=l;return `<img class="${cls}" data-k="${k}" data-i="0" src="${E(l[0])}" alt="" decoding="async" onerror="fN(this)" onload="fO(this)">`};
 /* ---------- PRONOSTICO ---------- */
 const STOP=/^(asd|ssd|a\.s\.d\.?|s\.s\.d\.?|fc|f\.c\.|ac|a\.c\.|us|u\.s\.|sc|pol|pol\.|polisportiva|gs|g\.s\.|srl|a|di|del|della|de|la|il|e|&|vs)$/i;
 function inits(n){let w=String(n).replace(/[^\p{L}\p{N}\s.'’-]/gu,' ').split(/[\s-]+/).filter(Boolean);const k=w.filter(x=>!STOP.test(x));if(k.length)w=k;
@@ -501,7 +635,7 @@ function vHome(){
  const s0=head('Home Page','Scorri le sezioni')+`<div class="enb"><div class="s" style="font-size:17px;margin:14px 4px 4px">Benvenuto${S.u?' '+E(S.u.nome):''}!</div><p class="li" style="font-size:14px;margin:0 4px">Questa è l'app ufficiale del nostro Club. Scopri tutte le sue funzioni!</p></div><div class="s" style="font-size:16px;margin:22px 4px 0">Bet on next match:</div>`+bet;
  const pin=x=>`<div class="row" style="margin-bottom:8px"><div class="li" style="margin:0">“${E(x.titolo)}”</div><span data-a="pinN" data-v="${E(x.id)}" style="cursor:pointer;font-size:15px;${n.includes(x.titolo)?'':'opacity:.4;filter:grayscale(1)'}">📌</span></div>`;
  const s1=head('Bacheca','Del Club',0)+`<div class="hl">Clicca sulla puntina per salvare una data nella tua area</div><div class="s" style="margin-top:14px">Bacheca:</div>`+nv.map(pin).join('');
- const s2=head('News dal fiume','',0)+nw.map(x=>{const im=x.img||x.immagine||x.foto;return `<div class="row rw" data-a="news" data-v="${E(x.id)}"><div><b>${E(x.titolo)}</b><span>${E((x.testo||'').slice(0,40))}${(x.testo||'').length>40?'…':''}</span></div><img class="${im?'':'ph'}" src="${E(im||LOGO)}" loading="lazy" onerror="this.onerror=null;this.className='ph';this.src='${LOGOF}'"></div>`}).join('');
+ const s2=head('News dal fiume','',0)+nw.map(x=>{const im=x.img||x.immagine||x.foto;return `<div class="row rw" data-a="news" data-v="${E(x.id)}"><div><b>${E(x.titolo)}</b><span>${E((x.testo||'').slice(0,40))}${(x.testo||'').length>40?'…':''}</span></div><img class="${im?'':'ph'}" src="${E(im||LOGO)}" loading="lazy" decoding="async" onerror="this.onerror=null;this.className='ph';this.src='${LOGOF}'"></div>`}).join('');
  const s3=head('Ultimi risultati','',0)+rs.map(x=>{const k=x.esito==='V'?'W':x.esito==='P'?'L':'D';return `<div class="row"><div><b>${E(x.avversario)}</b><span>${E(x.nostri)} – ${E(x.loro)}</span></div><div class="wl glass ${k}">${k}</div></div>`}).join('');
  return car([{h:s0,x:fotoImg('normali','ph1')},s1,s2,s3],{key:'home'})+sec();
 }
@@ -523,17 +657,30 @@ async function evModal(id,tab='r'){
  let body='';
  if(tab==='r')body=`<div class="s">Data</div><div class="li">${dmy(e.data)}</div><div class="s">Orario</div><div class="li">${E(e.ora)}</div><div class="s">Luogo</div><div class="li">${E(e.luogo||'-')}</div><div class="s">Note</div><div class="li">${E(e.note||'-')}</div>`;
  else{
-  const ps=(await getDocs(query(collection(db,"presenze"),where("eventoId","==",id)))).docs.map(d=>d.data()),v=new Set(ps.map(p=>p.username));
-  let nv=[];try{nv=(await getDocs(collection(db,"utenti"))).docs.map(d=>d.data()).filter(u=>u.username&&!u.votoDisabilitato&&!v.has(u.username)).map(u=>u.nome||u.username)}catch(x){}
-  const L=a=>a.length?a.map(n=>`<div class="li" style="margin:0 0 3px">${E(n)}</div>`).join(''):'<div class="li">—</div>';
-  const pr=ps.filter(p=>p.stato==='presente').map(p=>p.nome||p.username),as=ps.filter(p=>p.stato!=='presente').map(p=>p.nome||p.username);
-  body=`<div class="two"><div><div class="s" style="margin:0 0 4px">Presenti (${pr.length})</div>${L(pr)}</div><div><div class="s" style="margin:0 0 4px">Assenti (${as.length})</div>${L(as)}</div></div><div class="s">Chi non ha ancora votato (${nv.length}):</div>${L(nv)}`;
+  try{
+   const ps=await fetchEq("presenze","eventoId",id),v=new Set(ps.map(p=>p.username));
+   let nv=[];try{nv=(await utenti()).filter(u=>u.username&&!u.votoDisabilitato&&!v.has(u.username)).map(u=>u.nome||u.username)}catch(x){}
+   const L=a=>a.length?a.map(n=>`<div class="li" style="margin:0 0 3px">${E(n)}</div>`).join(''):'<div class="li">—</div>';
+   const pr=ps.filter(p=>p.stato==='presente').map(p=>p.nome||p.username),as=ps.filter(p=>p.stato!=='presente').map(p=>p.nome||p.username);
+   body=`<div class="two"><div><div class="s" style="margin:0 0 4px">Presenti (${pr.length})</div>${L(pr)}</div><div><div class="s" style="margin:0 0 4px">Assenti (${as.length})</div>${L(as)}</div></div><div class="s">Chi non ha ancora votato (${nv.length}):</div>${L(nv)}`;
+  }catch(x){body=`<div class="li">Connessione lenta: presenze non disponibili, riprova tra poco.</div>`}
  }
- let st=null;if(S.u){const g=await getDoc(doc(db,"presenze",id+"_"+S.u.username));if(g.exists())st=g.data().stato}
+ /* il tuo voto: si usa quello gia' caricato (apertura immediata) e intanto si verifica col server */
+ let st=null,gp=null;const vn=S.vn;
+ if(S.u){
+  const u=S.u.username;
+  gp=fbReady().then(()=>withTO(getDoc(doc(db,"presenze",id+"_"+u)),10000)).then(g=>g.exists()?g.data().stato:null);gp.catch(()=>{});
+  if(S.vst)st=S.vst.get(id)||null;
+  else{const r=await Promise.race([gp.catch(()=>null),new Promise(z=>setTimeout(()=>z(undefined),1500))]);if(r!==undefined){st=r;gp=null}}
+ }
  const h=`<div class="ov" data-a="close"><div class="mc"><div class="front glass" style="margin-bottom:12px"><div class="t" style="font-size:26px;margin-bottom:10px">${E(e.tipo)}</div><div style="display:flex;gap:8px;margin-bottom:12px"><span class="pill${tab==='r'?'':' off'}" data-a="tab" data-v="${id}|r">Riepilogo</span><span class="pill${tab==='p'?'':' off'}" data-a="tab" data-v="${id}|p">Presenze</span></div><div style="min-height:230px">${body}</div></div>
  <div class="stack tp"><div class="back"><span class="lab" style="text-transform:uppercase">Il tuo voto:</span></div><div class="front glass vt"><span class="pill ok off${st==='presente'?' sel':''}" style="${st==='presente'?'':'background:rgba(255,255,255,.08)'}" data-a="vota" data-v="${id}|presente">Presente</span><span class="pill ko${st==='assente'?' sel':''}" style="${st==='assente'?'':'background:rgba(255,255,255,.08)'}" data-a="vota" data-v="${id}|assente">Assente</span></div></div></div></div>`;
  modal(h);
+ if(gp)gp.then(s=>{if(S.vst&&s)S.vst.set(id,s);if(S.vn===vn&&s!==st&&$('#mod [data-a=vota][data-v^="'+id+'|"]'))paintVote(s)}).catch(()=>{});
 }
+function paintVote(st){const ok=$('.vt .ok'),ko=$('.vt .ko');if(!ok||!ko)return;ok.classList.toggle('sel',st==='presente');ko.classList.toggle('sel',st==='assente');ok.style.background=st==='presente'?'':'rgba(255,255,255,.08)';ko.style.background=st==='assente'?'':'rgba(255,255,255,.08)'}
+/* elenco utenti (per "chi non ha ancora votato"): tenuto in memoria 5 minuti invece di riscaricarlo a ogni apertura */
+const utenti=async()=>{if(S.ut&&Date.now()-S.ut.t<300e3)return S.ut.l;const l=(await fetchCol('utenti')).map(({password,...u})=>u);S.ut={t:Date.now(),l};return l};
 /* ---------- PROSSIMI EVENTI ---------- */
 function vEv(){
  const n=S.ud.noteEventi||[];
@@ -565,7 +712,7 @@ function vShop(){
 /* ---------- CHI SIAMO ---------- */
 function vChi(){
  const s1=head('Come nasce','Il progetto')+`<p class="li" style="margin:26px 12px 26px;font-size:16px">Marzenego Riverside nasce nel mese di luglio 2025, dalle ceneri del progetto Aston Villa Salus. Il Marzenego, fonte d'ispirazione per il concept di squadra, è un fiume che attraversa molti dei paesi in cui siamo nati e cresciuti, ci congiunge e ci unisce come unica grande famiglia. Il nostro spirito, in campo e fuori, è quello di giocare sempre al massimo delle nostre possibilità, unendo passione a grande spirito di miglioramento. Tuttavia, una grande società, una grande squadra, non è niente senza un grande gruppo di uomini. #KeepFordingNutries!</p>`;
- const s2=head('Come nasce','Il gruppo')+`<img src="${TEAM}" style="width:100%;border-radius:22px;display:block;margin:34px 0 10px">`;
+ const s2=head('Come nasce','Il gruppo')+`<img src="${TEAMS}" decoding="async" onerror="this.onerror=null;this.src='${TEAM}'" style="width:100%;border-radius:22px;display:block;margin:34px 0 10px">`;
  return car([s1,s2],{key:'chi'});
 }
 /* ---------- LA TUA AREA ---------- */
@@ -604,7 +751,7 @@ function closeM(){const d=$('#mod');if(!d)return;d.removeAttribute('id');d.class
 const glassCard=(h)=>modal(`<div class="ov" data-a="close"><div class="mc"><div class="front glass">${h}</div></div></div>`);
 function loginM(){glassCard(`<div class="t" style="font-size:30px;margin:6px 0 14px">Login</div><input class="in" id="lu" placeholder="Username" autocapitalize="none"><input class="in" id="lp" type="password" placeholder="Password"><button class="btn" data-a="login" style="margin-top:18px">Accedi</button><label class="ck"><input type="checkbox" id="lr">Resta collegato</label>`)}
 /* ---------- AZIONI ---------- */
-const save=(f)=>S.uid&&updateDoc(doc(db,"utenti",S.uid),f).catch(e=>alert("Errore salvataggio: "+e.message));
+const save=(f)=>{if(!S.uid)return;cacheUser();return W(()=>updateDoc(doc(db,"utenti",S.uid),f)).catch(e=>alert("Errore salvataggio: "+e.message))};
 let DP=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();DP=e});
 const A={
  go:v=>go(v),close:()=>closeM(),
@@ -631,8 +778,8 @@ const A={
   glassCard(`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div class="t" style="font-size:30px">Mancanza voti</div><div class="ct">${tri(on,22)}<span>${m.w}</span></div></div><div class="st" style="margin-bottom:18px">Attenzione:</div><div class="s">Voti mancanti nei prossimi 7 giorni:</div><div class="row" style="margin:6px 4px 16px"><span style="flex:1">Voti mancanti:</span><span class="cap${on?'':' gn'}">${m.w}</span></div><div class="s">In generale:</div><div class="row" style="margin:6px 4px 18px"><span style="flex:1">Voti mancanti:</span><span class="cap">${m.t}</span></div>${on?'<button class="btn" data-a="votiGo" style="margin-top:22px">Sana situazione</button>':'<button class="btn gn" data-a="close" style="margin-top:22px">Ottimo lavoro campione!</button>'}<button class="btn gh" data-a="close">Indietro</button>`)},
  votiGo:()=>{closeM();go('cal')},
  logout:()=>{if(!confirm("Vuoi uscire dal tuo account?"))return;
-  try{localStorage.removeItem(SK);sessionStorage.removeItem(SK)}catch(e){}
-  S.u=null;S.uid=null;S.ud={};S.fm={};S.votes=null;S.msgs=[];S.cand=[];S.ord=[];setTema(TEMA_DEF);go('home')},
+  try{localStorage.removeItem(SK);sessionStorage.removeItem(SK)}catch(e){}dropUserCache();
+  S.ss=null;S.u=null;S.uid=null;S.ud={};S.fm={};S.votes=null;S.vst=null;S.msgs=[];S.cand=[];S.ord=[];setTema(TEMA_DEF);go('home')},
  user:()=>{if(!S.u)return loginM();go(S.page==='area'?S.prev:'area')},
  mo:v=>{S.mo=new Date(S.mo.getFullYear(),S.mo.getMonth()+ +v,1);render();if(!RM)$('.cg')?.animate([{opacity:0,transform:`translateX(${+v>0?16:-16}px)`},{opacity:1,transform:'none'}],{duration:340,easing:EZ})},
  news:v=>{const x=S.D.news.find(n=>n.id===v);if(!x)return;
@@ -640,31 +787,34 @@ const A={
  openEv:v=>{if(S.busy)return;S.busy=1;Promise.resolve(evModal(v)).finally(()=>S.busy=0)},tab:v=>{if(S.busy)return;const[i,t]=v.split('|');S.busy=1;Promise.resolve(evModal(i,t)).finally(()=>S.busy=0)},
  vota:async v=>{const[i,s]=v.split('|');if(!S.u){closeM();return loginM()}
   const ok=$('.vt .ok'),ko=$('.vt .ko'),prev=ok&&ok.classList.contains('sel')?'presente':ko&&ko.classList.contains('sel')?'assente':null;
-  const paint=st=>{if(!ok||!ko)return;ok.classList.toggle('sel',st==='presente');ko.classList.toggle('sel',st==='assente');ok.style.background=st==='presente'?'':'rgba(255,255,255,.08)';ko.style.background=st==='assente'?'':'rgba(255,255,255,.08)'};
+  const paint=paintVote;
   paint(s);const n=S.vn=(S.vn||0)+1;
-  try{await setDoc(doc(db,"presenze",i+"_"+S.u.username),{eventoId:i,username:S.u.username,nome:S.u.nome,stato:s,timestamp:Date.now()})}
+  try{await W(()=>setDoc(doc(db,"presenze",i+"_"+S.u.username),{eventoId:i,username:S.u.username,nome:S.u.nome,stato:s,timestamp:Date.now()}))}
   catch(e){if(n===S.vn)paint(prev);return alert("Errore salvataggio voto: "+e.message)}
+  if(S.vst)S.vst.set(i,s);
   if(S.votes){S.votes.add(i);hdr()}
   if(n!==S.vn)return;
   const t=$('.pill[data-a=tab]:not(.off)')?.dataset.v.split('|')[1]||'r';if(t==='p')evModal(i,t)},
  login:async()=>{const u=$('#lu').value.trim(),p=$('#lp').value.trim();if(!u||!p)return alert("Inserisci username e password");
-  try{const s=await getDocs(query(collection(db,"utenti"),where("username","==",u),where("password","==",p)));
-   if(s.empty)return alert("Credenziali errate");
+  try{await withTO(fbReady(),20000);const s=await withTO(getDocs(query(collection(db,"utenti"),where("username","==",u),where("password","==",p))),20000);
+   if(s.empty)return alert(s.metadata.fromCache?"Connessione assente, riprova tra poco":"Credenziali errate");
    const d=s.docs[0].data(),rc=$('#lr').checked;await applyUser(d,s.docs[0].id);
    try{localStorage.removeItem(SK);sessionStorage.removeItem(SK);(rc?localStorage:sessionStorage).setItem(SK,JSON.stringify({type:"player",username:d.username,nome:d.nome,ruolo:d.ruolo||"",permissions:d.permissions||null}))}catch(e){}
-   closeM();go('area')}catch(e){alert("Errore: "+e.message)}},
+   S.ss=d.username;dropUserCache();cacheUser();
+   closeM();go('area')}catch(e){alert(e&&e.message==='timeout'?"Connessione lenta, riprova tra poco":"Errore: "+e.message)}},
  pin:async v=>{if(!S.u)return loginM();const x=S.D.eventiExtra.find(e=>e.id===v),n=S.ud.noteEventi||[];
   S.ud.noteEventi=n.includes(x.testo)?n.filter(t=>t!==x.testo):[...n,x.testo];render();save({noteEventi:S.ud.noteEventi})},
  cand:async v=>{if(!S.u)return loginM();const x=S.D.posizioni.find(p=>p.id===v);
-  await addDoc(collection(db,"candidature"),{nome:S.u.nome,posizione:x.testo,data:ymd(new Date())});
-  S.cand=(await col('candidature')).filter(c=>c.nome===S.u.nome);render();alert("Candidatura inviata con successo!")},
+  try{await W(()=>addDoc(collection(db,"candidature"),{nome:S.u.nome,posizione:x.testo,data:ymd(new Date())}))}catch(e){return alert("Errore: "+e.message)}
+  try{S.cand=await fetchEq('candidature','nome',S.u.nome)}catch(e){}render();alert("Candidatura inviata con successo!")},
  stab:v=>{S.shopTab=v;render()},
  ottieni:v=>{if(!S.u)return loginM();const p=S.D.prodotti.find(x=>x.id===v);
   glassCard(`<div class="t" style="font-size:26px;margin-bottom:12px">Ottieni articolo</div><div class="li" style="margin:0">“${E(p.nome)}”</div><u class="li">“${E(p.prezzo)}€”</u><div class="row" style="margin:8px 4px"><b style="flex:none;font-size:14px">Quantità:</b><input class="in" id="oq" type="number" min="1" value="1" style="width:64px;padding:2px 8px;margin:0;border-radius:14px;text-align:center"></div><div class="row" style="margin:8px 4px"><b style="flex:none;font-size:14px">Taglia:</b><input class="in" id="ot" placeholder="#" style="width:64px;padding:2px 8px;margin:0;border-radius:14px;text-align:center"></div><button class="btn" data-a="ordina" data-v="${v}" style="margin-top:22px">Conferma ordine</button>`)},
  ordina:async v=>{const p=S.D.prodotti.find(x=>x.id===v),t=$('#ot').value.trim();if(!t)return alert("Inserisci la taglia");
-  await addDoc(collection(db,"richieste_prodotti"),{prodottoId:v,prodottoNome:p.nome,nomeUtente:S.u.nome,taglia:t,quantita:+$('#oq').value||1,data:ymd(new Date())});
-  S.ord=(await col('richieste_prodotti')).filter(o=>o.nomeUtente===S.u.nome);closeM();render();alert("Richiesta inviata!")},
- letti:async()=>{for(const m of S.msgs.filter(m=>!m.letto)){await updateDoc(doc(db,"messaggi",m.id),{letto:true});m.letto=true}},
+  const q=+$('#oq').value||1;
+  try{await W(()=>addDoc(collection(db,"richieste_prodotti"),{prodottoId:v,prodottoNome:p.nome,nomeUtente:S.u.nome,taglia:t,quantita:q,data:ymd(new Date())}))}catch(e){return alert("Errore: "+e.message)}
+  try{S.ord=await fetchEq('richieste_prodotti','nomeUtente',S.u.nome)}catch(e){}closeM();render();alert("Richiesta inviata!")},
+ letti:async()=>{try{for(const m of S.msgs.filter(m=>!m.letto)){await W(()=>updateDoc(doc(db,"messaggi",m.id),{letto:true}));m.letto=true}}catch(e){}},
  salva:()=>{const a={};document.querySelectorAll('[data-k]').forEach(i=>a[i.dataset.k]=i.checked);
   S.ud.assets=a;S.ud.numeroMaglia=$('#nm').value.trim();S.ud.scadenzaVisita=$('#vm').value;
   save({assets:a,numeroMaglia:S.ud.numeroMaglia,scadenzaVisita:S.ud.scadenzaVisita});alert("Salvato")},
@@ -686,9 +836,13 @@ $('#foto').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;
 /* ---------- AVVIO ---------- */
 (async()=>{
  let ss=null;try{ss=JSON.parse(localStorage.getItem(SK)||sessionStorage.getItem(SK)||'null')}catch(e){}
+ /* 1) subito: dati e profilo salvati dall'ultima apertura (nessuna attesa di rete) */
+ loadCache();
+ if(ss&&ss.type==="player"&&ss.username){S.ss=ss.username;const c=cachedUser(ss.username);if(c){setUser(c.d,c.id);resolveFoto().then(patchFoto).catch(()=>{})}}
+ try{const pg=sessionStorage.getItem('mzr_pg');if(pg){sessionStorage.removeItem('mzr_pg');if(PAGES.some(p=>p[0]===pg)||(pg==='area'&&S.u))S.page=pg}}catch(e){}
  render();
- if(ss&&ss.type==="player"&&ss.username){try{const s=await getDocs(query(collection(db,"utenti"),where("username","==",ss.username)));if(!s.empty)await applyUser(s.docs[0].data(),s.docs[0].id)}catch(e){}}
- await loadAll();render();
+ /* 2) in parallelo: Firebase + dati aggiornati (con nuovi tentativi automatici se qualcosa va storto) */
+ refresh();
 })();
 </script>
 </body>
